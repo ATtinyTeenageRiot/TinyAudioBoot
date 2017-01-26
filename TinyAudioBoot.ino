@@ -4,6 +4,11 @@
 #include <stdlib.h>
 #include <avr/boot.h>
 
+#include <SendOnlySoftwareSerial.h>
+
+SendOnlySoftwareSerial mySerial (PB2);  // Tx pin
+
+
 #define LEDPORT (1<<PB1); //PB1 pin 6 Attiny85
 #define INITLED {DDRB|=LEDPORT;}
 
@@ -19,7 +24,7 @@
 #define PINLOW (PINVALUE==0)
 #define PINHIGH (!PINLOW)
 
-#define WAITBLINKTIME 500
+#define WAITBLINKTIME 10000
 
 
 #define true (1==1)
@@ -144,7 +149,24 @@ uint8_t receiveFrame()
   }
   uint16_t crc = (uint16_t)FrameData[CRCLOW] + FrameData[CRCHIGH] * 256;
 
+  for(n=0;n<FRAMESIZE;n++)
+  {
+    mySerial.print(FrameData[n],HEX);
+    mySerial.print(" ");
 
+    mySerial.println((int)FrameData[n]);
+  } 
+
+  mySerial.println("*********************");
+
+  mySerial.print("COMMAND:");
+  mySerial.println((int)FrameData[COMMAND]);
+  mySerial.print("PAGEINDEX:");
+  mySerial.println((int) FrameData[PAGEINDEXLOW]+256*FrameData[PAGEINDEXHIGH]);
+  mySerial.print("CRC:");
+
+  mySerial.println(crc,HEX);
+  mySerial.println("*********************");
   if (crc == 0x55AA) return true;
   else return false;
 }
@@ -185,7 +207,7 @@ void initstart()
 {
   // Timer 2 normal mode, clk/8, count up from 0 to 255
   // ==> frequency @16MHz= 16MHz/8/256=7812.5Hz
-  TCCR1 = _BV(CS12);
+  TCCR1 = _BV(CS12) | _BV(CS10);
 }
 //***************************************************************************************
 void runProgramm(void)
@@ -224,14 +246,17 @@ void a_main()
       if (time == 0)
       {
         TOGGLELED;
+          mySerial.println ("BIP!!!!");    
+
         time = WAITBLINKTIME;
-        timeout--;
-        if (timeout == 0)
-        {
-          LEDOFF; // timeout,
-          // leave bootloader and run program
-          runProgramm();
-        }
+//        timeout--;
+//        if (timeout == 0)
+//        {
+//          LEDOFF; // timeout,
+//          while(1){};
+//          // leave bootloader and run program
+//            runProgramm();
+//        }
       }
     }
     if (p != PINVALUE)
@@ -248,6 +273,7 @@ void a_main()
     if (!receiveFrame())
     {
       //*****  error: blink fast, press reset to restart *******************
+
       while (1)
       {
         if (TIMER > 100) // timerstop ==> frequency @16MHz= 16MHz/8/100=20kHz
@@ -264,7 +290,9 @@ void a_main()
     }
     else // succeed
     {
-      TOGGLELED;
+
+
+
       switch (FrameData[COMMAND])
       {
         case TESTCOMMAND: // not used yet
@@ -298,6 +326,8 @@ void a_main()
 int main()
 {
   INITLED;
-  INITPORT;
+  //INITPORT;
+    mySerial.begin(9600);
+
   a_main(); // start the main function
 }
