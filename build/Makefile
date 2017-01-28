@@ -67,8 +67,6 @@ OBJECTS = TinyAudioBoot.o ../TinyAudioBoot/SendOnlySoftwareSerial.o ../core/core
 all: main.hex
 
 ## Compile c++ files
-#TinyAudioBoot.o:
-#	$(CPP) $(CPPFLAGS) -x c++ -c TinyAudioBoot.ino -o $@ -Wa,-ahls=$<.lst
 
 %.o : %.ino
 	$(CPP) $(CPPFLAGS) -x c++ -c $< -o $@ -Wa,-ahls=$<.lst
