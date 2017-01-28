@@ -1,13 +1,18 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/signal.h>
 #include <stdlib.h>
 #include <avr/boot.h>
+#include <util/delay.h>
 
+#define ARDUINO_DEBUG_SERIAL
+#define TOP_ADDRESS 0x1BFF
+
+#ifdef ARDUINO_DEBUG_SERIAL
 #include <SendOnlySoftwareSerial.h>
-
 SendOnlySoftwareSerial mySerial (PB2);  // Tx pin
+#endif
 
+uint8_t prog_count = 0;
 
 #define LEDPORT (1<<PB1); //PB1 pin 6 Attiny85
 #define INITLED {DDRB|=LEDPORT;}
@@ -25,7 +30,7 @@ SendOnlySoftwareSerial mySerial (PB2);  // Tx pin
 #define PINHIGH (!PINLOW)
 
 #define WAITBLINKTIME 10000
-
+#define BOOT_TIMEOUT 10
 
 #define true (1==1)
 #define false !true
@@ -35,16 +40,16 @@ SendOnlySoftwareSerial mySerial (PB2);  // Tx pin
 // main loop
 //***************************************************************************************
 
-#define TIMER TCNT1 // we use timer1 for measuring time
+#define TIMER TCNT0 // we use timer1 for measuring time
 
 // frame format definition
 #define COMMAND         0
-#define PAGEINDEXLOW 	1  // page address lower part
-#define PAGEINDEXHIGH 	2  // page address higher part
+#define PAGEINDEXLOW   1  // page address lower part
+#define PAGEINDEXHIGH   2  // page address higher part
 #define CRCLOW          3  // checksum lower part 
-#define CRCHIGH 		4  // checksum higher part 
+#define CRCHIGH     4  // checksum higher part 
 #define DATAPAGESTART   5  // start of data
-#define PAGESIZE 		128
+#define PAGESIZE    128
 #define FRAMESIZE       (PAGESIZE+DATAPAGESTART)// size of the data block to be received
 
 // bootloader commands
@@ -62,8 +67,8 @@ uint8_t FrameData[FRAMESIZE];
 // The routine waits for a toggling voltage level.
 // It automatically detects the transmission speed.
 //
-// output: 		uint8_t flag: true: checksum ok
-//				Data // global variable
+// output:    uint8_t flag: true: checksum ok
+//        Data // global variable
 //
 //***************************************************************************************
 uint8_t receiveFrame()
@@ -148,35 +153,16 @@ uint8_t receiveFrame()
     };
   }
   uint16_t crc = (uint16_t)FrameData[CRCLOW] + FrameData[CRCHIGH] * 256;
-
-  for(n=0;n<FRAMESIZE;n++)
-  {
-    mySerial.print(FrameData[n],HEX);
-    mySerial.print(" ");
-
-    mySerial.println((int)FrameData[n]);
-  } 
-
-  mySerial.println("*********************");
-
-  mySerial.print("COMMAND:");
-  mySerial.println((int)FrameData[COMMAND]);
-  mySerial.print("PAGEINDEX:");
-  mySerial.println((int) FrameData[PAGEINDEXLOW]+256*FrameData[PAGEINDEXHIGH]);
-  mySerial.print("CRC:");
-
-  mySerial.println(crc,HEX);
-  mySerial.println("*********************");
   if (crc == 0x55AA) return true;
   else return false;
 }
 
 //***************************************************************************************
-//	void boot_program_page (uint32_t page, uint8_t *buf)
+//  void boot_program_page (uint32_t page, uint8_t *buf)
 //
 //  Erase and flash one page.
 //
-//  inputt: 		page address and data to be programmed
+//  inputt:     page address and data to be programmed
 //
 //***************************************************************************************
 void boot_program_page (uint32_t page, uint8_t *buf)
@@ -207,21 +193,24 @@ void initstart()
 {
   // Timer 2 normal mode, clk/8, count up from 0 to 255
   // ==> frequency @16MHz= 16MHz/8/256=7812.5Hz
-  TCCR1 = _BV(CS12) | _BV(CS10);
+  TCCR0B = _BV(CS01);
 }
 //***************************************************************************************
 void runProgramm(void)
 {
+
   // reintialize registers to default
   DDRB = 0;
   cli();
-  TCCR1 = 0; // turn off timer1
+  TCCR0B = 0; // turn off timer1
+
   // start user programm
-  asm volatile(
-    "clr r30	\n\t"
-    "clr r31	\n\t"	// z Register mit Adresse laden
-    "ijmp		\n\t"	// z Register mit Adresse laden
+  asm volatile(   
+  "clr r30  \n\t"
+  "clr r31  \n\t" // z Register mit Adresse laden
+  "ijmp   \n\t" // z Register mit Adresse laden
   );
+
 }
 
 //***************************************************************************************
@@ -232,7 +221,12 @@ void a_main()
   initstart();
   uint8_t p;
   uint16_t time = WAITBLINKTIME;
-  uint8_t timeout = 6;
+  uint8_t timeout = BOOT_TIMEOUT;
+
+
+#ifdef ARDUINO_DEBUG_SERIAL
+  mySerial.print(SPM_PAGESIZE);
+#endif
 
   //*************** wait for toggling input pin or timeout ******************************
   uint8_t exitcounter = 3;
@@ -246,17 +240,19 @@ void a_main()
       if (time == 0)
       {
         TOGGLELED;
-          mySerial.println ("BIP!!!!");    
+
+#ifdef ARDUINO_DEBUG_SERIAL
+        mySerial.println ("BIP!!!!");
+#endif
 
         time = WAITBLINKTIME;
-//        timeout--;
-//        if (timeout == 0)
-//        {
-//          LEDOFF; // timeout,
-//          while(1){};
-//          // leave bootloader and run program
-//            runProgramm();
-//        }
+                timeout--;
+                if (timeout == 0)
+                {
+                  LEDOFF; // timeout,
+                  // leave bootloader and run program
+                    runProgramm();
+                }
       }
     }
     if (p != PINVALUE)
@@ -290,9 +286,6 @@ void a_main()
     }
     else // succeed
     {
-
-
-
       switch (FrameData[COMMAND])
       {
         case TESTCOMMAND: // not used yet
@@ -302,17 +295,26 @@ void a_main()
           break;
         case RUNCOMMAND:
           {
+#ifdef ARDUINO_DEBUG_SERIAL
+            mySerial.print(prog_count);
+            mySerial.println("RUN");
+#endif
             // leave bootloader and run program
             runProgramm();
           }
           break;
         case PROGCOMMAND:
           {
-            //todo attiny85
-            // Atmega168 Pagesize=64 Worte=128 Byte
+            prog_count++;
+            //            //todo attiny85
+            //            // Atmega168 Pagesize=64 Worte=128 Byte
             uint16_t k;
             k = (((uint16_t)FrameData[PAGEINDEXHIGH]) << 8) + FrameData[PAGEINDEXLOW];
-            boot_program_page (SPM_PAGESIZE * k, FrameData + DATAPAGESTART);	// erase and programm page
+
+#ifdef ARDUINO_DEBUG_SERIAL
+            mySerial.print(k);
+#endif
+            boot_program_page (SPM_PAGESIZE * k, FrameData + DATAPAGESTART);  // erase and programm page
           }
           break;
       }
@@ -321,13 +323,11 @@ void a_main()
   }
 }
 
-
-
 int main()
 {
   INITLED;
-  //INITPORT;
-    mySerial.begin(9600);
-
+#ifdef ARDUINO_DEBUG_SERIAL
+  mySerial.begin(9600);
+#endif
   a_main(); // start the main function
 }

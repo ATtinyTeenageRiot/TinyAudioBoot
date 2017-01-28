@@ -1,0 +1,4731 @@
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 1
+
+
+   1               		.file	"SendOnlySoftwareSerial.cpp"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               		.section	.text._ZN22SendOnlySoftwareSerial5writeEh,"ax",@progbits
+  11               	.global	_ZN22SendOnlySoftwareSerial5writeEh
+  12               		.type	_ZN22SendOnlySoftwareSerial5writeEh, @function
+  13               	_ZN22SendOnlySoftwareSerial5writeEh:
+  14               	.LFB104:
+  15               		.file 1 "../TinyAudioBoot/SendOnlySoftwareSerial.cpp"
+   1:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** /*
+   2:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+   3:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** SendOnlySoftwareSerial - adapted from SendOnlySoftwareSerial by Nick Gammon 30th December 2016
+   4:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+   5:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** SoftwareSerial.cpp (formerly NewSoftSerial.cpp) -
+   6:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** Multi-instance software serial library for Arduino/Wiring
+   7:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** -- Interrupt-driven receive and other improvements by ladyada
+   8:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****    (http://ladyada.net)
+   9:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** -- Tuning, circular buffer, derivation from class Print/Stream,
+  10:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****    multi-instance support, porting to 8MHz processors,
+  11:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****    various optimizations, PROGMEM delay tables, inverse logic and
+  12:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****    direct port writing by Mikal Hart (http://www.arduiniana.org)
+  13:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** -- Pin change interrupt macros by Paul Stoffregen (http://www.pjrc.com)
+  14:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** -- 20MHz processor support by Garrett Mace (http://www.macetech.com)
+  15:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** -- ATmega1280/2560 support by Brett Hagman (http://www.roguerobotics.com/)
+  16:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+  17:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** This library is free software; you can redistribute it and/or
+  18:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** modify it under the terms of the GNU Lesser General Public
+  19:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** License as published by the Free Software Foundation; either
+  20:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** version 2.1 of the License, or (at your option) any later version.
+  21:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+  22:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** This library is distributed in the hope that it will be useful,
+  23:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** but WITHOUT ANY WARRANTY; without even the implied warranty of
+  24:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  25:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** Lesser General Public License for more details.
+  26:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+  27:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** You should have received a copy of the GNU Lesser General Public
+  28:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** License along with this library; if not, write to the Free Software
+  29:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  30:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+  31:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** The latest version of this library can always be found at
+  32:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** http://arduiniana.org.
+  33:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** */
+  34:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+  35:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** // When set, _DEBUG co-opts pins 11 and 13 for debugging with an
+  36:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** // oscilloscope or logic analyzer.  Beware: it also slightly modifies
+  37:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** // the bit times, so don't rely on it too much at high baud rates
+  38:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** #define _DEBUG 0
+  39:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** #define _DEBUG_PIN1 11
+  40:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** #define _DEBUG_PIN2 13
+  41:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** //
+  42:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** // Includes
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 2
+
+
+  43:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** //
+  44:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** #include <avr/interrupt.h>
+  45:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** #include <avr/pgmspace.h>
+  46:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** #include <Arduino.h>
+  47:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** #include <SendOnlySoftwareSerial.h>
+  48:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** #include <util/delay_basic.h>
+  49:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+  50:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** //
+  51:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** // Debugging
+  52:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** //
+  53:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** // This function generates a brief pulse
+  54:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** // for debugging or measuring on an oscilloscope.
+  55:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** #if _DEBUG
+  56:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** inline void DebugPulse(uint8_t pin, uint8_t count)
+  57:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** {
+  58:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   volatile uint8_t *pport = portOutputRegister(digitalPinToPort(pin));
+  59:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+  60:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   uint8_t val = *pport;
+  61:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   while (count--)
+  62:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   {
+  63:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     *pport = val | digitalPinToBitMask(pin);
+  64:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     *pport = val;
+  65:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   }
+  66:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+  67:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** #else
+  68:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** inline void DebugPulse(uint8_t, uint8_t) {}
+  69:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** #endif
+  70:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+  71:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** //
+  72:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** // Private methods
+  73:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** //
+  74:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+  75:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** /* static */
+  76:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** inline void SendOnlySoftwareSerial::tunedDelay(uint16_t delay) {
+  77:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   _delay_loop_2(delay);
+  78:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+  79:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+  80:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** //
+  81:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** // Constructor
+  82:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** //
+  83:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** SendOnlySoftwareSerial::SendOnlySoftwareSerial(uint8_t transmitPin, bool inverse_logic /* = false *
+  84:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   _tx_delay(0),
+  85:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   _inverse_logic(inverse_logic)
+  86:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** {
+  87:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   setTX(transmitPin);
+  88:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+  89:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+  90:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** //
+  91:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** // Destructor
+  92:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** //
+  93:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** SendOnlySoftwareSerial::~SendOnlySoftwareSerial()
+  94:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** {
+  95:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   end();
+  96:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+  97:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+  98:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** void SendOnlySoftwareSerial::setTX(uint8_t tx)
+  99:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** {
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 3
+
+
+ 100:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // First write, then set output. If we do this the other way around,
+ 101:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // the pin would be output low for a short while before switching to
+ 102:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // output high. Now, it is input with pullup for a short while, which
+ 103:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // is fine. With inverse logic, either order is fine.
+ 104:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   digitalWrite(tx, _inverse_logic ? LOW : HIGH);
+ 105:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   pinMode(tx, OUTPUT);
+ 106:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   _transmitBitMask = digitalPinToBitMask(tx);
+ 107:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   uint8_t port = digitalPinToPort(tx);
+ 108:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   _transmitPortRegister = portOutputRegister(port);
+ 109:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+ 110:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 111:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** uint16_t SendOnlySoftwareSerial::subtract_cap(uint16_t num, uint16_t sub) {
+ 112:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   if (num > sub)
+ 113:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     return num - sub;
+ 114:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   else
+ 115:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     return 1;
+ 116:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+ 117:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 118:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** //
+ 119:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** // Public methods
+ 120:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** //
+ 121:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 122:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** void SendOnlySoftwareSerial::begin(long speed)
+ 123:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** {
+ 124:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   _tx_delay = 0;
+ 125:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 126:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // Precalculate the various delays, in number of 4-cycle delays
+ 127:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   uint16_t bit_delay = (F_CPU / speed) / 4;
+ 128:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 129:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // 12 (gcc 4.8.2) or 13 (gcc 4.3.2) cycles from start bit to first bit,
+ 130:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // 15 (gcc 4.8.2) or 16 (gcc 4.3.2) cycles between bits,
+ 131:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // 12 (gcc 4.8.2) or 14 (gcc 4.3.2) cycles from last bit to stop bit
+ 132:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // These are all close enough to just use 15 cycles, since the inter-bit
+ 133:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // timings are the most critical (deviations stack 8 times)
+ 134:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   _tx_delay = subtract_cap(bit_delay, 15 / 4);
+ 135:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 136:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** #if _DEBUG
+ 137:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   pinMode(_DEBUG_PIN1, OUTPUT);
+ 138:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   pinMode(_DEBUG_PIN2, OUTPUT);
+ 139:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** #endif
+ 140:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 141:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+ 142:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 143:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** void SendOnlySoftwareSerial::end()
+ 144:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** {
+ 145:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+ 146:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 147:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** size_t SendOnlySoftwareSerial::write(uint8_t b)
+ 148:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** {
+  16               		.loc 1 148 0
+  17               		.cfi_startproc
+  18               	.LVL0:
+  19 0000 1F93      		push r17
+  20               	.LCFI0:
+  21               		.cfi_def_cfa_offset 3
+  22               		.cfi_offset 17, -2
+  23 0002 CF93      		push r28
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 4
+
+
+  24               	.LCFI1:
+  25               		.cfi_def_cfa_offset 4
+  26               		.cfi_offset 28, -3
+  27 0004 DF93      		push r29
+  28               	.LCFI2:
+  29               		.cfi_def_cfa_offset 5
+  30               		.cfi_offset 29, -4
+  31               	/* prologue: function */
+  32               	/* frame size = 0 */
+  33               	/* stack size = 3 */
+  34               	.L__stack_usage = 3
+  35 0006 DC01      		movw r26,r24
+  36               	.LBB36:
+ 149:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   if (_tx_delay == 0) {
+  37               		.loc 1 149 0
+  38 0008 1A96      		adiw r26,10
+  39 000a 2D91      		ld r18,X+
+  40 000c 3C91      		ld r19,X
+  41 000e 1B97      		sbiw r26,10+1
+  42 0010 2115      		cp r18,__zero_reg__
+  43 0012 3105      		cpc r19,__zero_reg__
+  44 0014 01F4      		brne .L2
+  45               	.LVL1:
+  46               	.LBB37:
+  47               	.LBB38:
+  48               		.file 2 "/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h
+   1:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** /*
+   2:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   Print.h - Base class that provides print() and println()
+   3:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   Copyright (c) 2008 David A. Mellis.  All right reserved.
+   4:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+   5:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   This library is free software; you can redistribute it and/or
+   6:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   modify it under the terms of the GNU Lesser General Public
+   7:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   License as published by the Free Software Foundation; either
+   8:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   version 2.1 of the License, or (at your option) any later version.
+   9:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+  10:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   This library is distributed in the hope that it will be useful,
+  11:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   but WITHOUT ANY WARRANTY; without even the implied warranty of
+  12:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  13:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   Lesser General Public License for more details.
+  14:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+  15:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   You should have received a copy of the GNU Lesser General Public
+  16:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   License along with this library; if not, write to the Free Software
+  17:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  18:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+  19:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   Modified 20-11-2010 by B.Cook ...
+  20:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+  21:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****     http://arduiniana.org/libraries/flash/
+  22:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****     Printable support thanks to Mikal Hart
+  23:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** */
+  24:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+  25:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** #ifndef Print_h
+  26:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** #define Print_h
+  27:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+  28:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** #include <inttypes.h>
+  29:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** #include <stdio.h> // for size_t
+  30:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+  31:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** #include "WString.h"
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 5
+
+
+  32:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+  33:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** #define DEC 10
+  34:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** #define HEX 16
+  35:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** #define OCT 8
+  36:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** #ifdef BIN
+  37:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** #define ABIN BIN
+  38:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** //One of the ATtiny84 registers has a bit called BIN, so rename it to avoid compiler warnings. 
+  39:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** #undef BIN
+  40:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** #endif
+  41:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** #define BIN 2
+  42:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+  43:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** #define ARDUINO_CORE_PRINTABLE_SUPPORT
+  44:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+  45:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** class Print;
+  46:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+  47:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** /* Printable...*/
+  48:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+  49:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** class _Printable
+  50:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** {
+  51:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** public:
+  52:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   virtual void print(Print &stream) const = 0;
+  53:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** };
+  54:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+  55:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** /* ...Printable */
+  56:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****     
+  57:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** typedef struct
+  58:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** {
+  59:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   char c;
+  60:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** }
+  61:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** fstr_t;
+  62:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+  63:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** 
+  64:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** class Print
+  65:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h **** {
+  66:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   private:
+  67:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****     int write_error;
+  68:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****     size_t printNumber(unsigned long, uint8_t);
+  69:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****     size_t printFloat(double, uint8_t);
+  70:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   protected:
+  71:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****     void setWriteError(int err = 1) { write_error = err; }
+  49               		.loc 2 71 0
+  50 0016 81E0      		ldi r24,lo8(1)
+  51 0018 90E0      		ldi r25,0
+  52               	.LVL2:
+  53 001a 1396      		adiw r26,2+1
+  54 001c 9C93      		st X,r25
+  55 001e 8E93      		st -X,r24
+  56 0020 1297      		sbiw r26,2
+  57               	.LBE38:
+  58               	.LBE37:
+ 150:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     setWriteError();
+ 151:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     return 0;
+  59               		.loc 1 151 0
+  60 0022 00C0      		rjmp .L3
+  61               	.LVL3:
+  62               	.L2:
+ 152:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   }
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 6
+
+
+ 153:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 154:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // By declaring these as local variables, the compiler will put them
+ 155:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // in registers _before_ disabling interrupts and entering the
+ 156:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // critical timing sections below, which makes it a lot easier to
+ 157:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // verify the cycle timings
+ 158:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   volatile uint8_t *reg = _transmitPortRegister;
+  63               		.loc 1 158 0
+  64 0024 1596      		adiw r26,5
+  65 0026 ED91      		ld r30,X+
+  66 0028 FC91      		ld r31,X
+  67 002a 1697      		sbiw r26,5+1
+  68               	.LVL4:
+ 159:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   uint8_t reg_mask = _transmitBitMask;
+  69               		.loc 1 159 0
+  70 002c 1496      		adiw r26,4
+  71 002e 9C91      		ld r25,X
+  72 0030 1497      		sbiw r26,4
+  73               	.LVL5:
+ 160:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   uint8_t inv_mask = ~_transmitBitMask;
+  74               		.loc 1 160 0
+  75 0032 892F      		mov r24,r25
+  76               	.LVL6:
+  77 0034 8095      		com r24
+  78               	.LVL7:
+ 161:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   uint8_t oldSREG = SREG;
+  79               		.loc 1 161 0
+  80 0036 1FB7      		in r17,__SREG__
+  81               	.LVL8:
+ 162:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   bool inv = _inverse_logic;
+  82               		.loc 1 162 0
+  83 0038 1C96      		adiw r26,12
+  84 003a 4C91      		ld r20,X
+  85 003c 1C97      		sbiw r26,12
+  86               	.LVL9:
+ 163:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   uint16_t delay = _tx_delay;
+ 164:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 165:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   if (inv)
+  87               		.loc 1 165 0
+  88 003e 41FB      		bst r20,1
+  89 0040 7727      		clr r23
+  90 0042 70F9      		bld r23,0
+  91               	.LVL10:
+  92 0044 41FD      		sbrc r20,1
+ 166:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     b = ~b;
+  93               		.loc 1 166 0
+  94 0046 6095      		com r22
+  95               	.LVL11:
+  96               	.L4:
+ 167:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 168:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   cli();  // turn off interrupts for a clean txmit
+  97               		.loc 1 168 0
+  98               	/* #APP */
+  99               	 ;  168 "../TinyAudioBoot/SendOnlySoftwareSerial.cpp" 1
+ 100 0048 F894      		cli
+ 101               	 ;  0 "" 2
+ 169:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 170:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // Write the start bit
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 7
+
+
+ 171:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   if (inv)
+ 172:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     *reg |= reg_mask;
+ 102               		.loc 1 172 0
+ 103               	/* #NOAPP */
+ 104 004a 4081      		ld r20,Z
+ 171:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     *reg |= reg_mask;
+ 105               		.loc 1 171 0
+ 106 004c 7723      		tst r23
+ 107 004e 01F0      		breq .L5
+ 108               		.loc 1 172 0
+ 109 0050 492B      		or r20,r25
+ 110 0052 00C0      		rjmp .L16
+ 111               	.L5:
+ 173:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   else
+ 174:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     *reg &= inv_mask;
+ 112               		.loc 1 174 0
+ 113 0054 4823      		and r20,r24
+ 114               	.L16:
+ 115 0056 4083      		st Z,r20
+ 116               	.LVL12:
+ 117               	.LBB39:
+ 118               	.LBB40:
+ 119               	.LBB41:
+ 120               		.file 3 "/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h
+   1:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****    Copyright (c) 2007 Joerg Wunsch
+   3:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****    All rights reserved.
+   4:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+   5:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****    Redistribution and use in source and binary forms, with or without
+   6:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****    modification, are permitted provided that the following conditions are met:
+   7:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+   8:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****    * Redistributions of source code must retain the above copyright
+   9:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****      notice, this list of conditions and the following disclaimer.
+  10:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  11:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****    * Redistributions in binary form must reproduce the above copyright
+  12:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****      notice, this list of conditions and the following disclaimer in
+  13:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****      the documentation and/or other materials provided with the
+  14:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****      distribution.
+  15:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  16:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****    * Neither the name of the copyright holders nor the names of
+  17:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****      contributors may be used to endorse or promote products derived
+  18:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****      from this software without specific prior written permission.
+  19:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  20:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  21:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  22:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  23:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  24:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  25:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  26:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  27:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  28:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  29:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  30:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  31:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  32:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** /* $Id$ */
+  33:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 8
+
+
+  34:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** #ifndef _UTIL_DELAY_BASIC_H_
+  35:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** #define _UTIL_DELAY_BASIC_H_ 1
+  36:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  37:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** #include <inttypes.h>
+  38:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  39:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** #if !defined(__DOXYGEN__)
+  40:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** static __inline__ void _delay_loop_1(uint8_t __count) __attribute__((__always_inline__));
+  41:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** static __inline__ void _delay_loop_2(uint16_t __count) __attribute__((__always_inline__));
+  42:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** #endif
+  43:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  44:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** /** \file */
+  45:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** /** \defgroup util_delay_basic <util/delay_basic.h>: Basic busy-wait delay loops
+  46:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     \code
+  47:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     #include <util/delay_basic.h>
+  48:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     \endcode
+  49:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  50:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     The functions in this header file implement simple delay loops
+  51:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     that perform a busy-waiting.  They are typically used to
+  52:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     facilitate short delays in the program execution.  They are
+  53:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     implemented as count-down loops with a well-known CPU cycle
+  54:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     count per loop iteration.  As such, no other processing can
+  55:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     occur simultaneously.  It should be kept in mind that the
+  56:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     functions described here do not disable interrupts.
+  57:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  58:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     In general, for long delays, the use of hardware timers is
+  59:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     much preferrable, as they free the CPU, and allow for
+  60:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     concurrent processing of other events while the timer is
+  61:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     running.  However, in particular for very short delays, the
+  62:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     overhead of setting up a hardware timer is too much compared
+  63:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     to the overall delay time.
+  64:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  65:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     Two inline functions are provided for the actual delay algorithms.
+  66:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  67:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** */
+  68:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  69:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** /** \ingroup util_delay_basic
+  70:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  71:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     Delay loop using an 8-bit counter \c __count, so up to 256
+  72:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     iterations are possible.  (The value 256 would have to be passed
+  73:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     as 0.)  The loop executes three CPU cycles per iteration, not
+  74:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     including the overhead the compiler needs to setup the counter
+  75:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     register.
+  76:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  77:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     Thus, at a CPU speed of 1 MHz, delays of up to 768 microseconds
+  78:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     can be achieved.
+  79:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** */
+  80:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** void
+  81:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** _delay_loop_1(uint8_t __count)
+  82:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** {
+  83:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 	__asm__ volatile (
+  84:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 		"1: dec %0" "\n\t"
+  85:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 		"brne 1b"
+  86:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 		: "=r" (__count)
+  87:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 		: "0" (__count)
+  88:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 	);
+  89:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** }
+  90:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 9
+
+
+  91:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** /** \ingroup util_delay_basic
+  92:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  93:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     Delay loop using a 16-bit counter \c __count, so up to 65536
+  94:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     iterations are possible.  (The value 65536 would have to be
+  95:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     passed as 0.)  The loop executes four CPU cycles per iteration,
+  96:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     not including the overhead the compiler requires to setup the
+  97:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     counter register pair.
+  98:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 
+  99:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     Thus, at a CPU speed of 1 MHz, delays of up to about 262.1
+ 100:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****     milliseconds can be achieved.
+ 101:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h ****  */
+ 102:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** void
+ 103:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** _delay_loop_2(uint16_t __count)
+ 104:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** {
+ 105:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 	__asm__ volatile (
+ 106:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 		"1: sbiw %0,1" "\n\t"
+ 107:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 		"brne 1b"
+ 108:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 		: "=w" (__count)
+ 109:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 		: "0" (__count)
+ 110:/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h **** 	);
+ 121               		.loc 3 110 0
+ 122 0058 E901      		movw r28,r18
+ 123               	/* #APP */
+ 124               	 ;  110 "/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h"
+ 125 005a 2197      		1: sbiw r28,1
+ 126 005c 01F4      		brne 1b
+ 127               	 ;  0 "" 2
+ 128               	.LVL13:
+ 129               	/* #NOAPP */
+ 130 005e 48E0      		ldi r20,lo8(8)
+ 131               	.LVL14:
+ 132               	.L9:
+ 133               	.LBE41:
+ 134               	.LBE40:
+ 135               	.LBE39:
+ 136               	.LBB42:
+ 175:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 176:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   tunedDelay(delay);
+ 177:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 178:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // Write each of the 8 bits
+ 179:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   for (uint8_t i = 8; i > 0; --i)
+ 180:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   {
+ 181:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     if (b & 1) // choose bit
+ 182:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****       *reg |= reg_mask; // send 1
+ 137               		.loc 1 182 0
+ 138 0060 5081      		ld r21,Z
+ 181:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****       *reg |= reg_mask; // send 1
+ 139               		.loc 1 181 0
+ 140 0062 60FF      		sbrs r22,0
+ 141 0064 00C0      		rjmp .L7
+ 142               		.loc 1 182 0
+ 143 0066 592B      		or r21,r25
+ 144 0068 00C0      		rjmp .L17
+ 145               	.L7:
+ 183:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     else
+ 184:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****       *reg &= inv_mask; // send 0
+ 146               		.loc 1 184 0
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 10
+
+
+ 147 006a 5823      		and r21,r24
+ 148               	.L17:
+ 149 006c 5083      		st Z,r21
+ 150               	.LVL15:
+ 151               	.LBB43:
+ 152               	.LBB44:
+ 153               	.LBB45:
+ 154               		.loc 3 110 0
+ 155 006e E901      		movw r28,r18
+ 156               	/* #APP */
+ 157               	 ;  110 "/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h"
+ 158 0070 2197      		1: sbiw r28,1
+ 159 0072 01F4      		brne 1b
+ 160               	 ;  0 "" 2
+ 161               	.LVL16:
+ 162               	/* #NOAPP */
+ 163               	.LBE45:
+ 164               	.LBE44:
+ 165               	.LBE43:
+ 185:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 186:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     tunedDelay(delay);
+ 187:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     b >>= 1;
+ 166               		.loc 1 187 0
+ 167 0074 6695      		lsr r22
+ 168               	.LVL17:
+ 169 0076 4150      		subi r20,lo8(-(-1))
+ 170               	.LVL18:
+ 179:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   {
+ 171               		.loc 1 179 0
+ 172 0078 01F4      		brne .L9
+ 173               	.LBE42:
+ 188:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   }
+ 189:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 190:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // restore pin to natural state
+ 191:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   if (inv)
+ 174               		.loc 1 191 0
+ 175 007a 7723      		tst r23
+ 176 007c 01F0      		breq .L10
+ 192:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     *reg &= inv_mask;
+ 177               		.loc 1 192 0
+ 178 007e 9081      		ld r25,Z
+ 179               	.LVL19:
+ 180 0080 8923      		and r24,r25
+ 181               	.LVL20:
+ 182 0082 8083      		st Z,r24
+ 183 0084 00C0      		rjmp .L11
+ 184               	.LVL21:
+ 185               	.L10:
+ 193:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   else
+ 194:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     *reg |= reg_mask;
+ 186               		.loc 1 194 0
+ 187 0086 8081      		ld r24,Z
+ 188               	.LVL22:
+ 189 0088 982B      		or r25,r24
+ 190               	.LVL23:
+ 191 008a 9083      		st Z,r25
+ 192               	.L11:
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 11
+
+
+ 195:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 196:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   SREG = oldSREG; // turn interrupts back on
+ 193               		.loc 1 196 0
+ 194 008c 1FBF      		out __SREG__,r17
+ 195               	.LVL24:
+ 196               	.LBB46:
+ 197               	.LBB47:
+ 198               	.LBB48:
+ 199               		.loc 3 110 0
+ 200 008e 1A96      		adiw r26,10
+ 201 0090 8D91      		ld r24,X+
+ 202 0092 9C91      		ld r25,X
+ 203 0094 1B97      		sbiw r26,10+1
+ 204               	/* #APP */
+ 205               	 ;  110 "/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/util/delay_basic.h"
+ 206 0096 0197      		1: sbiw r24,1
+ 207 0098 01F4      		brne 1b
+ 208               	 ;  0 "" 2
+ 209               	.LVL25:
+ 210               	/* #NOAPP */
+ 211               	.LBE48:
+ 212               	.LBE47:
+ 213               	.LBE46:
+ 197:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   tunedDelay(_tx_delay);
+ 198:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 199:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   return 1;
+ 214               		.loc 1 199 0
+ 215 009a 21E0      		ldi r18,lo8(1)
+ 216 009c 30E0      		ldi r19,0
+ 217               	.LVL26:
+ 218               	.L3:
+ 219               	.LBE36:
+ 200:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+ 220               		.loc 1 200 0
+ 221 009e C901      		movw r24,r18
+ 222               	/* epilogue start */
+ 223 00a0 DF91      		pop r29
+ 224 00a2 CF91      		pop r28
+ 225 00a4 1F91      		pop r17
+ 226 00a6 0895      		ret
+ 227               		.cfi_endproc
+ 228               	.LFE104:
+ 229               		.size	_ZN22SendOnlySoftwareSerial5writeEh, .-_ZN22SendOnlySoftwareSerial5writeEh
+ 230               		.section	.text._ZN22SendOnlySoftwareSerial5flushEv,"ax",@progbits
+ 231               	.global	_ZN22SendOnlySoftwareSerial5flushEv
+ 232               		.type	_ZN22SendOnlySoftwareSerial5flushEv, @function
+ 233               	_ZN22SendOnlySoftwareSerial5flushEv:
+ 234               	.LFB105:
+ 201:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 202:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** void SendOnlySoftwareSerial::flush()
+ 203:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** {
+ 235               		.loc 1 203 0
+ 236               		.cfi_startproc
+ 237               	.LVL27:
+ 238               	/* prologue: function */
+ 239               	/* frame size = 0 */
+ 240               	/* stack size = 0 */
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 12
+
+
+ 241               	.L__stack_usage = 0
+ 242 0000 0895      		ret
+ 243               		.cfi_endproc
+ 244               	.LFE105:
+ 245               		.size	_ZN22SendOnlySoftwareSerial5flushEv, .-_ZN22SendOnlySoftwareSerial5flushEv
+ 246               		.section	.text._ZN22SendOnlySoftwareSerial4readEv,"ax",@progbits
+ 247               	.global	_ZN22SendOnlySoftwareSerial4readEv
+ 248               		.type	_ZN22SendOnlySoftwareSerial4readEv, @function
+ 249               	_ZN22SendOnlySoftwareSerial4readEv:
+ 250               	.LFB106:
+ 204:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // There is no tx buffering, simply return
+ 205:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+ 206:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 207:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** // Read data from buffer
+ 208:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** int SendOnlySoftwareSerial::read()
+ 209:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** {
+ 251               		.loc 1 209 0
+ 252               		.cfi_startproc
+ 253               	.LVL28:
+ 254               	/* prologue: function */
+ 255               	/* frame size = 0 */
+ 256               	/* stack size = 0 */
+ 257               	.L__stack_usage = 0
+ 210:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   return -1;
+ 211:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+ 258               		.loc 1 211 0
+ 259 0000 8FEF      		ldi r24,lo8(-1)
+ 260 0002 9FEF      		ldi r25,lo8(-1)
+ 261               	.LVL29:
+ 262 0004 0895      		ret
+ 263               		.cfi_endproc
+ 264               	.LFE106:
+ 265               		.size	_ZN22SendOnlySoftwareSerial4readEv, .-_ZN22SendOnlySoftwareSerial4readEv
+ 266               		.section	.text._ZN22SendOnlySoftwareSerial9availableEv,"ax",@progbits
+ 267               	.global	_ZN22SendOnlySoftwareSerial9availableEv
+ 268               		.type	_ZN22SendOnlySoftwareSerial9availableEv, @function
+ 269               	_ZN22SendOnlySoftwareSerial9availableEv:
+ 270               	.LFB107:
+ 212:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 213:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** int SendOnlySoftwareSerial::available()
+ 214:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** {
+ 271               		.loc 1 214 0
+ 272               		.cfi_startproc
+ 273               	.LVL30:
+ 274               	/* prologue: function */
+ 275               	/* frame size = 0 */
+ 276               	/* stack size = 0 */
+ 277               	.L__stack_usage = 0
+ 215:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   return 0;
+ 216:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+ 278               		.loc 1 216 0
+ 279 0000 80E0      		ldi r24,0
+ 280 0002 90E0      		ldi r25,0
+ 281               	.LVL31:
+ 282 0004 0895      		ret
+ 283               		.cfi_endproc
+ 284               	.LFE107:
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 13
+
+
+ 285               		.size	_ZN22SendOnlySoftwareSerial9availableEv, .-_ZN22SendOnlySoftwareSerial9availableEv
+ 286               		.section	.text._ZN22SendOnlySoftwareSerial4peekEv,"ax",@progbits
+ 287               	.global	_ZN22SendOnlySoftwareSerial4peekEv
+ 288               		.type	_ZN22SendOnlySoftwareSerial4peekEv, @function
+ 289               	_ZN22SendOnlySoftwareSerial4peekEv:
+ 290               	.LFB108:
+ 217:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 218:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** int SendOnlySoftwareSerial::peek()
+ 219:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** {
+ 291               		.loc 1 219 0
+ 292               		.cfi_startproc
+ 293               	.LVL32:
+ 294               	/* prologue: function */
+ 295               	/* frame size = 0 */
+ 296               	/* stack size = 0 */
+ 297               	.L__stack_usage = 0
+ 220:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   return -1;
+ 221:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+ 298               		.loc 1 221 0
+ 299 0000 8FEF      		ldi r24,lo8(-1)
+ 300 0002 9FEF      		ldi r25,lo8(-1)
+ 301               	.LVL33:
+ 302 0004 0895      		ret
+ 303               		.cfi_endproc
+ 304               	.LFE108:
+ 305               		.size	_ZN22SendOnlySoftwareSerial4peekEv, .-_ZN22SendOnlySoftwareSerial4peekEv
+ 306               		.section	.text._ZN22SendOnlySoftwareSerialD2Ev,"ax",@progbits
+ 307               	.global	_ZN22SendOnlySoftwareSerialD2Ev
+ 308               		.type	_ZN22SendOnlySoftwareSerialD2Ev, @function
+ 309               	_ZN22SendOnlySoftwareSerialD2Ev:
+ 310               	.LFB98:
+  93:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** {
+ 311               		.loc 1 93 0
+ 312               		.cfi_startproc
+ 313               	.LVL34:
+ 314               	/* prologue: function */
+ 315               	/* frame size = 0 */
+ 316               	/* stack size = 0 */
+ 317               	.L__stack_usage = 0
+ 318 0000 0895      		ret
+ 319               		.cfi_endproc
+ 320               	.LFE98:
+ 321               		.size	_ZN22SendOnlySoftwareSerialD2Ev, .-_ZN22SendOnlySoftwareSerialD2Ev
+ 322               	.global	_ZN22SendOnlySoftwareSerialD1Ev
+ 323               		.set	_ZN22SendOnlySoftwareSerialD1Ev,_ZN22SendOnlySoftwareSerialD2Ev
+ 324               		.section	.text._ZN22SendOnlySoftwareSerial5setTXEh,"ax",@progbits
+ 325               	.global	_ZN22SendOnlySoftwareSerial5setTXEh
+ 326               		.type	_ZN22SendOnlySoftwareSerial5setTXEh, @function
+ 327               	_ZN22SendOnlySoftwareSerial5setTXEh:
+ 328               	.LFB100:
+  99:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // First write, then set output. If we do this the other way around,
+ 329               		.loc 1 99 0
+ 330               		.cfi_startproc
+ 331               	.LVL35:
+  99:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   // First write, then set output. If we do this the other way around,
+ 332               		.loc 1 99 0
+ 333 0000 1F93      		push r17
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 14
+
+
+ 334               	.LCFI3:
+ 335               		.cfi_def_cfa_offset 3
+ 336               		.cfi_offset 17, -2
+ 337 0002 CF93      		push r28
+ 338               	.LCFI4:
+ 339               		.cfi_def_cfa_offset 4
+ 340               		.cfi_offset 28, -3
+ 341 0004 DF93      		push r29
+ 342               	.LCFI5:
+ 343               		.cfi_def_cfa_offset 5
+ 344               		.cfi_offset 29, -4
+ 345               	/* prologue: function */
+ 346               	/* frame size = 0 */
+ 347               	/* stack size = 3 */
+ 348               	.L__stack_usage = 3
+ 349 0006 EC01      		movw r28,r24
+ 350 0008 162F      		mov r17,r22
+ 351               	.LBB49:
+ 104:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   pinMode(tx, OUTPUT);
+ 352               		.loc 1 104 0
+ 353 000a 6C85      		ldd r22,Y+12
+ 354               	.LVL36:
+ 355 000c 6695      		lsr r22
+ 356 000e 6170      		andi r22,1
+ 357 0010 81E0      		ldi r24,lo8(1)
+ 358               	.LVL37:
+ 359 0012 6827      		eor r22,r24
+ 360 0014 812F      		mov r24,r17
+ 361 0016 00D0      		rcall digitalWrite
+ 362               	.LVL38:
+ 105:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   _transmitBitMask = digitalPinToBitMask(tx);
+ 363               		.loc 1 105 0
+ 364 0018 61E0      		ldi r22,lo8(1)
+ 365 001a 812F      		mov r24,r17
+ 366 001c 00D0      		rcall pinMode
+ 367               	.LVL39:
+ 368               	.LBB50:
+ 106:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   uint8_t port = digitalPinToPort(tx);
+ 369               		.loc 1 106 0
+ 370 001e 612F      		mov r22,r17
+ 371 0020 70E0      		ldi r23,0
+ 372               	.LVL40:
+ 373 0022 FB01      		movw r30,r22
+ 374 0024 E050      		subi r30,lo8(-(digital_pin_to_bit_mask_PGM))
+ 375 0026 F040      		sbci r31,hi8(-(digital_pin_to_bit_mask_PGM))
+ 376               	.LVL41:
+ 377               	/* #APP */
+ 378               	 ;  106 "../TinyAudioBoot/SendOnlySoftwareSerial.cpp" 1
+ 379 0028 E491      		lpm r30, Z
+ 380               		
+ 381               	 ;  0 "" 2
+ 382               	.LVL42:
+ 383               	/* #NOAPP */
+ 384 002a EC83      		std Y+4,r30
+ 385               	.LVL43:
+ 386               	.LBE50:
+ 387               	.LBB51:
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 15
+
+
+ 107:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   _transmitPortRegister = portOutputRegister(port);
+ 388               		.loc 1 107 0
+ 389 002c FB01      		movw r30,r22
+ 390               	.LVL44:
+ 391 002e E050      		subi r30,lo8(-(digital_pin_to_port_PGM))
+ 392 0030 F040      		sbci r31,hi8(-(digital_pin_to_port_PGM))
+ 393               	.LVL45:
+ 394               	/* #APP */
+ 395               	 ;  107 "../TinyAudioBoot/SendOnlySoftwareSerial.cpp" 1
+ 396 0032 E491      		lpm r30, Z
+ 397               		
+ 398               	 ;  0 "" 2
+ 399               	.LVL46:
+ 400               	/* #NOAPP */
+ 401               	.LBE51:
+ 402               	.LBB52:
+ 108:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+ 403               		.loc 1 108 0
+ 404 0034 F0E0      		ldi r31,0
+ 405 0036 EE0F      		lsl r30
+ 406 0038 FF1F      		rol r31
+ 407               	.LVL47:
+ 408 003a E050      		subi r30,lo8(-(port_to_output_PGM))
+ 409 003c F040      		sbci r31,hi8(-(port_to_output_PGM))
+ 410               	.LVL48:
+ 411               	/* #APP */
+ 412               	 ;  108 "../TinyAudioBoot/SendOnlySoftwareSerial.cpp" 1
+ 413 003e 8591      		lpm r24, Z+
+ 414 0040 9491      		lpm r25, Z
+ 415               		
+ 416               	 ;  0 "" 2
+ 417               	.LVL49:
+ 418               	/* #NOAPP */
+ 419               	.LBE52:
+ 420 0042 9E83      		std Y+6,r25
+ 421 0044 8D83      		std Y+5,r24
+ 422               	/* epilogue start */
+ 423               	.LBE49:
+ 109:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 424               		.loc 1 109 0
+ 425 0046 DF91      		pop r29
+ 426 0048 CF91      		pop r28
+ 427               	.LVL50:
+ 428 004a 1F91      		pop r17
+ 429               	.LVL51:
+ 430 004c 0895      		ret
+ 431               		.cfi_endproc
+ 432               	.LFE100:
+ 433               		.size	_ZN22SendOnlySoftwareSerial5setTXEh, .-_ZN22SendOnlySoftwareSerial5setTXEh
+ 434               		.section	.text._ZN22SendOnlySoftwareSerialC2Ehb,"ax",@progbits
+ 435               	.global	_ZN22SendOnlySoftwareSerialC2Ehb
+ 436               		.type	_ZN22SendOnlySoftwareSerialC2Ehb, @function
+ 437               	_ZN22SendOnlySoftwareSerialC2Ehb:
+ 438               	.LFB95:
+  83:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   _tx_delay(0),
+ 439               		.loc 1 83 0
+ 440               		.cfi_startproc
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 16
+
+
+ 441               	.LVL52:
+ 442               	/* prologue: function */
+ 443               	/* frame size = 0 */
+ 444               	/* stack size = 0 */
+ 445               	.L__stack_usage = 0
+ 446 0000 FC01      		movw r30,r24
+ 447               	.LVL53:
+ 448               	.LBB53:
+ 449               	.LBB54:
+ 450               	.LBB55:
+ 451               	.LBB56:
+  72:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****   public:
+  73:/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Print.h ****     Print() : write_error(0) {}
+ 452               		.loc 2 73 0
+ 453 0002 1382      		std Z+3,__zero_reg__
+ 454 0004 1282      		std Z+2,__zero_reg__
+ 455               	.LBE56:
+ 456               	.LBE55:
+ 457               	.LBE54:
+  85:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** {
+ 458               		.loc 1 85 0
+ 459 0006 80E0      		ldi r24,lo8(_ZTV22SendOnlySoftwareSerial+4)
+ 460 0008 90E0      		ldi r25,hi8(_ZTV22SendOnlySoftwareSerial+4)
+ 461               	.LVL54:
+ 462 000a 9183      		std Z+1,r25
+ 463 000c 8083      		st Z,r24
+ 464 000e 1386      		std Z+11,__zero_reg__
+ 465 0010 1286      		std Z+10,__zero_reg__
+ 466 0012 8485      		ldd r24,Z+12
+ 467 0014 40FB      		bst r20,0
+ 468 0016 81F9      		bld r24,1
+ 469 0018 8487      		std Z+12,r24
+  87:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+ 470               		.loc 1 87 0
+ 471 001a CF01      		movw r24,r30
+ 472 001c 00C0      		rjmp _ZN22SendOnlySoftwareSerial5setTXEh
+ 473               	.LVL55:
+ 474               	.LBE53:
+ 475               		.cfi_endproc
+ 476               	.LFE95:
+ 477               		.size	_ZN22SendOnlySoftwareSerialC2Ehb, .-_ZN22SendOnlySoftwareSerialC2Ehb
+ 478               	.global	_ZN22SendOnlySoftwareSerialC1Ehb
+ 479               		.set	_ZN22SendOnlySoftwareSerialC1Ehb,_ZN22SendOnlySoftwareSerialC2Ehb
+ 480               		.section	.text._ZN22SendOnlySoftwareSerial12subtract_capEjj,"ax",@progbits
+ 481               	.global	_ZN22SendOnlySoftwareSerial12subtract_capEjj
+ 482               		.type	_ZN22SendOnlySoftwareSerial12subtract_capEjj, @function
+ 483               	_ZN22SendOnlySoftwareSerial12subtract_capEjj:
+ 484               	.LFB101:
+ 111:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   if (num > sub)
+ 485               		.loc 1 111 0
+ 486               		.cfi_startproc
+ 487               	.LVL56:
+ 488               	/* prologue: function */
+ 489               	/* frame size = 0 */
+ 490               	/* stack size = 0 */
+ 491               	.L__stack_usage = 0
+ 112:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     return num - sub;
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 17
+
+
+ 492               		.loc 1 112 0
+ 493 0000 6817      		cp r22,r24
+ 494 0002 7907      		cpc r23,r25
+ 495 0004 00F4      		brsh .L28
+ 113:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   else
+ 496               		.loc 1 113 0
+ 497 0006 861B      		sub r24,r22
+ 498 0008 970B      		sbc r25,r23
+ 499               	.LVL57:
+ 500 000a 0895      		ret
+ 501               	.LVL58:
+ 502               	.L28:
+ 115:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+ 503               		.loc 1 115 0
+ 504 000c 81E0      		ldi r24,lo8(1)
+ 505 000e 90E0      		ldi r25,0
+ 506               	.LVL59:
+ 116:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 507               		.loc 1 116 0
+ 508 0010 0895      		ret
+ 509               		.cfi_endproc
+ 510               	.LFE101:
+ 511               		.size	_ZN22SendOnlySoftwareSerial12subtract_capEjj, .-_ZN22SendOnlySoftwareSerial12subtract_capEjj
+ 512               		.section	.text._ZN22SendOnlySoftwareSerial5beginEl,"ax",@progbits
+ 513               	.global	_ZN22SendOnlySoftwareSerial5beginEl
+ 514               		.type	_ZN22SendOnlySoftwareSerial5beginEl, @function
+ 515               	_ZN22SendOnlySoftwareSerial5beginEl:
+ 516               	.LFB102:
+ 123:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   _tx_delay = 0;
+ 517               		.loc 1 123 0
+ 518               		.cfi_startproc
+ 519               	.LVL60:
+ 520 0000 CF93      		push r28
+ 521               	.LCFI6:
+ 522               		.cfi_def_cfa_offset 3
+ 523               		.cfi_offset 28, -2
+ 524 0002 DF93      		push r29
+ 525               	.LCFI7:
+ 526               		.cfi_def_cfa_offset 4
+ 527               		.cfi_offset 29, -3
+ 528               	/* prologue: function */
+ 529               	/* frame size = 0 */
+ 530               	/* stack size = 2 */
+ 531               	.L__stack_usage = 2
+ 532 0004 EC01      		movw r28,r24
+ 533 0006 9A01      		movw r18,r20
+ 534 0008 AB01      		movw r20,r22
+ 535               	.LBB57:
+ 127:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 536               		.loc 1 127 0
+ 537 000a 68E4      		ldi r22,lo8(72)
+ 538 000c 71EF      		ldi r23,lo8(-15)
+ 539 000e 8EE3      		ldi r24,lo8(62)
+ 540 0010 90E0      		ldi r25,0
+ 541 0012 00D0      		rcall __divmodsi4
+ 542               	.LVL61:
+ 543               	.LBB58:
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 18
+
+
+ 544               	.LBB59:
+ 112:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****     return num - sub;
+ 545               		.loc 1 112 0
+ 546 0014 2430      		cpi r18,4
+ 547 0016 3105      		cpc r19,__zero_reg__
+ 548 0018 00F0      		brlo .L31
+ 113:../TinyAudioBoot/SendOnlySoftwareSerial.cpp ****   else
+ 549               		.loc 1 113 0
+ 550 001a 2350      		subi r18,3
+ 551 001c 3109      		sbc r19,__zero_reg__
+ 552               	.LVL62:
+ 553 001e 00C0      		rjmp .L30
+ 554               	.LVL63:
+ 555               	.L31:
+ 115:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+ 556               		.loc 1 115 0
+ 557 0020 21E0      		ldi r18,lo8(1)
+ 558 0022 30E0      		ldi r19,0
+ 559               	.LVL64:
+ 560               	.L30:
+ 561               	.LBE59:
+ 562               	.LBE58:
+ 134:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 563               		.loc 1 134 0
+ 564 0024 3B87      		std Y+11,r19
+ 565 0026 2A87      		std Y+10,r18
+ 566               	/* epilogue start */
+ 567               	.LBE57:
+ 141:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** 
+ 568               		.loc 1 141 0
+ 569 0028 DF91      		pop r29
+ 570 002a CF91      		pop r28
+ 571 002c 0895      		ret
+ 572               		.cfi_endproc
+ 573               	.LFE102:
+ 574               		.size	_ZN22SendOnlySoftwareSerial5beginEl, .-_ZN22SendOnlySoftwareSerial5beginEl
+ 575               		.section	.text._ZN22SendOnlySoftwareSerial3endEv,"ax",@progbits
+ 576               	.global	_ZN22SendOnlySoftwareSerial3endEv
+ 577               		.type	_ZN22SendOnlySoftwareSerial3endEv, @function
+ 578               	_ZN22SendOnlySoftwareSerial3endEv:
+ 579               	.LFB103:
+ 144:../TinyAudioBoot/SendOnlySoftwareSerial.cpp **** }
+ 580               		.loc 1 144 0
+ 581               		.cfi_startproc
+ 582               	.LVL65:
+ 583               	/* prologue: function */
+ 584               	/* frame size = 0 */
+ 585               	/* stack size = 0 */
+ 586               	.L__stack_usage = 0
+ 587 0000 0895      		ret
+ 588               		.cfi_endproc
+ 589               	.LFE103:
+ 590               		.size	_ZN22SendOnlySoftwareSerial3endEv, .-_ZN22SendOnlySoftwareSerial3endEv
+ 591               		.weak	_ZTV22SendOnlySoftwareSerial
+ 592               		.section	.rodata._ZTV22SendOnlySoftwareSerial,"aG",@progbits,_ZTV22SendOnlySoftwareSerial,comdat
+ 593               		.type	_ZTV22SendOnlySoftwareSerial, @object
+ 594               		.size	_ZTV22SendOnlySoftwareSerial, 16
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 19
+
+
+ 595               	_ZTV22SendOnlySoftwareSerial:
+ 596 0000 0000      		.word	0
+ 597 0002 0000      		.word	0
+ 598 0004 0000      		.word	gs(_ZN22SendOnlySoftwareSerial5writeEh)
+ 599 0006 0000      		.word	gs(_ZN5Print5writeEPKhj)
+ 600 0008 0000      		.word	gs(_ZN22SendOnlySoftwareSerial9availableEv)
+ 601 000a 0000      		.word	gs(_ZN22SendOnlySoftwareSerial4readEv)
+ 602 000c 0000      		.word	gs(_ZN22SendOnlySoftwareSerial4peekEv)
+ 603 000e 0000      		.word	gs(_ZN22SendOnlySoftwareSerial5flushEv)
+ 604               		.text
+ 605               	.Letext0:
+ 606               		.file 4 "/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/stdint.h"
+ 607               		.file 5 "/Applications/Arduino.app/Contents/Java/hardware/tools/avr/lib/gcc/avr/4.9.2/include/stdd
+ 608               		.file 6 "../TinyAudioBoot/SendOnlySoftwareSerial.h"
+ 609               		.file 7 "/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Stream.
+ 610               		.file 8 "/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny/Arduino
+ 611               		.file 9 "/Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/variants/tinyX5/pi
+ 612               		.section	.debug_info,"",@progbits
+ 613               	.Ldebug_info0:
+ 614 0000 710B 0000 		.long	0xb71
+ 615 0004 0200      		.word	0x2
+ 616 0006 0000 0000 		.long	.Ldebug_abbrev0
+ 617 000a 04        		.byte	0x4
+ 618 000b 01        		.uleb128 0x1
+ 619 000c 0000 0000 		.long	.LASF72
+ 620 0010 04        		.byte	0x4
+ 621 0011 0000 0000 		.long	.LASF73
+ 622 0015 0000 0000 		.long	.LASF74
+ 623 0019 0000 0000 		.long	.Ldebug_ranges0+0
+ 624 001d 0000 0000 		.long	0
+ 625 0021 0000 0000 		.long	0
+ 626 0025 0000 0000 		.long	.Ldebug_line0
+ 627 0029 02        		.uleb128 0x2
+ 628 002a 01        		.byte	0x1
+ 629 002b 06        		.byte	0x6
+ 630 002c 0000 0000 		.long	.LASF0
+ 631 0030 03        		.uleb128 0x3
+ 632 0031 0000 0000 		.long	.LASF2
+ 633 0035 04        		.byte	0x4
+ 634 0036 7E        		.byte	0x7e
+ 635 0037 3B00 0000 		.long	0x3b
+ 636 003b 02        		.uleb128 0x2
+ 637 003c 01        		.byte	0x1
+ 638 003d 08        		.byte	0x8
+ 639 003e 0000 0000 		.long	.LASF1
+ 640 0042 04        		.uleb128 0x4
+ 641 0043 02        		.byte	0x2
+ 642 0044 05        		.byte	0x5
+ 643 0045 696E 7400 		.string	"int"
+ 644 0049 03        		.uleb128 0x3
+ 645 004a 0000 0000 		.long	.LASF3
+ 646 004e 04        		.byte	0x4
+ 647 004f 80        		.byte	0x80
+ 648 0050 5400 0000 		.long	0x54
+ 649 0054 02        		.uleb128 0x2
+ 650 0055 02        		.byte	0x2
+ 651 0056 07        		.byte	0x7
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 20
+
+
+ 652 0057 0000 0000 		.long	.LASF4
+ 653 005b 02        		.uleb128 0x2
+ 654 005c 04        		.byte	0x4
+ 655 005d 05        		.byte	0x5
+ 656 005e 0000 0000 		.long	.LASF5
+ 657 0062 02        		.uleb128 0x2
+ 658 0063 04        		.byte	0x4
+ 659 0064 07        		.byte	0x7
+ 660 0065 0000 0000 		.long	.LASF6
+ 661 0069 02        		.uleb128 0x2
+ 662 006a 08        		.byte	0x8
+ 663 006b 05        		.byte	0x5
+ 664 006c 0000 0000 		.long	.LASF7
+ 665 0070 02        		.uleb128 0x2
+ 666 0071 08        		.byte	0x8
+ 667 0072 07        		.byte	0x7
+ 668 0073 0000 0000 		.long	.LASF8
+ 669 0077 03        		.uleb128 0x3
+ 670 0078 0000 0000 		.long	.LASF9
+ 671 007c 05        		.byte	0x5
+ 672 007d D4        		.byte	0xd4
+ 673 007e 5400 0000 		.long	0x54
+ 674 0082 02        		.uleb128 0x2
+ 675 0083 01        		.byte	0x1
+ 676 0084 06        		.byte	0x6
+ 677 0085 0000 0000 		.long	.LASF10
+ 678 0089 02        		.uleb128 0x2
+ 679 008a 02        		.byte	0x2
+ 680 008b 07        		.byte	0x7
+ 681 008c 0000 0000 		.long	.LASF11
+ 682 0090 05        		.uleb128 0x5
+ 683 0091 0000 0000 		.long	.LASF19
+ 684 0095 01        		.byte	0x1
+ 685 0096 0301 0000 		.long	0x103
+ 686 009a 06        		.uleb128 0x6
+ 687 009b 01        		.byte	0x1
+ 688 009c 0000 0000 		.long	.LASF34
+ 689 00a0 02        		.byte	0x2
+ 690 00a1 50        		.byte	0x50
+ 691 00a2 0000 0000 		.long	.LASF36
+ 692 00a6 7700 0000 		.long	0x77
+ 693 00aa 01        		.byte	0x1
+ 694 00ab 02        		.byte	0x2
+ 695 00ac 10        		.byte	0x10
+ 696 00ad 01        		.uleb128 0x1
+ 697 00ae 9000 0000 		.long	0x90
+ 698 00b2 01        		.byte	0x1
+ 699 00b3 BB00 0000 		.long	0xbb
+ 700 00b7 CC00 0000 		.long	0xcc
+ 701 00bb 07        		.uleb128 0x7
+ 702 00bc 0301 0000 		.long	0x103
+ 703 00c0 01        		.byte	0x1
+ 704 00c1 08        		.uleb128 0x8
+ 705 00c2 0901 0000 		.long	0x109
+ 706 00c6 08        		.uleb128 0x8
+ 707 00c7 7700 0000 		.long	0x77
+ 708 00cb 00        		.byte	0
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 21
+
+
+ 709 00cc 09        		.uleb128 0x9
+ 710 00cd 01        		.byte	0x1
+ 711 00ce 0000 0000 		.long	.LASF21
+ 712 00d2 02        		.byte	0x2
+ 713 00d3 47        		.byte	0x47
+ 714 00d4 0000 0000 		.long	.LASF23
+ 715 00d8 02        		.byte	0x2
+ 716 00d9 01        		.byte	0x1
+ 717 00da E200 0000 		.long	0xe2
+ 718 00de EE00 0000 		.long	0xee
+ 719 00e2 07        		.uleb128 0x7
+ 720 00e3 0301 0000 		.long	0x103
+ 721 00e7 01        		.byte	0x1
+ 722 00e8 08        		.uleb128 0x8
+ 723 00e9 4200 0000 		.long	0x42
+ 724 00ed 00        		.byte	0
+ 725 00ee 0A        		.uleb128 0xa
+ 726 00ef 01        		.byte	0x1
+ 727 00f0 0000 0000 		.long	.LASF19
+ 728 00f4 02        		.byte	0x2
+ 729 00f5 49        		.byte	0x49
+ 730 00f6 01        		.byte	0x1
+ 731 00f7 FB00 0000 		.long	0xfb
+ 732 00fb 07        		.uleb128 0x7
+ 733 00fc 0301 0000 		.long	0x103
+ 734 0100 01        		.byte	0x1
+ 735 0101 00        		.byte	0
+ 736 0102 00        		.byte	0
+ 737 0103 0B        		.uleb128 0xb
+ 738 0104 02        		.byte	0x2
+ 739 0105 9000 0000 		.long	0x90
+ 740 0109 0B        		.uleb128 0xb
+ 741 010a 02        		.byte	0x2
+ 742 010b 0F01 0000 		.long	0x10f
+ 743 010f 0C        		.uleb128 0xc
+ 744 0110 3000 0000 		.long	0x30
+ 745 0114 0D        		.uleb128 0xd
+ 746 0115 0000 0000 		.long	.LASF20
+ 747 0119 0D        		.byte	0xd
+ 748 011a 06        		.byte	0x6
+ 749 011b 2E        		.byte	0x2e
+ 750 011c 9000 0000 		.long	0x90
+ 751 0120 9D03 0000 		.long	0x39d
+ 752 0124 0E        		.uleb128 0xe
+ 753 0125 06        		.byte	0x6
+ 754 0126 2E        		.byte	0x2e
+ 755 0127 9A00 0000 		.long	0x9a
+ 756 012b 0F        		.uleb128 0xf
+ 757 012c 9D03 0000 		.long	0x39d
+ 758 0130 02        		.byte	0x2
+ 759 0131 23        		.byte	0x23
+ 760 0132 00        		.uleb128 0
+ 761 0133 01        		.byte	0x1
+ 762 0134 10        		.uleb128 0x10
+ 763 0135 0000 0000 		.long	.LASF12
+ 764 0139 06        		.byte	0x6
+ 765 013a 31        		.byte	0x31
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 22
+
+
+ 766 013b 3000 0000 		.long	0x30
+ 767 013f 02        		.byte	0x2
+ 768 0140 23        		.byte	0x23
+ 769 0141 04        		.uleb128 0x4
+ 770 0142 03        		.byte	0x3
+ 771 0143 10        		.uleb128 0x10
+ 772 0144 0000 0000 		.long	.LASF13
+ 773 0148 06        		.byte	0x6
+ 774 0149 32        		.byte	0x32
+ 775 014a BB04 0000 		.long	0x4bb
+ 776 014e 02        		.byte	0x2
+ 777 014f 23        		.byte	0x23
+ 778 0150 05        		.uleb128 0x5
+ 779 0151 03        		.byte	0x3
+ 780 0152 10        		.uleb128 0x10
+ 781 0153 0000 0000 		.long	.LASF14
+ 782 0157 06        		.byte	0x6
+ 783 0158 33        		.byte	0x33
+ 784 0159 BB04 0000 		.long	0x4bb
+ 785 015d 02        		.byte	0x2
+ 786 015e 23        		.byte	0x23
+ 787 015f 07        		.uleb128 0x7
+ 788 0160 03        		.byte	0x3
+ 789 0161 10        		.uleb128 0x10
+ 790 0162 0000 0000 		.long	.LASF15
+ 791 0166 06        		.byte	0x6
+ 792 0167 34        		.byte	0x34
+ 793 0168 3000 0000 		.long	0x30
+ 794 016c 02        		.byte	0x2
+ 795 016d 23        		.byte	0x23
+ 796 016e 09        		.uleb128 0x9
+ 797 016f 03        		.byte	0x3
+ 798 0170 10        		.uleb128 0x10
+ 799 0171 0000 0000 		.long	.LASF16
+ 800 0175 06        		.byte	0x6
+ 801 0176 37        		.byte	0x37
+ 802 0177 4900 0000 		.long	0x49
+ 803 017b 02        		.byte	0x2
+ 804 017c 23        		.byte	0x23
+ 805 017d 0A        		.uleb128 0xa
+ 806 017e 03        		.byte	0x3
+ 807 017f 11        		.uleb128 0x11
+ 808 0180 0000 0000 		.long	.LASF17
+ 809 0184 06        		.byte	0x6
+ 810 0185 39        		.byte	0x39
+ 811 0186 4900 0000 		.long	0x49
+ 812 018a 02        		.byte	0x2
+ 813 018b 01        		.byte	0x1
+ 814 018c 0F        		.byte	0xf
+ 815 018d 02        		.byte	0x2
+ 816 018e 23        		.byte	0x23
+ 817 018f 0C        		.uleb128 0xc
+ 818 0190 03        		.byte	0x3
+ 819 0191 11        		.uleb128 0x11
+ 820 0192 0000 0000 		.long	.LASF18
+ 821 0196 06        		.byte	0x6
+ 822 0197 3A        		.byte	0x3a
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 23
+
+
+ 823 0198 4900 0000 		.long	0x49
+ 824 019c 02        		.byte	0x2
+ 825 019d 01        		.byte	0x1
+ 826 019e 0E        		.byte	0xe
+ 827 019f 02        		.byte	0x2
+ 828 01a0 23        		.byte	0x23
+ 829 01a1 0C        		.uleb128 0xc
+ 830 01a2 03        		.byte	0x3
+ 831 01a3 12        		.uleb128 0x12
+ 832 01a4 01        		.byte	0x1
+ 833 01a5 0000 0000 		.long	.LASF20
+ 834 01a9 01        		.byte	0x1
+ 835 01aa 01        		.byte	0x1
+ 836 01ab B301 0000 		.long	0x1b3
+ 837 01af BF01 0000 		.long	0x1bf
+ 838 01b3 07        		.uleb128 0x7
+ 839 01b4 C604 0000 		.long	0x4c6
+ 840 01b8 01        		.byte	0x1
+ 841 01b9 08        		.uleb128 0x8
+ 842 01ba CC04 0000 		.long	0x4cc
+ 843 01be 00        		.byte	0
+ 844 01bf 09        		.uleb128 0x9
+ 845 01c0 01        		.byte	0x1
+ 846 01c1 0000 0000 		.long	.LASF22
+ 847 01c5 01        		.byte	0x1
+ 848 01c6 62        		.byte	0x62
+ 849 01c7 0000 0000 		.long	.LASF24
+ 850 01cb 03        		.byte	0x3
+ 851 01cc 01        		.byte	0x1
+ 852 01cd D501 0000 		.long	0x1d5
+ 853 01d1 E101 0000 		.long	0x1e1
+ 854 01d5 07        		.uleb128 0x7
+ 855 01d6 C604 0000 		.long	0x4c6
+ 856 01da 01        		.byte	0x1
+ 857 01db 08        		.uleb128 0x8
+ 858 01dc 3000 0000 		.long	0x30
+ 859 01e0 00        		.byte	0
+ 860 01e1 13        		.uleb128 0x13
+ 861 01e2 01        		.byte	0x1
+ 862 01e3 0000 0000 		.long	.LASF25
+ 863 01e7 01        		.byte	0x1
+ 864 01e8 6F        		.byte	0x6f
+ 865 01e9 0000 0000 		.long	.LASF26
+ 866 01ed 4900 0000 		.long	0x49
+ 867 01f1 03        		.byte	0x3
+ 868 01f2 01        		.byte	0x1
+ 869 01f3 0202 0000 		.long	0x202
+ 870 01f7 08        		.uleb128 0x8
+ 871 01f8 4900 0000 		.long	0x49
+ 872 01fc 08        		.uleb128 0x8
+ 873 01fd 4900 0000 		.long	0x49
+ 874 0201 00        		.byte	0
+ 875 0202 14        		.uleb128 0x14
+ 876 0203 01        		.byte	0x1
+ 877 0204 0000 0000 		.long	.LASF28
+ 878 0208 01        		.byte	0x1
+ 879 0209 4C        		.byte	0x4c
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 24
+
+
+ 880 020a 0000 0000 		.long	.LASF30
+ 881 020e 03        		.byte	0x3
+ 882 020f 01        		.byte	0x1
+ 883 0210 1A02 0000 		.long	0x21a
+ 884 0214 08        		.uleb128 0x8
+ 885 0215 4900 0000 		.long	0x49
+ 886 0219 00        		.byte	0
+ 887 021a 15        		.uleb128 0x15
+ 888 021b 01        		.byte	0x1
+ 889 021c 0000 0000 		.long	.LASF20
+ 890 0220 01        		.byte	0x1
+ 891 0221 53        		.byte	0x53
+ 892 0222 01        		.byte	0x1
+ 893 0223 2B02 0000 		.long	0x22b
+ 894 0227 3C02 0000 		.long	0x23c
+ 895 022b 07        		.uleb128 0x7
+ 896 022c C604 0000 		.long	0x4c6
+ 897 0230 01        		.byte	0x1
+ 898 0231 08        		.uleb128 0x8
+ 899 0232 3000 0000 		.long	0x30
+ 900 0236 08        		.uleb128 0x8
+ 901 0237 D704 0000 		.long	0x4d7
+ 902 023b 00        		.byte	0
+ 903 023c 15        		.uleb128 0x15
+ 904 023d 01        		.byte	0x1
+ 905 023e 0000 0000 		.long	.LASF27
+ 906 0242 01        		.byte	0x1
+ 907 0243 5D        		.byte	0x5d
+ 908 0244 01        		.byte	0x1
+ 909 0245 4D02 0000 		.long	0x24d
+ 910 0249 5A02 0000 		.long	0x25a
+ 911 024d 07        		.uleb128 0x7
+ 912 024e C604 0000 		.long	0x4c6
+ 913 0252 01        		.byte	0x1
+ 914 0253 07        		.uleb128 0x7
+ 915 0254 4200 0000 		.long	0x42
+ 916 0258 01        		.byte	0x1
+ 917 0259 00        		.byte	0
+ 918 025a 16        		.uleb128 0x16
+ 919 025b 01        		.byte	0x1
+ 920 025c 0000 0000 		.long	.LASF29
+ 921 0260 01        		.byte	0x1
+ 922 0261 7A        		.byte	0x7a
+ 923 0262 0000 0000 		.long	.LASF31
+ 924 0266 01        		.byte	0x1
+ 925 0267 6F02 0000 		.long	0x26f
+ 926 026b 7B02 0000 		.long	0x27b
+ 927 026f 07        		.uleb128 0x7
+ 928 0270 C604 0000 		.long	0x4c6
+ 929 0274 01        		.byte	0x1
+ 930 0275 08        		.uleb128 0x8
+ 931 0276 5B00 0000 		.long	0x5b
+ 932 027a 00        		.byte	0
+ 933 027b 17        		.uleb128 0x17
+ 934 027c 01        		.byte	0x1
+ 935 027d 656E 6400 		.string	"end"
+ 936 0281 01        		.byte	0x1
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 25
+
+
+ 937 0282 8F        		.byte	0x8f
+ 938 0283 0000 0000 		.long	.LASF67
+ 939 0287 01        		.byte	0x1
+ 940 0288 9002 0000 		.long	0x290
+ 941 028c 9702 0000 		.long	0x297
+ 942 0290 07        		.uleb128 0x7
+ 943 0291 C604 0000 		.long	0x4c6
+ 944 0295 01        		.byte	0x1
+ 945 0296 00        		.byte	0
+ 946 0297 18        		.uleb128 0x18
+ 947 0298 01        		.byte	0x1
+ 948 0299 0000 0000 		.long	.LASF32
+ 949 029d 06        		.byte	0x6
+ 950 029e 4B        		.byte	0x4b
+ 951 029f 0000 0000 		.long	.LASF33
+ 952 02a3 D704 0000 		.long	0x4d7
+ 953 02a7 01        		.byte	0x1
+ 954 02a8 B002 0000 		.long	0x2b0
+ 955 02ac B702 0000 		.long	0x2b7
+ 956 02b0 07        		.uleb128 0x7
+ 957 02b1 C604 0000 		.long	0x4c6
+ 958 02b5 01        		.byte	0x1
+ 959 02b6 00        		.byte	0
+ 960 02b7 06        		.uleb128 0x6
+ 961 02b8 01        		.byte	0x1
+ 962 02b9 0000 0000 		.long	.LASF35
+ 963 02bd 01        		.byte	0x1
+ 964 02be DA        		.byte	0xda
+ 965 02bf 0000 0000 		.long	.LASF37
+ 966 02c3 4200 0000 		.long	0x42
+ 967 02c7 01        		.byte	0x1
+ 968 02c8 02        		.byte	0x2
+ 969 02c9 10        		.byte	0x10
+ 970 02ca 04        		.uleb128 0x4
+ 971 02cb 1401 0000 		.long	0x114
+ 972 02cf 01        		.byte	0x1
+ 973 02d0 D802 0000 		.long	0x2d8
+ 974 02d4 DF02 0000 		.long	0x2df
+ 975 02d8 07        		.uleb128 0x7
+ 976 02d9 C604 0000 		.long	0x4c6
+ 977 02dd 01        		.byte	0x1
+ 978 02de 00        		.byte	0
+ 979 02df 06        		.uleb128 0x6
+ 980 02e0 01        		.byte	0x1
+ 981 02e1 0000 0000 		.long	.LASF34
+ 982 02e5 01        		.byte	0x1
+ 983 02e6 93        		.byte	0x93
+ 984 02e7 0000 0000 		.long	.LASF38
+ 985 02eb 7700 0000 		.long	0x77
+ 986 02ef 01        		.byte	0x1
+ 987 02f0 02        		.byte	0x2
+ 988 02f1 10        		.byte	0x10
+ 989 02f2 00        		.uleb128 0
+ 990 02f3 1401 0000 		.long	0x114
+ 991 02f7 01        		.byte	0x1
+ 992 02f8 0003 0000 		.long	0x300
+ 993 02fc 0C03 0000 		.long	0x30c
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 26
+
+
+ 994 0300 07        		.uleb128 0x7
+ 995 0301 C604 0000 		.long	0x4c6
+ 996 0305 01        		.byte	0x1
+ 997 0306 08        		.uleb128 0x8
+ 998 0307 3000 0000 		.long	0x30
+ 999 030b 00        		.byte	0
+ 1000 030c 06        		.uleb128 0x6
+ 1001 030d 01        		.byte	0x1
+ 1002 030e 0000 0000 		.long	.LASF39
+ 1003 0312 01        		.byte	0x1
+ 1004 0313 D0        		.byte	0xd0
+ 1005 0314 0000 0000 		.long	.LASF40
+ 1006 0318 4200 0000 		.long	0x42
+ 1007 031c 01        		.byte	0x1
+ 1008 031d 02        		.byte	0x2
+ 1009 031e 10        		.byte	0x10
+ 1010 031f 03        		.uleb128 0x3
+ 1011 0320 1401 0000 		.long	0x114
+ 1012 0324 01        		.byte	0x1
+ 1013 0325 2D03 0000 		.long	0x32d
+ 1014 0329 3403 0000 		.long	0x334
+ 1015 032d 07        		.uleb128 0x7
+ 1016 032e C604 0000 		.long	0x4c6
+ 1017 0332 01        		.byte	0x1
+ 1018 0333 00        		.byte	0
+ 1019 0334 06        		.uleb128 0x6
+ 1020 0335 01        		.byte	0x1
+ 1021 0336 0000 0000 		.long	.LASF41
+ 1022 033a 01        		.byte	0x1
+ 1023 033b D5        		.byte	0xd5
+ 1024 033c 0000 0000 		.long	.LASF42
+ 1025 0340 4200 0000 		.long	0x42
+ 1026 0344 01        		.byte	0x1
+ 1027 0345 02        		.byte	0x2
+ 1028 0346 10        		.byte	0x10
+ 1029 0347 02        		.uleb128 0x2
+ 1030 0348 1401 0000 		.long	0x114
+ 1031 034c 01        		.byte	0x1
+ 1032 034d 5503 0000 		.long	0x355
+ 1033 0351 5C03 0000 		.long	0x35c
+ 1034 0355 07        		.uleb128 0x7
+ 1035 0356 C604 0000 		.long	0x4c6
+ 1036 035a 01        		.byte	0x1
+ 1037 035b 00        		.byte	0
+ 1038 035c 19        		.uleb128 0x19
+ 1039 035d 01        		.byte	0x1
+ 1040 035e 0000 0000 		.long	.LASF75
+ 1041 0362 01        		.byte	0x1
+ 1042 0363 CA        		.byte	0xca
+ 1043 0364 0000 0000 		.long	.LASF76
+ 1044 0368 01        		.byte	0x1
+ 1045 0369 02        		.byte	0x2
+ 1046 036a 10        		.byte	0x10
+ 1047 036b 05        		.uleb128 0x5
+ 1048 036c 1401 0000 		.long	0x114
+ 1049 0370 01        		.byte	0x1
+ 1050 0371 7903 0000 		.long	0x379
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 27
+
+
+ 1051 0375 8003 0000 		.long	0x380
+ 1052 0379 07        		.uleb128 0x7
+ 1053 037a C604 0000 		.long	0x4c6
+ 1054 037e 01        		.byte	0x1
+ 1055 037f 00        		.byte	0
+ 1056 0380 1A        		.uleb128 0x1a
+ 1057 0381 01        		.byte	0x1
+ 1058 0382 0000 0000 		.long	.LASF43
+ 1059 0386 06        		.byte	0x6
+ 1060 0387 52        		.byte	0x52
+ 1061 0388 0000 0000 		.long	.LASF44
+ 1062 038c D704 0000 		.long	0x4d7
+ 1063 0390 01        		.byte	0x1
+ 1064 0391 9503 0000 		.long	0x395
+ 1065 0395 07        		.uleb128 0x7
+ 1066 0396 C604 0000 		.long	0x4c6
+ 1067 039a 01        		.byte	0x1
+ 1068 039b 00        		.byte	0
+ 1069 039c 00        		.byte	0
+ 1070 039d 0D        		.uleb128 0xd
+ 1071 039e 0000 0000 		.long	.LASF45
+ 1072 03a2 04        		.byte	0x4
+ 1073 03a3 07        		.byte	0x7
+ 1074 03a4 1A        		.byte	0x1a
+ 1075 03a5 9000 0000 		.long	0x90
+ 1076 03a9 BB04 0000 		.long	0x4bb
+ 1077 03ad 0F        		.uleb128 0xf
+ 1078 03ae 9000 0000 		.long	0x90
+ 1079 03b2 02        		.byte	0x2
+ 1080 03b3 23        		.byte	0x23
+ 1081 03b4 00        		.uleb128 0
+ 1082 03b5 01        		.byte	0x1
+ 1083 03b6 12        		.uleb128 0x12
+ 1084 03b7 01        		.byte	0x1
+ 1085 03b8 0000 0000 		.long	.LASF45
+ 1086 03bc 01        		.byte	0x1
+ 1087 03bd 01        		.byte	0x1
+ 1088 03be C603 0000 		.long	0x3c6
+ 1089 03c2 D203 0000 		.long	0x3d2
+ 1090 03c6 07        		.uleb128 0x7
+ 1091 03c7 DE04 0000 		.long	0x4de
+ 1092 03cb 01        		.byte	0x1
+ 1093 03cc 08        		.uleb128 0x8
+ 1094 03cd E404 0000 		.long	0x4e4
+ 1095 03d1 00        		.byte	0
+ 1096 03d2 12        		.uleb128 0x12
+ 1097 03d3 01        		.byte	0x1
+ 1098 03d4 0000 0000 		.long	.LASF45
+ 1099 03d8 01        		.byte	0x1
+ 1100 03d9 01        		.byte	0x1
+ 1101 03da E203 0000 		.long	0x3e2
+ 1102 03de EE03 0000 		.long	0x3ee
+ 1103 03e2 07        		.uleb128 0x7
+ 1104 03e3 DE04 0000 		.long	0x4de
+ 1105 03e7 01        		.byte	0x1
+ 1106 03e8 08        		.uleb128 0x8
+ 1107 03e9 EA04 0000 		.long	0x4ea
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 28
+
+
+ 1108 03ed 00        		.byte	0
+ 1109 03ee 12        		.uleb128 0x12
+ 1110 03ef 01        		.byte	0x1
+ 1111 03f0 0000 0000 		.long	.LASF46
+ 1112 03f4 01        		.byte	0x1
+ 1113 03f5 01        		.byte	0x1
+ 1114 03f6 FE03 0000 		.long	0x3fe
+ 1115 03fa 0B04 0000 		.long	0x40b
+ 1116 03fe 07        		.uleb128 0x7
+ 1117 03ff DE04 0000 		.long	0x4de
+ 1118 0403 01        		.byte	0x1
+ 1119 0404 07        		.uleb128 0x7
+ 1120 0405 4200 0000 		.long	0x42
+ 1121 0409 01        		.byte	0x1
+ 1122 040a 00        		.byte	0
+ 1123 040b 12        		.uleb128 0x12
+ 1124 040c 01        		.byte	0x1
+ 1125 040d 0000 0000 		.long	.LASF45
+ 1126 0411 01        		.byte	0x1
+ 1127 0412 01        		.byte	0x1
+ 1128 0413 1B04 0000 		.long	0x41b
+ 1129 0417 2204 0000 		.long	0x422
+ 1130 041b 07        		.uleb128 0x7
+ 1131 041c DE04 0000 		.long	0x4de
+ 1132 0420 01        		.byte	0x1
+ 1133 0421 00        		.byte	0
+ 1134 0422 06        		.uleb128 0x6
+ 1135 0423 01        		.byte	0x1
+ 1136 0424 0000 0000 		.long	.LASF41
+ 1137 0428 07        		.byte	0x7
+ 1138 0429 1D        		.byte	0x1d
+ 1139 042a 0000 0000 		.long	.LASF47
+ 1140 042e 4200 0000 		.long	0x42
+ 1141 0432 01        		.byte	0x1
+ 1142 0433 02        		.byte	0x2
+ 1143 0434 10        		.byte	0x10
+ 1144 0435 02        		.uleb128 0x2
+ 1145 0436 9D03 0000 		.long	0x39d
+ 1146 043a 01        		.byte	0x1
+ 1147 043b 4304 0000 		.long	0x443
+ 1148 043f 4A04 0000 		.long	0x44a
+ 1149 0443 07        		.uleb128 0x7
+ 1150 0444 DE04 0000 		.long	0x4de
+ 1151 0448 01        		.byte	0x1
+ 1152 0449 00        		.byte	0
+ 1153 044a 06        		.uleb128 0x6
+ 1154 044b 01        		.byte	0x1
+ 1155 044c 0000 0000 		.long	.LASF39
+ 1156 0450 07        		.byte	0x7
+ 1157 0451 1E        		.byte	0x1e
+ 1158 0452 0000 0000 		.long	.LASF48
+ 1159 0456 4200 0000 		.long	0x42
+ 1160 045a 01        		.byte	0x1
+ 1161 045b 02        		.byte	0x2
+ 1162 045c 10        		.byte	0x10
+ 1163 045d 03        		.uleb128 0x3
+ 1164 045e 9D03 0000 		.long	0x39d
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 29
+
+
+ 1165 0462 01        		.byte	0x1
+ 1166 0463 6B04 0000 		.long	0x46b
+ 1167 0467 7204 0000 		.long	0x472
+ 1168 046b 07        		.uleb128 0x7
+ 1169 046c DE04 0000 		.long	0x4de
+ 1170 0470 01        		.byte	0x1
+ 1171 0471 00        		.byte	0
+ 1172 0472 06        		.uleb128 0x6
+ 1173 0473 01        		.byte	0x1
+ 1174 0474 0000 0000 		.long	.LASF35
+ 1175 0478 07        		.byte	0x7
+ 1176 0479 1F        		.byte	0x1f
+ 1177 047a 0000 0000 		.long	.LASF49
+ 1178 047e 4200 0000 		.long	0x42
+ 1179 0482 01        		.byte	0x1
+ 1180 0483 02        		.byte	0x2
+ 1181 0484 10        		.byte	0x10
+ 1182 0485 04        		.uleb128 0x4
+ 1183 0486 9D03 0000 		.long	0x39d
+ 1184 048a 01        		.byte	0x1
+ 1185 048b 9304 0000 		.long	0x493
+ 1186 048f 9A04 0000 		.long	0x49a
+ 1187 0493 07        		.uleb128 0x7
+ 1188 0494 DE04 0000 		.long	0x4de
+ 1189 0498 01        		.byte	0x1
+ 1190 0499 00        		.byte	0
+ 1191 049a 1B        		.uleb128 0x1b
+ 1192 049b 01        		.byte	0x1
+ 1193 049c 0000 0000 		.long	.LASF75
+ 1194 04a0 07        		.byte	0x7
+ 1195 04a1 20        		.byte	0x20
+ 1196 04a2 0000 0000 		.long	.LASF77
+ 1197 04a6 01        		.byte	0x1
+ 1198 04a7 02        		.byte	0x2
+ 1199 04a8 10        		.byte	0x10
+ 1200 04a9 05        		.uleb128 0x5
+ 1201 04aa 9D03 0000 		.long	0x39d
+ 1202 04ae 01        		.byte	0x1
+ 1203 04af B304 0000 		.long	0x4b3
+ 1204 04b3 07        		.uleb128 0x7
+ 1205 04b4 DE04 0000 		.long	0x4de
+ 1206 04b8 01        		.byte	0x1
+ 1207 04b9 00        		.byte	0
+ 1208 04ba 00        		.byte	0
+ 1209 04bb 0B        		.uleb128 0xb
+ 1210 04bc 02        		.byte	0x2
+ 1211 04bd C104 0000 		.long	0x4c1
+ 1212 04c1 1C        		.uleb128 0x1c
+ 1213 04c2 3000 0000 		.long	0x30
+ 1214 04c6 0B        		.uleb128 0xb
+ 1215 04c7 02        		.byte	0x2
+ 1216 04c8 1401 0000 		.long	0x114
+ 1217 04cc 1D        		.uleb128 0x1d
+ 1218 04cd 02        		.byte	0x2
+ 1219 04ce D204 0000 		.long	0x4d2
+ 1220 04d2 0C        		.uleb128 0xc
+ 1221 04d3 1401 0000 		.long	0x114
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 30
+
+
+ 1222 04d7 02        		.uleb128 0x2
+ 1223 04d8 01        		.byte	0x1
+ 1224 04d9 02        		.byte	0x2
+ 1225 04da 0000 0000 		.long	.LASF50
+ 1226 04de 0B        		.uleb128 0xb
+ 1227 04df 02        		.byte	0x2
+ 1228 04e0 9D03 0000 		.long	0x39d
+ 1229 04e4 1D        		.uleb128 0x1d
+ 1230 04e5 02        		.byte	0x2
+ 1231 04e6 9D03 0000 		.long	0x39d
+ 1232 04ea 1D        		.uleb128 0x1d
+ 1233 04eb 02        		.byte	0x2
+ 1234 04ec F004 0000 		.long	0x4f0
+ 1235 04f0 0C        		.uleb128 0xc
+ 1236 04f1 9D03 0000 		.long	0x39d
+ 1237 04f5 1E        		.uleb128 0x1e
+ 1238 04f6 CC00 0000 		.long	0xcc
+ 1239 04fa 03        		.byte	0x3
+ 1240 04fb 0305 0000 		.long	0x503
+ 1241 04ff 1905 0000 		.long	0x519
+ 1242 0503 1F        		.uleb128 0x1f
+ 1243 0504 0000 0000 		.long	.LASF53
+ 1244 0508 1905 0000 		.long	0x519
+ 1245 050c 01        		.byte	0x1
+ 1246 050d 20        		.uleb128 0x20
+ 1247 050e 6572 7200 		.string	"err"
+ 1248 0512 02        		.byte	0x2
+ 1249 0513 47        		.byte	0x47
+ 1250 0514 4200 0000 		.long	0x42
+ 1251 0518 00        		.byte	0
+ 1252 0519 0C        		.uleb128 0xc
+ 1253 051a 0301 0000 		.long	0x103
+ 1254 051e 21        		.uleb128 0x21
+ 1255 051f 0000 0000 		.long	.LASF78
+ 1256 0523 03        		.byte	0x3
+ 1257 0524 67        		.byte	0x67
+ 1258 0525 03        		.byte	0x3
+ 1259 0526 3605 0000 		.long	0x536
+ 1260 052a 22        		.uleb128 0x22
+ 1261 052b 0000 0000 		.long	.LASF51
+ 1262 052f 03        		.byte	0x3
+ 1263 0530 67        		.byte	0x67
+ 1264 0531 4900 0000 		.long	0x49
+ 1265 0535 00        		.byte	0
+ 1266 0536 23        		.uleb128 0x23
+ 1267 0537 0202 0000 		.long	0x202
+ 1268 053b 03        		.byte	0x3
+ 1269 053c 4C05 0000 		.long	0x54c
+ 1270 0540 22        		.uleb128 0x22
+ 1271 0541 0000 0000 		.long	.LASF52
+ 1272 0545 01        		.byte	0x1
+ 1273 0546 4C        		.byte	0x4c
+ 1274 0547 4900 0000 		.long	0x49
+ 1275 054b 00        		.byte	0
+ 1276 054c 1E        		.uleb128 0x1e
+ 1277 054d EE00 0000 		.long	0xee
+ 1278 0551 03        		.byte	0x3
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 31
+
+
+ 1279 0552 5A05 0000 		.long	0x55a
+ 1280 0556 6505 0000 		.long	0x565
+ 1281 055a 1F        		.uleb128 0x1f
+ 1282 055b 0000 0000 		.long	.LASF53
+ 1283 055f 1905 0000 		.long	0x519
+ 1284 0563 01        		.byte	0x1
+ 1285 0564 00        		.byte	0
+ 1286 0565 24        		.uleb128 0x24
+ 1287 0566 0B04 0000 		.long	0x40b
+ 1288 056a 07        		.byte	0x7
+ 1289 056b 1A        		.byte	0x1a
+ 1290 056c 03        		.byte	0x3
+ 1291 056d 7505 0000 		.long	0x575
+ 1292 0571 8005 0000 		.long	0x580
+ 1293 0575 1F        		.uleb128 0x1f
+ 1294 0576 0000 0000 		.long	.LASF53
+ 1295 057a 8005 0000 		.long	0x580
+ 1296 057e 01        		.byte	0x1
+ 1297 057f 00        		.byte	0
+ 1298 0580 0C        		.uleb128 0xc
+ 1299 0581 DE04 0000 		.long	0x4de
+ 1300 0585 23        		.uleb128 0x23
+ 1301 0586 E101 0000 		.long	0x1e1
+ 1302 058a 01        		.byte	0x1
+ 1303 058b A605 0000 		.long	0x5a6
+ 1304 058f 20        		.uleb128 0x20
+ 1305 0590 6E75 6D00 		.string	"num"
+ 1306 0594 01        		.byte	0x1
+ 1307 0595 6F        		.byte	0x6f
+ 1308 0596 4900 0000 		.long	0x49
+ 1309 059a 20        		.uleb128 0x20
+ 1310 059b 7375 6200 		.string	"sub"
+ 1311 059f 01        		.byte	0x1
+ 1312 05a0 6F        		.byte	0x6f
+ 1313 05a1 4900 0000 		.long	0x49
+ 1314 05a5 00        		.byte	0
+ 1315 05a6 1E        		.uleb128 0x1e
+ 1316 05a7 7B02 0000 		.long	0x27b
+ 1317 05ab 01        		.byte	0x1
+ 1318 05ac B405 0000 		.long	0x5b4
+ 1319 05b0 BF05 0000 		.long	0x5bf
+ 1320 05b4 1F        		.uleb128 0x1f
+ 1321 05b5 0000 0000 		.long	.LASF53
+ 1322 05b9 BF05 0000 		.long	0x5bf
+ 1323 05bd 01        		.byte	0x1
+ 1324 05be 00        		.byte	0
+ 1325 05bf 0C        		.uleb128 0xc
+ 1326 05c0 C604 0000 		.long	0x4c6
+ 1327 05c4 25        		.uleb128 0x25
+ 1328 05c5 DF02 0000 		.long	0x2df
+ 1329 05c9 0000 0000 		.long	.LFB104
+ 1330 05cd 0000 0000 		.long	.LFE104
+ 1331 05d1 0000 0000 		.long	.LLST0
+ 1332 05d5 DE05 0000 		.long	0x5de
+ 1333 05d9 01        		.byte	0x1
+ 1334 05da 3907 0000 		.long	0x739
+ 1335 05de 26        		.uleb128 0x26
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 32
+
+
+ 1336 05df 0000 0000 		.long	.LASF53
+ 1337 05e3 BF05 0000 		.long	0x5bf
+ 1338 05e7 01        		.byte	0x1
+ 1339 05e8 0000 0000 		.long	.LLST1
+ 1340 05ec 27        		.uleb128 0x27
+ 1341 05ed 6200      		.string	"b"
+ 1342 05ef 01        		.byte	0x1
+ 1343 05f0 93        		.byte	0x93
+ 1344 05f1 3000 0000 		.long	0x30
+ 1345 05f5 0000 0000 		.long	.LLST2
+ 1346 05f9 28        		.uleb128 0x28
+ 1347 05fa 0000 0000 		.long	.LBB36
+ 1348 05fe 0000 0000 		.long	.LBE36
+ 1349 0602 29        		.uleb128 0x29
+ 1350 0603 7265 6700 		.string	"reg"
+ 1351 0607 01        		.byte	0x1
+ 1352 0608 9E        		.byte	0x9e
+ 1353 0609 BB04 0000 		.long	0x4bb
+ 1354 060d 0000 0000 		.long	.LLST3
+ 1355 0611 2A        		.uleb128 0x2a
+ 1356 0612 0000 0000 		.long	.LASF54
+ 1357 0616 01        		.byte	0x1
+ 1358 0617 9F        		.byte	0x9f
+ 1359 0618 3000 0000 		.long	0x30
+ 1360 061c 0000 0000 		.long	.LLST4
+ 1361 0620 2A        		.uleb128 0x2a
+ 1362 0621 0000 0000 		.long	.LASF55
+ 1363 0625 01        		.byte	0x1
+ 1364 0626 A0        		.byte	0xa0
+ 1365 0627 3000 0000 		.long	0x30
+ 1366 062b 0000 0000 		.long	.LLST5
+ 1367 062f 2A        		.uleb128 0x2a
+ 1368 0630 0000 0000 		.long	.LASF56
+ 1369 0634 01        		.byte	0x1
+ 1370 0635 A1        		.byte	0xa1
+ 1371 0636 3000 0000 		.long	0x30
+ 1372 063a 0000 0000 		.long	.LLST6
+ 1373 063e 29        		.uleb128 0x29
+ 1374 063f 696E 7600 		.string	"inv"
+ 1375 0643 01        		.byte	0x1
+ 1376 0644 A2        		.byte	0xa2
+ 1377 0645 D704 0000 		.long	0x4d7
+ 1378 0649 0000 0000 		.long	.LLST7
+ 1379 064d 2A        		.uleb128 0x2a
+ 1380 064e 0000 0000 		.long	.LASF52
+ 1381 0652 01        		.byte	0x1
+ 1382 0653 A3        		.byte	0xa3
+ 1383 0654 4900 0000 		.long	0x49
+ 1384 0658 0000 0000 		.long	.LLST8
+ 1385 065c 2B        		.uleb128 0x2b
+ 1386 065d F504 0000 		.long	0x4f5
+ 1387 0661 0000 0000 		.long	.LBB37
+ 1388 0665 0000 0000 		.long	.LBE37
+ 1389 0669 01        		.byte	0x1
+ 1390 066a 96        		.byte	0x96
+ 1391 066b 8206 0000 		.long	0x682
+ 1392 066f 2C        		.uleb128 0x2c
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 33
+
+
+ 1393 0670 0305 0000 		.long	0x503
+ 1394 0674 0000 0000 		.long	.LLST9
+ 1395 0678 2C        		.uleb128 0x2c
+ 1396 0679 0D05 0000 		.long	0x50d
+ 1397 067d 0000 0000 		.long	.LLST10
+ 1398 0681 00        		.byte	0
+ 1399 0682 2B        		.uleb128 0x2b
+ 1400 0683 3605 0000 		.long	0x536
+ 1401 0687 0000 0000 		.long	.LBB39
+ 1402 068b 0000 0000 		.long	.LBE39
+ 1403 068f 01        		.byte	0x1
+ 1404 0690 B0        		.byte	0xb0
+ 1405 0691 B806 0000 		.long	0x6b8
+ 1406 0695 2C        		.uleb128 0x2c
+ 1407 0696 4005 0000 		.long	0x540
+ 1408 069a 0000 0000 		.long	.LLST11
+ 1409 069e 2D        		.uleb128 0x2d
+ 1410 069f 1E05 0000 		.long	0x51e
+ 1411 06a3 0000 0000 		.long	.LBB40
+ 1412 06a7 0000 0000 		.long	.LBE40
+ 1413 06ab 01        		.byte	0x1
+ 1414 06ac 4D        		.byte	0x4d
+ 1415 06ad 2C        		.uleb128 0x2c
+ 1416 06ae 2A05 0000 		.long	0x52a
+ 1417 06b2 0000 0000 		.long	.LLST12
+ 1418 06b6 00        		.byte	0
+ 1419 06b7 00        		.byte	0
+ 1420 06b8 2E        		.uleb128 0x2e
+ 1421 06b9 0000 0000 		.long	.LBB42
+ 1422 06bd 0000 0000 		.long	.LBE42
+ 1423 06c1 0507 0000 		.long	0x705
+ 1424 06c5 29        		.uleb128 0x29
+ 1425 06c6 6900      		.string	"i"
+ 1426 06c8 01        		.byte	0x1
+ 1427 06c9 B3        		.byte	0xb3
+ 1428 06ca 3000 0000 		.long	0x30
+ 1429 06ce 0000 0000 		.long	.LLST13
+ 1430 06d2 2D        		.uleb128 0x2d
+ 1431 06d3 3605 0000 		.long	0x536
+ 1432 06d7 0000 0000 		.long	.LBB43
+ 1433 06db 0000 0000 		.long	.LBE43
+ 1434 06df 01        		.byte	0x1
+ 1435 06e0 BA        		.byte	0xba
+ 1436 06e1 2C        		.uleb128 0x2c
+ 1437 06e2 4005 0000 		.long	0x540
+ 1438 06e6 0000 0000 		.long	.LLST14
+ 1439 06ea 2D        		.uleb128 0x2d
+ 1440 06eb 1E05 0000 		.long	0x51e
+ 1441 06ef 0000 0000 		.long	.LBB44
+ 1442 06f3 0000 0000 		.long	.LBE44
+ 1443 06f7 01        		.byte	0x1
+ 1444 06f8 4D        		.byte	0x4d
+ 1445 06f9 2C        		.uleb128 0x2c
+ 1446 06fa 2A05 0000 		.long	0x52a
+ 1447 06fe 0000 0000 		.long	.LLST15
+ 1448 0702 00        		.byte	0
+ 1449 0703 00        		.byte	0
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 34
+
+
+ 1450 0704 00        		.byte	0
+ 1451 0705 2D        		.uleb128 0x2d
+ 1452 0706 3605 0000 		.long	0x536
+ 1453 070a 0000 0000 		.long	.LBB46
+ 1454 070e 0000 0000 		.long	.LBE46
+ 1455 0712 01        		.byte	0x1
+ 1456 0713 C5        		.byte	0xc5
+ 1457 0714 2C        		.uleb128 0x2c
+ 1458 0715 4005 0000 		.long	0x540
+ 1459 0719 0000 0000 		.long	.LLST16
+ 1460 071d 2D        		.uleb128 0x2d
+ 1461 071e 1E05 0000 		.long	0x51e
+ 1462 0722 0000 0000 		.long	.LBB47
+ 1463 0726 0000 0000 		.long	.LBE47
+ 1464 072a 01        		.byte	0x1
+ 1465 072b 4D        		.byte	0x4d
+ 1466 072c 2C        		.uleb128 0x2c
+ 1467 072d 2A05 0000 		.long	0x52a
+ 1468 0731 0000 0000 		.long	.LLST17
+ 1469 0735 00        		.byte	0
+ 1470 0736 00        		.byte	0
+ 1471 0737 00        		.byte	0
+ 1472 0738 00        		.byte	0
+ 1473 0739 2F        		.uleb128 0x2f
+ 1474 073a 5C03 0000 		.long	0x35c
+ 1475 073e 0000 0000 		.long	.LFB105
+ 1476 0742 0000 0000 		.long	.LFE105
+ 1477 0746 03        		.byte	0x3
+ 1478 0747 92        		.byte	0x92
+ 1479 0748 20        		.uleb128 0x20
+ 1480 0749 02        		.sleb128 2
+ 1481 074a 5307 0000 		.long	0x753
+ 1482 074e 01        		.byte	0x1
+ 1483 074f 6507 0000 		.long	0x765
+ 1484 0753 30        		.uleb128 0x30
+ 1485 0754 0000 0000 		.long	.LASF53
+ 1486 0758 BF05 0000 		.long	0x5bf
+ 1487 075c 01        		.byte	0x1
+ 1488 075d 06        		.byte	0x6
+ 1489 075e 68        		.byte	0x68
+ 1490 075f 93        		.byte	0x93
+ 1491 0760 01        		.uleb128 0x1
+ 1492 0761 69        		.byte	0x69
+ 1493 0762 93        		.byte	0x93
+ 1494 0763 01        		.uleb128 0x1
+ 1495 0764 00        		.byte	0
+ 1496 0765 2F        		.uleb128 0x2f
+ 1497 0766 0C03 0000 		.long	0x30c
+ 1498 076a 0000 0000 		.long	.LFB106
+ 1499 076e 0000 0000 		.long	.LFE106
+ 1500 0772 03        		.byte	0x3
+ 1501 0773 92        		.byte	0x92
+ 1502 0774 20        		.uleb128 0x20
+ 1503 0775 02        		.sleb128 2
+ 1504 0776 7F07 0000 		.long	0x77f
+ 1505 077a 01        		.byte	0x1
+ 1506 077b 8E07 0000 		.long	0x78e
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 35
+
+
+ 1507 077f 26        		.uleb128 0x26
+ 1508 0780 0000 0000 		.long	.LASF53
+ 1509 0784 BF05 0000 		.long	0x5bf
+ 1510 0788 01        		.byte	0x1
+ 1511 0789 0000 0000 		.long	.LLST18
+ 1512 078d 00        		.byte	0
+ 1513 078e 2F        		.uleb128 0x2f
+ 1514 078f 3403 0000 		.long	0x334
+ 1515 0793 0000 0000 		.long	.LFB107
+ 1516 0797 0000 0000 		.long	.LFE107
+ 1517 079b 03        		.byte	0x3
+ 1518 079c 92        		.byte	0x92
+ 1519 079d 20        		.uleb128 0x20
+ 1520 079e 02        		.sleb128 2
+ 1521 079f A807 0000 		.long	0x7a8
+ 1522 07a3 01        		.byte	0x1
+ 1523 07a4 B707 0000 		.long	0x7b7
+ 1524 07a8 26        		.uleb128 0x26
+ 1525 07a9 0000 0000 		.long	.LASF53
+ 1526 07ad BF05 0000 		.long	0x5bf
+ 1527 07b1 01        		.byte	0x1
+ 1528 07b2 0000 0000 		.long	.LLST19
+ 1529 07b6 00        		.byte	0
+ 1530 07b7 2F        		.uleb128 0x2f
+ 1531 07b8 B702 0000 		.long	0x2b7
+ 1532 07bc 0000 0000 		.long	.LFB108
+ 1533 07c0 0000 0000 		.long	.LFE108
+ 1534 07c4 03        		.byte	0x3
+ 1535 07c5 92        		.byte	0x92
+ 1536 07c6 20        		.uleb128 0x20
+ 1537 07c7 02        		.sleb128 2
+ 1538 07c8 D107 0000 		.long	0x7d1
+ 1539 07cc 01        		.byte	0x1
+ 1540 07cd E007 0000 		.long	0x7e0
+ 1541 07d1 26        		.uleb128 0x26
+ 1542 07d2 0000 0000 		.long	.LASF53
+ 1543 07d6 BF05 0000 		.long	0x5bf
+ 1544 07da 01        		.byte	0x1
+ 1545 07db 0000 0000 		.long	.LLST20
+ 1546 07df 00        		.byte	0
+ 1547 07e0 1E        		.uleb128 0x1e
+ 1548 07e1 3C02 0000 		.long	0x23c
+ 1549 07e5 00        		.byte	0
+ 1550 07e6 EE07 0000 		.long	0x7ee
+ 1551 07ea 0308 0000 		.long	0x803
+ 1552 07ee 1F        		.uleb128 0x1f
+ 1553 07ef 0000 0000 		.long	.LASF53
+ 1554 07f3 BF05 0000 		.long	0x5bf
+ 1555 07f7 01        		.byte	0x1
+ 1556 07f8 1F        		.uleb128 0x1f
+ 1557 07f9 0000 0000 		.long	.LASF57
+ 1558 07fd 0308 0000 		.long	0x803
+ 1559 0801 01        		.byte	0x1
+ 1560 0802 00        		.byte	0
+ 1561 0803 0C        		.uleb128 0xc
+ 1562 0804 4200 0000 		.long	0x42
+ 1563 0808 31        		.uleb128 0x31
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 36
+
+
+ 1564 0809 E007 0000 		.long	0x7e0
+ 1565 080d 0000 0000 		.long	.LASF63
+ 1566 0811 0000 0000 		.long	.LFB98
+ 1567 0815 0000 0000 		.long	.LFE98
+ 1568 0819 03        		.byte	0x3
+ 1569 081a 92        		.byte	0x92
+ 1570 081b 20        		.uleb128 0x20
+ 1571 081c 02        		.sleb128 2
+ 1572 081d 2608 0000 		.long	0x826
+ 1573 0821 01        		.byte	0x1
+ 1574 0822 3308 0000 		.long	0x833
+ 1575 0826 32        		.uleb128 0x32
+ 1576 0827 EE07 0000 		.long	0x7ee
+ 1577 082b 06        		.byte	0x6
+ 1578 082c 68        		.byte	0x68
+ 1579 082d 93        		.byte	0x93
+ 1580 082e 01        		.uleb128 0x1
+ 1581 082f 69        		.byte	0x69
+ 1582 0830 93        		.byte	0x93
+ 1583 0831 01        		.uleb128 0x1
+ 1584 0832 00        		.byte	0
+ 1585 0833 25        		.uleb128 0x25
+ 1586 0834 BF01 0000 		.long	0x1bf
+ 1587 0838 0000 0000 		.long	.LFB100
+ 1588 083c 0000 0000 		.long	.LFE100
+ 1589 0840 0000 0000 		.long	.LLST21
+ 1590 0844 4D08 0000 		.long	0x84d
+ 1591 0848 01        		.byte	0x1
+ 1592 0849 3309 0000 		.long	0x933
+ 1593 084d 26        		.uleb128 0x26
+ 1594 084e 0000 0000 		.long	.LASF53
+ 1595 0852 BF05 0000 		.long	0x5bf
+ 1596 0856 01        		.byte	0x1
+ 1597 0857 0000 0000 		.long	.LLST22
+ 1598 085b 27        		.uleb128 0x27
+ 1599 085c 7478 00   		.string	"tx"
+ 1600 085f 01        		.byte	0x1
+ 1601 0860 62        		.byte	0x62
+ 1602 0861 3000 0000 		.long	0x30
+ 1603 0865 0000 0000 		.long	.LLST23
+ 1604 0869 28        		.uleb128 0x28
+ 1605 086a 0000 0000 		.long	.LBB49
+ 1606 086e 0000 0000 		.long	.LBE49
+ 1607 0872 2A        		.uleb128 0x2a
+ 1608 0873 0000 0000 		.long	.LASF58
+ 1609 0877 01        		.byte	0x1
+ 1610 0878 6B        		.byte	0x6b
+ 1611 0879 3000 0000 		.long	0x30
+ 1612 087d 0000 0000 		.long	.LLST24
+ 1613 0881 2E        		.uleb128 0x2e
+ 1614 0882 0000 0000 		.long	.LBB50
+ 1615 0886 0000 0000 		.long	.LBE50
+ 1616 088a AD08 0000 		.long	0x8ad
+ 1617 088e 2A        		.uleb128 0x2a
+ 1618 088f 0000 0000 		.long	.LASF59
+ 1619 0893 01        		.byte	0x1
+ 1620 0894 6A        		.byte	0x6a
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 37
+
+
+ 1621 0895 4900 0000 		.long	0x49
+ 1622 0899 0000 0000 		.long	.LLST25
+ 1623 089d 2A        		.uleb128 0x2a
+ 1624 089e 0000 0000 		.long	.LASF60
+ 1625 08a2 01        		.byte	0x1
+ 1626 08a3 6A        		.byte	0x6a
+ 1627 08a4 3000 0000 		.long	0x30
+ 1628 08a8 0000 0000 		.long	.LLST26
+ 1629 08ac 00        		.byte	0
+ 1630 08ad 2E        		.uleb128 0x2e
+ 1631 08ae 0000 0000 		.long	.LBB51
+ 1632 08b2 0000 0000 		.long	.LBE51
+ 1633 08b6 D908 0000 		.long	0x8d9
+ 1634 08ba 2A        		.uleb128 0x2a
+ 1635 08bb 0000 0000 		.long	.LASF59
+ 1636 08bf 01        		.byte	0x1
+ 1637 08c0 6B        		.byte	0x6b
+ 1638 08c1 4900 0000 		.long	0x49
+ 1639 08c5 0000 0000 		.long	.LLST27
+ 1640 08c9 2A        		.uleb128 0x2a
+ 1641 08ca 0000 0000 		.long	.LASF60
+ 1642 08ce 01        		.byte	0x1
+ 1643 08cf 6B        		.byte	0x6b
+ 1644 08d0 3000 0000 		.long	0x30
+ 1645 08d4 0000 0000 		.long	.LLST24
+ 1646 08d8 00        		.byte	0
+ 1647 08d9 2E        		.uleb128 0x2e
+ 1648 08da 0000 0000 		.long	.LBB52
+ 1649 08de 0000 0000 		.long	.LBE52
+ 1650 08e2 0809 0000 		.long	0x908
+ 1651 08e6 2A        		.uleb128 0x2a
+ 1652 08e7 0000 0000 		.long	.LASF59
+ 1653 08eb 01        		.byte	0x1
+ 1654 08ec 6C        		.byte	0x6c
+ 1655 08ed 4900 0000 		.long	0x49
+ 1656 08f1 0000 0000 		.long	.LLST29
+ 1657 08f5 33        		.uleb128 0x33
+ 1658 08f6 0000 0000 		.long	.LASF60
+ 1659 08fa 01        		.byte	0x1
+ 1660 08fb 6C        		.byte	0x6c
+ 1661 08fc 4900 0000 		.long	0x49
+ 1662 0900 06        		.byte	0x6
+ 1663 0901 68        		.byte	0x68
+ 1664 0902 93        		.byte	0x93
+ 1665 0903 01        		.uleb128 0x1
+ 1666 0904 69        		.byte	0x69
+ 1667 0905 93        		.byte	0x93
+ 1668 0906 01        		.uleb128 0x1
+ 1669 0907 00        		.byte	0
+ 1670 0908 34        		.uleb128 0x34
+ 1671 0909 0000 0000 		.long	.LVL38
+ 1672 090d 480B 0000 		.long	0xb48
+ 1673 0911 1C09 0000 		.long	0x91c
+ 1674 0915 35        		.uleb128 0x35
+ 1675 0916 01        		.byte	0x1
+ 1676 0917 68        		.byte	0x68
+ 1677 0918 02        		.byte	0x2
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 38
+
+
+ 1678 0919 81        		.byte	0x81
+ 1679 091a 00        		.sleb128 0
+ 1680 091b 00        		.byte	0
+ 1681 091c 36        		.uleb128 0x36
+ 1682 091d 0000 0000 		.long	.LVL39
+ 1683 0921 600B 0000 		.long	0xb60
+ 1684 0925 35        		.uleb128 0x35
+ 1685 0926 01        		.byte	0x1
+ 1686 0927 68        		.byte	0x68
+ 1687 0928 02        		.byte	0x2
+ 1688 0929 81        		.byte	0x81
+ 1689 092a 00        		.sleb128 0
+ 1690 092b 35        		.uleb128 0x35
+ 1691 092c 01        		.byte	0x1
+ 1692 092d 66        		.byte	0x66
+ 1693 092e 01        		.byte	0x1
+ 1694 092f 31        		.byte	0x31
+ 1695 0930 00        		.byte	0
+ 1696 0931 00        		.byte	0
+ 1697 0932 00        		.byte	0
+ 1698 0933 1E        		.uleb128 0x1e
+ 1699 0934 1A02 0000 		.long	0x21a
+ 1700 0938 00        		.byte	0
+ 1701 0939 4109 0000 		.long	0x941
+ 1702 093d 6209 0000 		.long	0x962
+ 1703 0941 1F        		.uleb128 0x1f
+ 1704 0942 0000 0000 		.long	.LASF53
+ 1705 0946 BF05 0000 		.long	0x5bf
+ 1706 094a 01        		.byte	0x1
+ 1707 094b 22        		.uleb128 0x22
+ 1708 094c 0000 0000 		.long	.LASF61
+ 1709 0950 01        		.byte	0x1
+ 1710 0951 53        		.byte	0x53
+ 1711 0952 3000 0000 		.long	0x30
+ 1712 0956 22        		.uleb128 0x22
+ 1713 0957 0000 0000 		.long	.LASF62
+ 1714 095b 01        		.byte	0x1
+ 1715 095c 53        		.byte	0x53
+ 1716 095d D704 0000 		.long	0x4d7
+ 1717 0961 00        		.byte	0
+ 1718 0962 31        		.uleb128 0x31
+ 1719 0963 3309 0000 		.long	0x933
+ 1720 0967 0000 0000 		.long	.LASF64
+ 1721 096b 0000 0000 		.long	.LFB95
+ 1722 096f 0000 0000 		.long	.LFE95
+ 1723 0973 03        		.byte	0x3
+ 1724 0974 92        		.byte	0x92
+ 1725 0975 20        		.uleb128 0x20
+ 1726 0976 02        		.sleb128 2
+ 1727 0977 8009 0000 		.long	0x980
+ 1728 097b 01        		.byte	0x1
+ 1729 097c F009 0000 		.long	0x9f0
+ 1730 0980 2C        		.uleb128 0x2c
+ 1731 0981 4109 0000 		.long	0x941
+ 1732 0985 0000 0000 		.long	.LLST30
+ 1733 0989 2C        		.uleb128 0x2c
+ 1734 098a 4B09 0000 		.long	0x94b
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 39
+
+
+ 1735 098e 0000 0000 		.long	.LLST31
+ 1736 0992 2C        		.uleb128 0x2c
+ 1737 0993 5609 0000 		.long	0x956
+ 1738 0997 0000 0000 		.long	.LLST32
+ 1739 099b 2B        		.uleb128 0x2b
+ 1740 099c 6505 0000 		.long	0x565
+ 1741 09a0 0000 0000 		.long	.LBB54
+ 1742 09a4 0000 0000 		.long	.LBE54
+ 1743 09a8 01        		.byte	0x1
+ 1744 09a9 55        		.byte	0x55
+ 1745 09aa D109 0000 		.long	0x9d1
+ 1746 09ae 2C        		.uleb128 0x2c
+ 1747 09af 7505 0000 		.long	0x575
+ 1748 09b3 0000 0000 		.long	.LLST33
+ 1749 09b7 2D        		.uleb128 0x2d
+ 1750 09b8 4C05 0000 		.long	0x54c
+ 1751 09bc 0000 0000 		.long	.LBB55
+ 1752 09c0 0000 0000 		.long	.LBE55
+ 1753 09c4 07        		.byte	0x7
+ 1754 09c5 1A        		.byte	0x1a
+ 1755 09c6 2C        		.uleb128 0x2c
+ 1756 09c7 5A05 0000 		.long	0x55a
+ 1757 09cb 0000 0000 		.long	.LLST33
+ 1758 09cf 00        		.byte	0
+ 1759 09d0 00        		.byte	0
+ 1760 09d1 37        		.uleb128 0x37
+ 1761 09d2 0000 0000 		.long	.LVL55
+ 1762 09d6 01        		.byte	0x1
+ 1763 09d7 3308 0000 		.long	0x833
+ 1764 09db 35        		.uleb128 0x35
+ 1765 09dc 06        		.byte	0x6
+ 1766 09dd 68        		.byte	0x68
+ 1767 09de 93        		.byte	0x93
+ 1768 09df 01        		.uleb128 0x1
+ 1769 09e0 69        		.byte	0x69
+ 1770 09e1 93        		.byte	0x93
+ 1771 09e2 01        		.uleb128 0x1
+ 1772 09e3 03        		.byte	0x3
+ 1773 09e4 F3        		.byte	0xf3
+ 1774 09e5 01        		.uleb128 0x1
+ 1775 09e6 68        		.byte	0x68
+ 1776 09e7 35        		.uleb128 0x35
+ 1777 09e8 01        		.byte	0x1
+ 1778 09e9 66        		.byte	0x66
+ 1779 09ea 03        		.byte	0x3
+ 1780 09eb F3        		.byte	0xf3
+ 1781 09ec 01        		.uleb128 0x1
+ 1782 09ed 66        		.byte	0x66
+ 1783 09ee 00        		.byte	0
+ 1784 09ef 00        		.byte	0
+ 1785 09f0 38        		.uleb128 0x38
+ 1786 09f1 8505 0000 		.long	0x585
+ 1787 09f5 0000 0000 		.long	.LASF26
+ 1788 09f9 0000 0000 		.long	.LFB101
+ 1789 09fd 0000 0000 		.long	.LFE101
+ 1790 0a01 03        		.byte	0x3
+ 1791 0a02 92        		.byte	0x92
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 40
+
+
+ 1792 0a03 20        		.uleb128 0x20
+ 1793 0a04 02        		.sleb128 2
+ 1794 0a05 01        		.byte	0x1
+ 1795 0a06 200A 0000 		.long	0xa20
+ 1796 0a0a 2C        		.uleb128 0x2c
+ 1797 0a0b 8F05 0000 		.long	0x58f
+ 1798 0a0f 0000 0000 		.long	.LLST35
+ 1799 0a13 32        		.uleb128 0x32
+ 1800 0a14 9A05 0000 		.long	0x59a
+ 1801 0a18 06        		.byte	0x6
+ 1802 0a19 66        		.byte	0x66
+ 1803 0a1a 93        		.byte	0x93
+ 1804 0a1b 01        		.uleb128 0x1
+ 1805 0a1c 67        		.byte	0x67
+ 1806 0a1d 93        		.byte	0x93
+ 1807 0a1e 01        		.uleb128 0x1
+ 1808 0a1f 00        		.byte	0
+ 1809 0a20 25        		.uleb128 0x25
+ 1810 0a21 5A02 0000 		.long	0x25a
+ 1811 0a25 0000 0000 		.long	.LFB102
+ 1812 0a29 0000 0000 		.long	.LFE102
+ 1813 0a2d 0000 0000 		.long	.LLST36
+ 1814 0a31 3A0A 0000 		.long	0xa3a
+ 1815 0a35 01        		.byte	0x1
+ 1816 0a36 9C0A 0000 		.long	0xa9c
+ 1817 0a3a 30        		.uleb128 0x30
+ 1818 0a3b 0000 0000 		.long	.LASF53
+ 1819 0a3f BF05 0000 		.long	0x5bf
+ 1820 0a43 01        		.byte	0x1
+ 1821 0a44 06        		.byte	0x6
+ 1822 0a45 68        		.byte	0x68
+ 1823 0a46 93        		.byte	0x93
+ 1824 0a47 01        		.uleb128 0x1
+ 1825 0a48 69        		.byte	0x69
+ 1826 0a49 93        		.byte	0x93
+ 1827 0a4a 01        		.uleb128 0x1
+ 1828 0a4b 39        		.uleb128 0x39
+ 1829 0a4c 0000 0000 		.long	.LASF65
+ 1830 0a50 01        		.byte	0x1
+ 1831 0a51 7A        		.byte	0x7a
+ 1832 0a52 5B00 0000 		.long	0x5b
+ 1833 0a56 0C        		.byte	0xc
+ 1834 0a57 64        		.byte	0x64
+ 1835 0a58 93        		.byte	0x93
+ 1836 0a59 01        		.uleb128 0x1
+ 1837 0a5a 65        		.byte	0x65
+ 1838 0a5b 93        		.byte	0x93
+ 1839 0a5c 01        		.uleb128 0x1
+ 1840 0a5d 66        		.byte	0x66
+ 1841 0a5e 93        		.byte	0x93
+ 1842 0a5f 01        		.uleb128 0x1
+ 1843 0a60 67        		.byte	0x67
+ 1844 0a61 93        		.byte	0x93
+ 1845 0a62 01        		.uleb128 0x1
+ 1846 0a63 28        		.uleb128 0x28
+ 1847 0a64 0000 0000 		.long	.LBB57
+ 1848 0a68 0000 0000 		.long	.LBE57
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 41
+
+
+ 1849 0a6c 2A        		.uleb128 0x2a
+ 1850 0a6d 0000 0000 		.long	.LASF66
+ 1851 0a71 01        		.byte	0x1
+ 1852 0a72 7F        		.byte	0x7f
+ 1853 0a73 4900 0000 		.long	0x49
+ 1854 0a77 0000 0000 		.long	.LLST37
+ 1855 0a7b 2D        		.uleb128 0x2d
+ 1856 0a7c 8505 0000 		.long	0x585
+ 1857 0a80 0000 0000 		.long	.LBB58
+ 1858 0a84 0000 0000 		.long	.LBE58
+ 1859 0a88 01        		.byte	0x1
+ 1860 0a89 86        		.byte	0x86
+ 1861 0a8a 3A        		.uleb128 0x3a
+ 1862 0a8b 9A05 0000 		.long	0x59a
+ 1863 0a8f 03        		.byte	0x3
+ 1864 0a90 2C        		.uleb128 0x2c
+ 1865 0a91 8F05 0000 		.long	0x58f
+ 1866 0a95 0000 0000 		.long	.LLST37
+ 1867 0a99 00        		.byte	0
+ 1868 0a9a 00        		.byte	0
+ 1869 0a9b 00        		.byte	0
+ 1870 0a9c 31        		.uleb128 0x31
+ 1871 0a9d A605 0000 		.long	0x5a6
+ 1872 0aa1 0000 0000 		.long	.LASF67
+ 1873 0aa5 0000 0000 		.long	.LFB103
+ 1874 0aa9 0000 0000 		.long	.LFE103
+ 1875 0aad 03        		.byte	0x3
+ 1876 0aae 92        		.byte	0x92
+ 1877 0aaf 20        		.uleb128 0x20
+ 1878 0ab0 02        		.sleb128 2
+ 1879 0ab1 BA0A 0000 		.long	0xaba
+ 1880 0ab5 01        		.byte	0x1
+ 1881 0ab6 C70A 0000 		.long	0xac7
+ 1882 0aba 32        		.uleb128 0x32
+ 1883 0abb B405 0000 		.long	0x5b4
+ 1884 0abf 06        		.byte	0x6
+ 1885 0ac0 68        		.byte	0x68
+ 1886 0ac1 93        		.byte	0x93
+ 1887 0ac2 01        		.uleb128 0x1
+ 1888 0ac3 69        		.byte	0x69
+ 1889 0ac4 93        		.byte	0x93
+ 1890 0ac5 01        		.uleb128 0x1
+ 1891 0ac6 00        		.byte	0
+ 1892 0ac7 3B        		.uleb128 0x3b
+ 1893 0ac8 5400 0000 		.long	0x54
+ 1894 0acc D20A 0000 		.long	0xad2
+ 1895 0ad0 3C        		.uleb128 0x3c
+ 1896 0ad1 00        		.byte	0
+ 1897 0ad2 3D        		.uleb128 0x3d
+ 1898 0ad3 0000 0000 		.long	.LASF68
+ 1899 0ad7 08        		.byte	0x8
+ 1900 0ad8 81        		.byte	0x81
+ 1901 0ad9 C70A 0000 		.long	0xac7
+ 1902 0add 01        		.byte	0x1
+ 1903 0ade 01        		.byte	0x1
+ 1904 0adf 3B        		.uleb128 0x3b
+ 1905 0ae0 3B00 0000 		.long	0x3b
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 42
+
+
+ 1906 0ae4 EA0A 0000 		.long	0xaea
+ 1907 0ae8 3C        		.uleb128 0x3c
+ 1908 0ae9 00        		.byte	0
+ 1909 0aea 3D        		.uleb128 0x3d
+ 1910 0aeb 0000 0000 		.long	.LASF69
+ 1911 0aef 08        		.byte	0x8
+ 1912 0af0 83        		.byte	0x83
+ 1913 0af1 DF0A 0000 		.long	0xadf
+ 1914 0af5 01        		.byte	0x1
+ 1915 0af6 01        		.byte	0x1
+ 1916 0af7 3D        		.uleb128 0x3d
+ 1917 0af8 0000 0000 		.long	.LASF70
+ 1918 0afc 08        		.byte	0x8
+ 1919 0afd 84        		.byte	0x84
+ 1920 0afe DF0A 0000 		.long	0xadf
+ 1921 0b02 01        		.byte	0x1
+ 1922 0b03 01        		.byte	0x1
+ 1923 0b04 3E        		.uleb128 0x3e
+ 1924 0b05 5344 4100 		.string	"SDA"
+ 1925 0b09 09        		.byte	0x9
+ 1926 0b0a 2D        		.byte	0x2d
+ 1927 0b0b 0F01 0000 		.long	0x10f
+ 1928 0b0f 00        		.byte	0
+ 1929 0b10 3E        		.uleb128 0x3e
+ 1930 0b11 5343 4C00 		.string	"SCL"
+ 1931 0b15 09        		.byte	0x9
+ 1932 0b16 2E        		.byte	0x2e
+ 1933 0b17 0F01 0000 		.long	0x10f
+ 1934 0b1b 02        		.byte	0x2
+ 1935 0b1c 3E        		.uleb128 0x3e
+ 1936 0b1d 4130 00   		.string	"A0"
+ 1937 0b20 09        		.byte	0x9
+ 1938 0b21 31        		.byte	0x31
+ 1939 0b22 0F01 0000 		.long	0x10f
+ 1940 0b26 06        		.byte	0x6
+ 1941 0b27 3E        		.uleb128 0x3e
+ 1942 0b28 4131 00   		.string	"A1"
+ 1943 0b2b 09        		.byte	0x9
+ 1944 0b2c 32        		.byte	0x32
+ 1945 0b2d 0F01 0000 		.long	0x10f
+ 1946 0b31 07        		.byte	0x7
+ 1947 0b32 3E        		.uleb128 0x3e
+ 1948 0b33 4132 00   		.string	"A2"
+ 1949 0b36 09        		.byte	0x9
+ 1950 0b37 33        		.byte	0x33
+ 1951 0b38 0F01 0000 		.long	0x10f
+ 1952 0b3c 08        		.byte	0x8
+ 1953 0b3d 3E        		.uleb128 0x3e
+ 1954 0b3e 4133 00   		.string	"A3"
+ 1955 0b41 09        		.byte	0x9
+ 1956 0b42 34        		.byte	0x34
+ 1957 0b43 0F01 0000 		.long	0x10f
+ 1958 0b47 09        		.byte	0x9
+ 1959 0b48 3F        		.uleb128 0x3f
+ 1960 0b49 01        		.byte	0x1
+ 1961 0b4a 0000 0000 		.long	.LASF71
+ 1962 0b4e 08        		.byte	0x8
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 43
+
+
+ 1963 0b4f 65        		.byte	0x65
+ 1964 0b50 01        		.byte	0x1
+ 1965 0b51 600B 0000 		.long	0xb60
+ 1966 0b55 08        		.uleb128 0x8
+ 1967 0b56 3000 0000 		.long	0x30
+ 1968 0b5a 08        		.uleb128 0x8
+ 1969 0b5b 3000 0000 		.long	0x30
+ 1970 0b5f 00        		.byte	0
+ 1971 0b60 40        		.uleb128 0x40
+ 1972 0b61 01        		.byte	0x1
+ 1973 0b62 0000 0000 		.long	.LASF79
+ 1974 0b66 08        		.byte	0x8
+ 1975 0b67 64        		.byte	0x64
+ 1976 0b68 01        		.byte	0x1
+ 1977 0b69 08        		.uleb128 0x8
+ 1978 0b6a 3000 0000 		.long	0x30
+ 1979 0b6e 08        		.uleb128 0x8
+ 1980 0b6f 3000 0000 		.long	0x30
+ 1981 0b73 00        		.byte	0
+ 1982 0b74 00        		.byte	0
+ 1983               		.section	.debug_abbrev,"",@progbits
+ 1984               	.Ldebug_abbrev0:
+ 1985 0000 01        		.uleb128 0x1
+ 1986 0001 11        		.uleb128 0x11
+ 1987 0002 01        		.byte	0x1
+ 1988 0003 25        		.uleb128 0x25
+ 1989 0004 0E        		.uleb128 0xe
+ 1990 0005 13        		.uleb128 0x13
+ 1991 0006 0B        		.uleb128 0xb
+ 1992 0007 03        		.uleb128 0x3
+ 1993 0008 0E        		.uleb128 0xe
+ 1994 0009 1B        		.uleb128 0x1b
+ 1995 000a 0E        		.uleb128 0xe
+ 1996 000b 55        		.uleb128 0x55
+ 1997 000c 06        		.uleb128 0x6
+ 1998 000d 11        		.uleb128 0x11
+ 1999 000e 01        		.uleb128 0x1
+ 2000 000f 52        		.uleb128 0x52
+ 2001 0010 01        		.uleb128 0x1
+ 2002 0011 10        		.uleb128 0x10
+ 2003 0012 06        		.uleb128 0x6
+ 2004 0013 00        		.byte	0
+ 2005 0014 00        		.byte	0
+ 2006 0015 02        		.uleb128 0x2
+ 2007 0016 24        		.uleb128 0x24
+ 2008 0017 00        		.byte	0
+ 2009 0018 0B        		.uleb128 0xb
+ 2010 0019 0B        		.uleb128 0xb
+ 2011 001a 3E        		.uleb128 0x3e
+ 2012 001b 0B        		.uleb128 0xb
+ 2013 001c 03        		.uleb128 0x3
+ 2014 001d 0E        		.uleb128 0xe
+ 2015 001e 00        		.byte	0
+ 2016 001f 00        		.byte	0
+ 2017 0020 03        		.uleb128 0x3
+ 2018 0021 16        		.uleb128 0x16
+ 2019 0022 00        		.byte	0
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 44
+
+
+ 2020 0023 03        		.uleb128 0x3
+ 2021 0024 0E        		.uleb128 0xe
+ 2022 0025 3A        		.uleb128 0x3a
+ 2023 0026 0B        		.uleb128 0xb
+ 2024 0027 3B        		.uleb128 0x3b
+ 2025 0028 0B        		.uleb128 0xb
+ 2026 0029 49        		.uleb128 0x49
+ 2027 002a 13        		.uleb128 0x13
+ 2028 002b 00        		.byte	0
+ 2029 002c 00        		.byte	0
+ 2030 002d 04        		.uleb128 0x4
+ 2031 002e 24        		.uleb128 0x24
+ 2032 002f 00        		.byte	0
+ 2033 0030 0B        		.uleb128 0xb
+ 2034 0031 0B        		.uleb128 0xb
+ 2035 0032 3E        		.uleb128 0x3e
+ 2036 0033 0B        		.uleb128 0xb
+ 2037 0034 03        		.uleb128 0x3
+ 2038 0035 08        		.uleb128 0x8
+ 2039 0036 00        		.byte	0
+ 2040 0037 00        		.byte	0
+ 2041 0038 05        		.uleb128 0x5
+ 2042 0039 02        		.uleb128 0x2
+ 2043 003a 01        		.byte	0x1
+ 2044 003b 03        		.uleb128 0x3
+ 2045 003c 0E        		.uleb128 0xe
+ 2046 003d 3C        		.uleb128 0x3c
+ 2047 003e 0C        		.uleb128 0xc
+ 2048 003f 01        		.uleb128 0x1
+ 2049 0040 13        		.uleb128 0x13
+ 2050 0041 00        		.byte	0
+ 2051 0042 00        		.byte	0
+ 2052 0043 06        		.uleb128 0x6
+ 2053 0044 2E        		.uleb128 0x2e
+ 2054 0045 01        		.byte	0x1
+ 2055 0046 3F        		.uleb128 0x3f
+ 2056 0047 0C        		.uleb128 0xc
+ 2057 0048 03        		.uleb128 0x3
+ 2058 0049 0E        		.uleb128 0xe
+ 2059 004a 3A        		.uleb128 0x3a
+ 2060 004b 0B        		.uleb128 0xb
+ 2061 004c 3B        		.uleb128 0x3b
+ 2062 004d 0B        		.uleb128 0xb
+ 2063 004e 8740      		.uleb128 0x2007
+ 2064 0050 0E        		.uleb128 0xe
+ 2065 0051 49        		.uleb128 0x49
+ 2066 0052 13        		.uleb128 0x13
+ 2067 0053 4C        		.uleb128 0x4c
+ 2068 0054 0B        		.uleb128 0xb
+ 2069 0055 4D        		.uleb128 0x4d
+ 2070 0056 0A        		.uleb128 0xa
+ 2071 0057 1D        		.uleb128 0x1d
+ 2072 0058 13        		.uleb128 0x13
+ 2073 0059 3C        		.uleb128 0x3c
+ 2074 005a 0C        		.uleb128 0xc
+ 2075 005b 64        		.uleb128 0x64
+ 2076 005c 13        		.uleb128 0x13
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 45
+
+
+ 2077 005d 01        		.uleb128 0x1
+ 2078 005e 13        		.uleb128 0x13
+ 2079 005f 00        		.byte	0
+ 2080 0060 00        		.byte	0
+ 2081 0061 07        		.uleb128 0x7
+ 2082 0062 05        		.uleb128 0x5
+ 2083 0063 00        		.byte	0
+ 2084 0064 49        		.uleb128 0x49
+ 2085 0065 13        		.uleb128 0x13
+ 2086 0066 34        		.uleb128 0x34
+ 2087 0067 0C        		.uleb128 0xc
+ 2088 0068 00        		.byte	0
+ 2089 0069 00        		.byte	0
+ 2090 006a 08        		.uleb128 0x8
+ 2091 006b 05        		.uleb128 0x5
+ 2092 006c 00        		.byte	0
+ 2093 006d 49        		.uleb128 0x49
+ 2094 006e 13        		.uleb128 0x13
+ 2095 006f 00        		.byte	0
+ 2096 0070 00        		.byte	0
+ 2097 0071 09        		.uleb128 0x9
+ 2098 0072 2E        		.uleb128 0x2e
+ 2099 0073 01        		.byte	0x1
+ 2100 0074 3F        		.uleb128 0x3f
+ 2101 0075 0C        		.uleb128 0xc
+ 2102 0076 03        		.uleb128 0x3
+ 2103 0077 0E        		.uleb128 0xe
+ 2104 0078 3A        		.uleb128 0x3a
+ 2105 0079 0B        		.uleb128 0xb
+ 2106 007a 3B        		.uleb128 0x3b
+ 2107 007b 0B        		.uleb128 0xb
+ 2108 007c 8740      		.uleb128 0x2007
+ 2109 007e 0E        		.uleb128 0xe
+ 2110 007f 32        		.uleb128 0x32
+ 2111 0080 0B        		.uleb128 0xb
+ 2112 0081 3C        		.uleb128 0x3c
+ 2113 0082 0C        		.uleb128 0xc
+ 2114 0083 64        		.uleb128 0x64
+ 2115 0084 13        		.uleb128 0x13
+ 2116 0085 01        		.uleb128 0x1
+ 2117 0086 13        		.uleb128 0x13
+ 2118 0087 00        		.byte	0
+ 2119 0088 00        		.byte	0
+ 2120 0089 0A        		.uleb128 0xa
+ 2121 008a 2E        		.uleb128 0x2e
+ 2122 008b 01        		.byte	0x1
+ 2123 008c 3F        		.uleb128 0x3f
+ 2124 008d 0C        		.uleb128 0xc
+ 2125 008e 03        		.uleb128 0x3
+ 2126 008f 0E        		.uleb128 0xe
+ 2127 0090 3A        		.uleb128 0x3a
+ 2128 0091 0B        		.uleb128 0xb
+ 2129 0092 3B        		.uleb128 0x3b
+ 2130 0093 0B        		.uleb128 0xb
+ 2131 0094 3C        		.uleb128 0x3c
+ 2132 0095 0C        		.uleb128 0xc
+ 2133 0096 64        		.uleb128 0x64
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 46
+
+
+ 2134 0097 13        		.uleb128 0x13
+ 2135 0098 00        		.byte	0
+ 2136 0099 00        		.byte	0
+ 2137 009a 0B        		.uleb128 0xb
+ 2138 009b 0F        		.uleb128 0xf
+ 2139 009c 00        		.byte	0
+ 2140 009d 0B        		.uleb128 0xb
+ 2141 009e 0B        		.uleb128 0xb
+ 2142 009f 49        		.uleb128 0x49
+ 2143 00a0 13        		.uleb128 0x13
+ 2144 00a1 00        		.byte	0
+ 2145 00a2 00        		.byte	0
+ 2146 00a3 0C        		.uleb128 0xc
+ 2147 00a4 26        		.uleb128 0x26
+ 2148 00a5 00        		.byte	0
+ 2149 00a6 49        		.uleb128 0x49
+ 2150 00a7 13        		.uleb128 0x13
+ 2151 00a8 00        		.byte	0
+ 2152 00a9 00        		.byte	0
+ 2153 00aa 0D        		.uleb128 0xd
+ 2154 00ab 02        		.uleb128 0x2
+ 2155 00ac 01        		.byte	0x1
+ 2156 00ad 03        		.uleb128 0x3
+ 2157 00ae 0E        		.uleb128 0xe
+ 2158 00af 0B        		.uleb128 0xb
+ 2159 00b0 0B        		.uleb128 0xb
+ 2160 00b1 3A        		.uleb128 0x3a
+ 2161 00b2 0B        		.uleb128 0xb
+ 2162 00b3 3B        		.uleb128 0x3b
+ 2163 00b4 0B        		.uleb128 0xb
+ 2164 00b5 1D        		.uleb128 0x1d
+ 2165 00b6 13        		.uleb128 0x13
+ 2166 00b7 01        		.uleb128 0x1
+ 2167 00b8 13        		.uleb128 0x13
+ 2168 00b9 00        		.byte	0
+ 2169 00ba 00        		.byte	0
+ 2170 00bb 0E        		.uleb128 0xe
+ 2171 00bc 08        		.uleb128 0x8
+ 2172 00bd 00        		.byte	0
+ 2173 00be 3A        		.uleb128 0x3a
+ 2174 00bf 0B        		.uleb128 0xb
+ 2175 00c0 3B        		.uleb128 0x3b
+ 2176 00c1 0B        		.uleb128 0xb
+ 2177 00c2 18        		.uleb128 0x18
+ 2178 00c3 13        		.uleb128 0x13
+ 2179 00c4 00        		.byte	0
+ 2180 00c5 00        		.byte	0
+ 2181 00c6 0F        		.uleb128 0xf
+ 2182 00c7 1C        		.uleb128 0x1c
+ 2183 00c8 00        		.byte	0
+ 2184 00c9 49        		.uleb128 0x49
+ 2185 00ca 13        		.uleb128 0x13
+ 2186 00cb 38        		.uleb128 0x38
+ 2187 00cc 0A        		.uleb128 0xa
+ 2188 00cd 32        		.uleb128 0x32
+ 2189 00ce 0B        		.uleb128 0xb
+ 2190 00cf 00        		.byte	0
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 47
+
+
+ 2191 00d0 00        		.byte	0
+ 2192 00d1 10        		.uleb128 0x10
+ 2193 00d2 0D        		.uleb128 0xd
+ 2194 00d3 00        		.byte	0
+ 2195 00d4 03        		.uleb128 0x3
+ 2196 00d5 0E        		.uleb128 0xe
+ 2197 00d6 3A        		.uleb128 0x3a
+ 2198 00d7 0B        		.uleb128 0xb
+ 2199 00d8 3B        		.uleb128 0x3b
+ 2200 00d9 0B        		.uleb128 0xb
+ 2201 00da 49        		.uleb128 0x49
+ 2202 00db 13        		.uleb128 0x13
+ 2203 00dc 38        		.uleb128 0x38
+ 2204 00dd 0A        		.uleb128 0xa
+ 2205 00de 32        		.uleb128 0x32
+ 2206 00df 0B        		.uleb128 0xb
+ 2207 00e0 00        		.byte	0
+ 2208 00e1 00        		.byte	0
+ 2209 00e2 11        		.uleb128 0x11
+ 2210 00e3 0D        		.uleb128 0xd
+ 2211 00e4 00        		.byte	0
+ 2212 00e5 03        		.uleb128 0x3
+ 2213 00e6 0E        		.uleb128 0xe
+ 2214 00e7 3A        		.uleb128 0x3a
+ 2215 00e8 0B        		.uleb128 0xb
+ 2216 00e9 3B        		.uleb128 0x3b
+ 2217 00ea 0B        		.uleb128 0xb
+ 2218 00eb 49        		.uleb128 0x49
+ 2219 00ec 13        		.uleb128 0x13
+ 2220 00ed 0B        		.uleb128 0xb
+ 2221 00ee 0B        		.uleb128 0xb
+ 2222 00ef 0D        		.uleb128 0xd
+ 2223 00f0 0B        		.uleb128 0xb
+ 2224 00f1 0C        		.uleb128 0xc
+ 2225 00f2 0B        		.uleb128 0xb
+ 2226 00f3 38        		.uleb128 0x38
+ 2227 00f4 0A        		.uleb128 0xa
+ 2228 00f5 32        		.uleb128 0x32
+ 2229 00f6 0B        		.uleb128 0xb
+ 2230 00f7 00        		.byte	0
+ 2231 00f8 00        		.byte	0
+ 2232 00f9 12        		.uleb128 0x12
+ 2233 00fa 2E        		.uleb128 0x2e
+ 2234 00fb 01        		.byte	0x1
+ 2235 00fc 3F        		.uleb128 0x3f
+ 2236 00fd 0C        		.uleb128 0xc
+ 2237 00fe 03        		.uleb128 0x3
+ 2238 00ff 0E        		.uleb128 0xe
+ 2239 0100 34        		.uleb128 0x34
+ 2240 0101 0C        		.uleb128 0xc
+ 2241 0102 3C        		.uleb128 0x3c
+ 2242 0103 0C        		.uleb128 0xc
+ 2243 0104 64        		.uleb128 0x64
+ 2244 0105 13        		.uleb128 0x13
+ 2245 0106 01        		.uleb128 0x1
+ 2246 0107 13        		.uleb128 0x13
+ 2247 0108 00        		.byte	0
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 48
+
+
+ 2248 0109 00        		.byte	0
+ 2249 010a 13        		.uleb128 0x13
+ 2250 010b 2E        		.uleb128 0x2e
+ 2251 010c 01        		.byte	0x1
+ 2252 010d 3F        		.uleb128 0x3f
+ 2253 010e 0C        		.uleb128 0xc
+ 2254 010f 03        		.uleb128 0x3
+ 2255 0110 0E        		.uleb128 0xe
+ 2256 0111 3A        		.uleb128 0x3a
+ 2257 0112 0B        		.uleb128 0xb
+ 2258 0113 3B        		.uleb128 0x3b
+ 2259 0114 0B        		.uleb128 0xb
+ 2260 0115 8740      		.uleb128 0x2007
+ 2261 0117 0E        		.uleb128 0xe
+ 2262 0118 49        		.uleb128 0x49
+ 2263 0119 13        		.uleb128 0x13
+ 2264 011a 32        		.uleb128 0x32
+ 2265 011b 0B        		.uleb128 0xb
+ 2266 011c 3C        		.uleb128 0x3c
+ 2267 011d 0C        		.uleb128 0xc
+ 2268 011e 01        		.uleb128 0x1
+ 2269 011f 13        		.uleb128 0x13
+ 2270 0120 00        		.byte	0
+ 2271 0121 00        		.byte	0
+ 2272 0122 14        		.uleb128 0x14
+ 2273 0123 2E        		.uleb128 0x2e
+ 2274 0124 01        		.byte	0x1
+ 2275 0125 3F        		.uleb128 0x3f
+ 2276 0126 0C        		.uleb128 0xc
+ 2277 0127 03        		.uleb128 0x3
+ 2278 0128 0E        		.uleb128 0xe
+ 2279 0129 3A        		.uleb128 0x3a
+ 2280 012a 0B        		.uleb128 0xb
+ 2281 012b 3B        		.uleb128 0x3b
+ 2282 012c 0B        		.uleb128 0xb
+ 2283 012d 8740      		.uleb128 0x2007
+ 2284 012f 0E        		.uleb128 0xe
+ 2285 0130 32        		.uleb128 0x32
+ 2286 0131 0B        		.uleb128 0xb
+ 2287 0132 3C        		.uleb128 0x3c
+ 2288 0133 0C        		.uleb128 0xc
+ 2289 0134 01        		.uleb128 0x1
+ 2290 0135 13        		.uleb128 0x13
+ 2291 0136 00        		.byte	0
+ 2292 0137 00        		.byte	0
+ 2293 0138 15        		.uleb128 0x15
+ 2294 0139 2E        		.uleb128 0x2e
+ 2295 013a 01        		.byte	0x1
+ 2296 013b 3F        		.uleb128 0x3f
+ 2297 013c 0C        		.uleb128 0xc
+ 2298 013d 03        		.uleb128 0x3
+ 2299 013e 0E        		.uleb128 0xe
+ 2300 013f 3A        		.uleb128 0x3a
+ 2301 0140 0B        		.uleb128 0xb
+ 2302 0141 3B        		.uleb128 0x3b
+ 2303 0142 0B        		.uleb128 0xb
+ 2304 0143 3C        		.uleb128 0x3c
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 49
+
+
+ 2305 0144 0C        		.uleb128 0xc
+ 2306 0145 64        		.uleb128 0x64
+ 2307 0146 13        		.uleb128 0x13
+ 2308 0147 01        		.uleb128 0x1
+ 2309 0148 13        		.uleb128 0x13
+ 2310 0149 00        		.byte	0
+ 2311 014a 00        		.byte	0
+ 2312 014b 16        		.uleb128 0x16
+ 2313 014c 2E        		.uleb128 0x2e
+ 2314 014d 01        		.byte	0x1
+ 2315 014e 3F        		.uleb128 0x3f
+ 2316 014f 0C        		.uleb128 0xc
+ 2317 0150 03        		.uleb128 0x3
+ 2318 0151 0E        		.uleb128 0xe
+ 2319 0152 3A        		.uleb128 0x3a
+ 2320 0153 0B        		.uleb128 0xb
+ 2321 0154 3B        		.uleb128 0x3b
+ 2322 0155 0B        		.uleb128 0xb
+ 2323 0156 8740      		.uleb128 0x2007
+ 2324 0158 0E        		.uleb128 0xe
+ 2325 0159 3C        		.uleb128 0x3c
+ 2326 015a 0C        		.uleb128 0xc
+ 2327 015b 64        		.uleb128 0x64
+ 2328 015c 13        		.uleb128 0x13
+ 2329 015d 01        		.uleb128 0x1
+ 2330 015e 13        		.uleb128 0x13
+ 2331 015f 00        		.byte	0
+ 2332 0160 00        		.byte	0
+ 2333 0161 17        		.uleb128 0x17
+ 2334 0162 2E        		.uleb128 0x2e
+ 2335 0163 01        		.byte	0x1
+ 2336 0164 3F        		.uleb128 0x3f
+ 2337 0165 0C        		.uleb128 0xc
+ 2338 0166 03        		.uleb128 0x3
+ 2339 0167 08        		.uleb128 0x8
+ 2340 0168 3A        		.uleb128 0x3a
+ 2341 0169 0B        		.uleb128 0xb
+ 2342 016a 3B        		.uleb128 0x3b
+ 2343 016b 0B        		.uleb128 0xb
+ 2344 016c 8740      		.uleb128 0x2007
+ 2345 016e 0E        		.uleb128 0xe
+ 2346 016f 3C        		.uleb128 0x3c
+ 2347 0170 0C        		.uleb128 0xc
+ 2348 0171 64        		.uleb128 0x64
+ 2349 0172 13        		.uleb128 0x13
+ 2350 0173 01        		.uleb128 0x1
+ 2351 0174 13        		.uleb128 0x13
+ 2352 0175 00        		.byte	0
+ 2353 0176 00        		.byte	0
+ 2354 0177 18        		.uleb128 0x18
+ 2355 0178 2E        		.uleb128 0x2e
+ 2356 0179 01        		.byte	0x1
+ 2357 017a 3F        		.uleb128 0x3f
+ 2358 017b 0C        		.uleb128 0xc
+ 2359 017c 03        		.uleb128 0x3
+ 2360 017d 0E        		.uleb128 0xe
+ 2361 017e 3A        		.uleb128 0x3a
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 50
+
+
+ 2362 017f 0B        		.uleb128 0xb
+ 2363 0180 3B        		.uleb128 0x3b
+ 2364 0181 0B        		.uleb128 0xb
+ 2365 0182 8740      		.uleb128 0x2007
+ 2366 0184 0E        		.uleb128 0xe
+ 2367 0185 49        		.uleb128 0x49
+ 2368 0186 13        		.uleb128 0x13
+ 2369 0187 3C        		.uleb128 0x3c
+ 2370 0188 0C        		.uleb128 0xc
+ 2371 0189 64        		.uleb128 0x64
+ 2372 018a 13        		.uleb128 0x13
+ 2373 018b 01        		.uleb128 0x1
+ 2374 018c 13        		.uleb128 0x13
+ 2375 018d 00        		.byte	0
+ 2376 018e 00        		.byte	0
+ 2377 018f 19        		.uleb128 0x19
+ 2378 0190 2E        		.uleb128 0x2e
+ 2379 0191 01        		.byte	0x1
+ 2380 0192 3F        		.uleb128 0x3f
+ 2381 0193 0C        		.uleb128 0xc
+ 2382 0194 03        		.uleb128 0x3
+ 2383 0195 0E        		.uleb128 0xe
+ 2384 0196 3A        		.uleb128 0x3a
+ 2385 0197 0B        		.uleb128 0xb
+ 2386 0198 3B        		.uleb128 0x3b
+ 2387 0199 0B        		.uleb128 0xb
+ 2388 019a 8740      		.uleb128 0x2007
+ 2389 019c 0E        		.uleb128 0xe
+ 2390 019d 4C        		.uleb128 0x4c
+ 2391 019e 0B        		.uleb128 0xb
+ 2392 019f 4D        		.uleb128 0x4d
+ 2393 01a0 0A        		.uleb128 0xa
+ 2394 01a1 1D        		.uleb128 0x1d
+ 2395 01a2 13        		.uleb128 0x13
+ 2396 01a3 3C        		.uleb128 0x3c
+ 2397 01a4 0C        		.uleb128 0xc
+ 2398 01a5 64        		.uleb128 0x64
+ 2399 01a6 13        		.uleb128 0x13
+ 2400 01a7 01        		.uleb128 0x1
+ 2401 01a8 13        		.uleb128 0x13
+ 2402 01a9 00        		.byte	0
+ 2403 01aa 00        		.byte	0
+ 2404 01ab 1A        		.uleb128 0x1a
+ 2405 01ac 2E        		.uleb128 0x2e
+ 2406 01ad 01        		.byte	0x1
+ 2407 01ae 3F        		.uleb128 0x3f
+ 2408 01af 0C        		.uleb128 0xc
+ 2409 01b0 03        		.uleb128 0x3
+ 2410 01b1 0E        		.uleb128 0xe
+ 2411 01b2 3A        		.uleb128 0x3a
+ 2412 01b3 0B        		.uleb128 0xb
+ 2413 01b4 3B        		.uleb128 0x3b
+ 2414 01b5 0B        		.uleb128 0xb
+ 2415 01b6 8740      		.uleb128 0x2007
+ 2416 01b8 0E        		.uleb128 0xe
+ 2417 01b9 49        		.uleb128 0x49
+ 2418 01ba 13        		.uleb128 0x13
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 51
+
+
+ 2419 01bb 3C        		.uleb128 0x3c
+ 2420 01bc 0C        		.uleb128 0xc
+ 2421 01bd 64        		.uleb128 0x64
+ 2422 01be 13        		.uleb128 0x13
+ 2423 01bf 00        		.byte	0
+ 2424 01c0 00        		.byte	0
+ 2425 01c1 1B        		.uleb128 0x1b
+ 2426 01c2 2E        		.uleb128 0x2e
+ 2427 01c3 01        		.byte	0x1
+ 2428 01c4 3F        		.uleb128 0x3f
+ 2429 01c5 0C        		.uleb128 0xc
+ 2430 01c6 03        		.uleb128 0x3
+ 2431 01c7 0E        		.uleb128 0xe
+ 2432 01c8 3A        		.uleb128 0x3a
+ 2433 01c9 0B        		.uleb128 0xb
+ 2434 01ca 3B        		.uleb128 0x3b
+ 2435 01cb 0B        		.uleb128 0xb
+ 2436 01cc 8740      		.uleb128 0x2007
+ 2437 01ce 0E        		.uleb128 0xe
+ 2438 01cf 4C        		.uleb128 0x4c
+ 2439 01d0 0B        		.uleb128 0xb
+ 2440 01d1 4D        		.uleb128 0x4d
+ 2441 01d2 0A        		.uleb128 0xa
+ 2442 01d3 1D        		.uleb128 0x1d
+ 2443 01d4 13        		.uleb128 0x13
+ 2444 01d5 3C        		.uleb128 0x3c
+ 2445 01d6 0C        		.uleb128 0xc
+ 2446 01d7 64        		.uleb128 0x64
+ 2447 01d8 13        		.uleb128 0x13
+ 2448 01d9 00        		.byte	0
+ 2449 01da 00        		.byte	0
+ 2450 01db 1C        		.uleb128 0x1c
+ 2451 01dc 35        		.uleb128 0x35
+ 2452 01dd 00        		.byte	0
+ 2453 01de 49        		.uleb128 0x49
+ 2454 01df 13        		.uleb128 0x13
+ 2455 01e0 00        		.byte	0
+ 2456 01e1 00        		.byte	0
+ 2457 01e2 1D        		.uleb128 0x1d
+ 2458 01e3 10        		.uleb128 0x10
+ 2459 01e4 00        		.byte	0
+ 2460 01e5 0B        		.uleb128 0xb
+ 2461 01e6 0B        		.uleb128 0xb
+ 2462 01e7 49        		.uleb128 0x49
+ 2463 01e8 13        		.uleb128 0x13
+ 2464 01e9 00        		.byte	0
+ 2465 01ea 00        		.byte	0
+ 2466 01eb 1E        		.uleb128 0x1e
+ 2467 01ec 2E        		.uleb128 0x2e
+ 2468 01ed 01        		.byte	0x1
+ 2469 01ee 47        		.uleb128 0x47
+ 2470 01ef 13        		.uleb128 0x13
+ 2471 01f0 20        		.uleb128 0x20
+ 2472 01f1 0B        		.uleb128 0xb
+ 2473 01f2 64        		.uleb128 0x64
+ 2474 01f3 13        		.uleb128 0x13
+ 2475 01f4 01        		.uleb128 0x1
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 52
+
+
+ 2476 01f5 13        		.uleb128 0x13
+ 2477 01f6 00        		.byte	0
+ 2478 01f7 00        		.byte	0
+ 2479 01f8 1F        		.uleb128 0x1f
+ 2480 01f9 05        		.uleb128 0x5
+ 2481 01fa 00        		.byte	0
+ 2482 01fb 03        		.uleb128 0x3
+ 2483 01fc 0E        		.uleb128 0xe
+ 2484 01fd 49        		.uleb128 0x49
+ 2485 01fe 13        		.uleb128 0x13
+ 2486 01ff 34        		.uleb128 0x34
+ 2487 0200 0C        		.uleb128 0xc
+ 2488 0201 00        		.byte	0
+ 2489 0202 00        		.byte	0
+ 2490 0203 20        		.uleb128 0x20
+ 2491 0204 05        		.uleb128 0x5
+ 2492 0205 00        		.byte	0
+ 2493 0206 03        		.uleb128 0x3
+ 2494 0207 08        		.uleb128 0x8
+ 2495 0208 3A        		.uleb128 0x3a
+ 2496 0209 0B        		.uleb128 0xb
+ 2497 020a 3B        		.uleb128 0x3b
+ 2498 020b 0B        		.uleb128 0xb
+ 2499 020c 49        		.uleb128 0x49
+ 2500 020d 13        		.uleb128 0x13
+ 2501 020e 00        		.byte	0
+ 2502 020f 00        		.byte	0
+ 2503 0210 21        		.uleb128 0x21
+ 2504 0211 2E        		.uleb128 0x2e
+ 2505 0212 01        		.byte	0x1
+ 2506 0213 03        		.uleb128 0x3
+ 2507 0214 0E        		.uleb128 0xe
+ 2508 0215 3A        		.uleb128 0x3a
+ 2509 0216 0B        		.uleb128 0xb
+ 2510 0217 3B        		.uleb128 0x3b
+ 2511 0218 0B        		.uleb128 0xb
+ 2512 0219 20        		.uleb128 0x20
+ 2513 021a 0B        		.uleb128 0xb
+ 2514 021b 01        		.uleb128 0x1
+ 2515 021c 13        		.uleb128 0x13
+ 2516 021d 00        		.byte	0
+ 2517 021e 00        		.byte	0
+ 2518 021f 22        		.uleb128 0x22
+ 2519 0220 05        		.uleb128 0x5
+ 2520 0221 00        		.byte	0
+ 2521 0222 03        		.uleb128 0x3
+ 2522 0223 0E        		.uleb128 0xe
+ 2523 0224 3A        		.uleb128 0x3a
+ 2524 0225 0B        		.uleb128 0xb
+ 2525 0226 3B        		.uleb128 0x3b
+ 2526 0227 0B        		.uleb128 0xb
+ 2527 0228 49        		.uleb128 0x49
+ 2528 0229 13        		.uleb128 0x13
+ 2529 022a 00        		.byte	0
+ 2530 022b 00        		.byte	0
+ 2531 022c 23        		.uleb128 0x23
+ 2532 022d 2E        		.uleb128 0x2e
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 53
+
+
+ 2533 022e 01        		.byte	0x1
+ 2534 022f 47        		.uleb128 0x47
+ 2535 0230 13        		.uleb128 0x13
+ 2536 0231 20        		.uleb128 0x20
+ 2537 0232 0B        		.uleb128 0xb
+ 2538 0233 01        		.uleb128 0x1
+ 2539 0234 13        		.uleb128 0x13
+ 2540 0235 00        		.byte	0
+ 2541 0236 00        		.byte	0
+ 2542 0237 24        		.uleb128 0x24
+ 2543 0238 2E        		.uleb128 0x2e
+ 2544 0239 01        		.byte	0x1
+ 2545 023a 47        		.uleb128 0x47
+ 2546 023b 13        		.uleb128 0x13
+ 2547 023c 3A        		.uleb128 0x3a
+ 2548 023d 0B        		.uleb128 0xb
+ 2549 023e 3B        		.uleb128 0x3b
+ 2550 023f 0B        		.uleb128 0xb
+ 2551 0240 20        		.uleb128 0x20
+ 2552 0241 0B        		.uleb128 0xb
+ 2553 0242 64        		.uleb128 0x64
+ 2554 0243 13        		.uleb128 0x13
+ 2555 0244 01        		.uleb128 0x1
+ 2556 0245 13        		.uleb128 0x13
+ 2557 0246 00        		.byte	0
+ 2558 0247 00        		.byte	0
+ 2559 0248 25        		.uleb128 0x25
+ 2560 0249 2E        		.uleb128 0x2e
+ 2561 024a 01        		.byte	0x1
+ 2562 024b 47        		.uleb128 0x47
+ 2563 024c 13        		.uleb128 0x13
+ 2564 024d 11        		.uleb128 0x11
+ 2565 024e 01        		.uleb128 0x1
+ 2566 024f 12        		.uleb128 0x12
+ 2567 0250 01        		.uleb128 0x1
+ 2568 0251 40        		.uleb128 0x40
+ 2569 0252 06        		.uleb128 0x6
+ 2570 0253 64        		.uleb128 0x64
+ 2571 0254 13        		.uleb128 0x13
+ 2572 0255 9742      		.uleb128 0x2117
+ 2573 0257 0C        		.uleb128 0xc
+ 2574 0258 01        		.uleb128 0x1
+ 2575 0259 13        		.uleb128 0x13
+ 2576 025a 00        		.byte	0
+ 2577 025b 00        		.byte	0
+ 2578 025c 26        		.uleb128 0x26
+ 2579 025d 05        		.uleb128 0x5
+ 2580 025e 00        		.byte	0
+ 2581 025f 03        		.uleb128 0x3
+ 2582 0260 0E        		.uleb128 0xe
+ 2583 0261 49        		.uleb128 0x49
+ 2584 0262 13        		.uleb128 0x13
+ 2585 0263 34        		.uleb128 0x34
+ 2586 0264 0C        		.uleb128 0xc
+ 2587 0265 02        		.uleb128 0x2
+ 2588 0266 06        		.uleb128 0x6
+ 2589 0267 00        		.byte	0
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 54
+
+
+ 2590 0268 00        		.byte	0
+ 2591 0269 27        		.uleb128 0x27
+ 2592 026a 05        		.uleb128 0x5
+ 2593 026b 00        		.byte	0
+ 2594 026c 03        		.uleb128 0x3
+ 2595 026d 08        		.uleb128 0x8
+ 2596 026e 3A        		.uleb128 0x3a
+ 2597 026f 0B        		.uleb128 0xb
+ 2598 0270 3B        		.uleb128 0x3b
+ 2599 0271 0B        		.uleb128 0xb
+ 2600 0272 49        		.uleb128 0x49
+ 2601 0273 13        		.uleb128 0x13
+ 2602 0274 02        		.uleb128 0x2
+ 2603 0275 06        		.uleb128 0x6
+ 2604 0276 00        		.byte	0
+ 2605 0277 00        		.byte	0
+ 2606 0278 28        		.uleb128 0x28
+ 2607 0279 0B        		.uleb128 0xb
+ 2608 027a 01        		.byte	0x1
+ 2609 027b 11        		.uleb128 0x11
+ 2610 027c 01        		.uleb128 0x1
+ 2611 027d 12        		.uleb128 0x12
+ 2612 027e 01        		.uleb128 0x1
+ 2613 027f 00        		.byte	0
+ 2614 0280 00        		.byte	0
+ 2615 0281 29        		.uleb128 0x29
+ 2616 0282 34        		.uleb128 0x34
+ 2617 0283 00        		.byte	0
+ 2618 0284 03        		.uleb128 0x3
+ 2619 0285 08        		.uleb128 0x8
+ 2620 0286 3A        		.uleb128 0x3a
+ 2621 0287 0B        		.uleb128 0xb
+ 2622 0288 3B        		.uleb128 0x3b
+ 2623 0289 0B        		.uleb128 0xb
+ 2624 028a 49        		.uleb128 0x49
+ 2625 028b 13        		.uleb128 0x13
+ 2626 028c 02        		.uleb128 0x2
+ 2627 028d 06        		.uleb128 0x6
+ 2628 028e 00        		.byte	0
+ 2629 028f 00        		.byte	0
+ 2630 0290 2A        		.uleb128 0x2a
+ 2631 0291 34        		.uleb128 0x34
+ 2632 0292 00        		.byte	0
+ 2633 0293 03        		.uleb128 0x3
+ 2634 0294 0E        		.uleb128 0xe
+ 2635 0295 3A        		.uleb128 0x3a
+ 2636 0296 0B        		.uleb128 0xb
+ 2637 0297 3B        		.uleb128 0x3b
+ 2638 0298 0B        		.uleb128 0xb
+ 2639 0299 49        		.uleb128 0x49
+ 2640 029a 13        		.uleb128 0x13
+ 2641 029b 02        		.uleb128 0x2
+ 2642 029c 06        		.uleb128 0x6
+ 2643 029d 00        		.byte	0
+ 2644 029e 00        		.byte	0
+ 2645 029f 2B        		.uleb128 0x2b
+ 2646 02a0 1D        		.uleb128 0x1d
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 55
+
+
+ 2647 02a1 01        		.byte	0x1
+ 2648 02a2 31        		.uleb128 0x31
+ 2649 02a3 13        		.uleb128 0x13
+ 2650 02a4 11        		.uleb128 0x11
+ 2651 02a5 01        		.uleb128 0x1
+ 2652 02a6 12        		.uleb128 0x12
+ 2653 02a7 01        		.uleb128 0x1
+ 2654 02a8 58        		.uleb128 0x58
+ 2655 02a9 0B        		.uleb128 0xb
+ 2656 02aa 59        		.uleb128 0x59
+ 2657 02ab 0B        		.uleb128 0xb
+ 2658 02ac 01        		.uleb128 0x1
+ 2659 02ad 13        		.uleb128 0x13
+ 2660 02ae 00        		.byte	0
+ 2661 02af 00        		.byte	0
+ 2662 02b0 2C        		.uleb128 0x2c
+ 2663 02b1 05        		.uleb128 0x5
+ 2664 02b2 00        		.byte	0
+ 2665 02b3 31        		.uleb128 0x31
+ 2666 02b4 13        		.uleb128 0x13
+ 2667 02b5 02        		.uleb128 0x2
+ 2668 02b6 06        		.uleb128 0x6
+ 2669 02b7 00        		.byte	0
+ 2670 02b8 00        		.byte	0
+ 2671 02b9 2D        		.uleb128 0x2d
+ 2672 02ba 1D        		.uleb128 0x1d
+ 2673 02bb 01        		.byte	0x1
+ 2674 02bc 31        		.uleb128 0x31
+ 2675 02bd 13        		.uleb128 0x13
+ 2676 02be 11        		.uleb128 0x11
+ 2677 02bf 01        		.uleb128 0x1
+ 2678 02c0 12        		.uleb128 0x12
+ 2679 02c1 01        		.uleb128 0x1
+ 2680 02c2 58        		.uleb128 0x58
+ 2681 02c3 0B        		.uleb128 0xb
+ 2682 02c4 59        		.uleb128 0x59
+ 2683 02c5 0B        		.uleb128 0xb
+ 2684 02c6 00        		.byte	0
+ 2685 02c7 00        		.byte	0
+ 2686 02c8 2E        		.uleb128 0x2e
+ 2687 02c9 0B        		.uleb128 0xb
+ 2688 02ca 01        		.byte	0x1
+ 2689 02cb 11        		.uleb128 0x11
+ 2690 02cc 01        		.uleb128 0x1
+ 2691 02cd 12        		.uleb128 0x12
+ 2692 02ce 01        		.uleb128 0x1
+ 2693 02cf 01        		.uleb128 0x1
+ 2694 02d0 13        		.uleb128 0x13
+ 2695 02d1 00        		.byte	0
+ 2696 02d2 00        		.byte	0
+ 2697 02d3 2F        		.uleb128 0x2f
+ 2698 02d4 2E        		.uleb128 0x2e
+ 2699 02d5 01        		.byte	0x1
+ 2700 02d6 47        		.uleb128 0x47
+ 2701 02d7 13        		.uleb128 0x13
+ 2702 02d8 11        		.uleb128 0x11
+ 2703 02d9 01        		.uleb128 0x1
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 56
+
+
+ 2704 02da 12        		.uleb128 0x12
+ 2705 02db 01        		.uleb128 0x1
+ 2706 02dc 40        		.uleb128 0x40
+ 2707 02dd 0A        		.uleb128 0xa
+ 2708 02de 64        		.uleb128 0x64
+ 2709 02df 13        		.uleb128 0x13
+ 2710 02e0 9742      		.uleb128 0x2117
+ 2711 02e2 0C        		.uleb128 0xc
+ 2712 02e3 01        		.uleb128 0x1
+ 2713 02e4 13        		.uleb128 0x13
+ 2714 02e5 00        		.byte	0
+ 2715 02e6 00        		.byte	0
+ 2716 02e7 30        		.uleb128 0x30
+ 2717 02e8 05        		.uleb128 0x5
+ 2718 02e9 00        		.byte	0
+ 2719 02ea 03        		.uleb128 0x3
+ 2720 02eb 0E        		.uleb128 0xe
+ 2721 02ec 49        		.uleb128 0x49
+ 2722 02ed 13        		.uleb128 0x13
+ 2723 02ee 34        		.uleb128 0x34
+ 2724 02ef 0C        		.uleb128 0xc
+ 2725 02f0 02        		.uleb128 0x2
+ 2726 02f1 0A        		.uleb128 0xa
+ 2727 02f2 00        		.byte	0
+ 2728 02f3 00        		.byte	0
+ 2729 02f4 31        		.uleb128 0x31
+ 2730 02f5 2E        		.uleb128 0x2e
+ 2731 02f6 01        		.byte	0x1
+ 2732 02f7 31        		.uleb128 0x31
+ 2733 02f8 13        		.uleb128 0x13
+ 2734 02f9 8740      		.uleb128 0x2007
+ 2735 02fb 0E        		.uleb128 0xe
+ 2736 02fc 11        		.uleb128 0x11
+ 2737 02fd 01        		.uleb128 0x1
+ 2738 02fe 12        		.uleb128 0x12
+ 2739 02ff 01        		.uleb128 0x1
+ 2740 0300 40        		.uleb128 0x40
+ 2741 0301 0A        		.uleb128 0xa
+ 2742 0302 64        		.uleb128 0x64
+ 2743 0303 13        		.uleb128 0x13
+ 2744 0304 9742      		.uleb128 0x2117
+ 2745 0306 0C        		.uleb128 0xc
+ 2746 0307 01        		.uleb128 0x1
+ 2747 0308 13        		.uleb128 0x13
+ 2748 0309 00        		.byte	0
+ 2749 030a 00        		.byte	0
+ 2750 030b 32        		.uleb128 0x32
+ 2751 030c 05        		.uleb128 0x5
+ 2752 030d 00        		.byte	0
+ 2753 030e 31        		.uleb128 0x31
+ 2754 030f 13        		.uleb128 0x13
+ 2755 0310 02        		.uleb128 0x2
+ 2756 0311 0A        		.uleb128 0xa
+ 2757 0312 00        		.byte	0
+ 2758 0313 00        		.byte	0
+ 2759 0314 33        		.uleb128 0x33
+ 2760 0315 34        		.uleb128 0x34
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 57
+
+
+ 2761 0316 00        		.byte	0
+ 2762 0317 03        		.uleb128 0x3
+ 2763 0318 0E        		.uleb128 0xe
+ 2764 0319 3A        		.uleb128 0x3a
+ 2765 031a 0B        		.uleb128 0xb
+ 2766 031b 3B        		.uleb128 0x3b
+ 2767 031c 0B        		.uleb128 0xb
+ 2768 031d 49        		.uleb128 0x49
+ 2769 031e 13        		.uleb128 0x13
+ 2770 031f 02        		.uleb128 0x2
+ 2771 0320 0A        		.uleb128 0xa
+ 2772 0321 00        		.byte	0
+ 2773 0322 00        		.byte	0
+ 2774 0323 34        		.uleb128 0x34
+ 2775 0324 8982 01   		.uleb128 0x4109
+ 2776 0327 01        		.byte	0x1
+ 2777 0328 11        		.uleb128 0x11
+ 2778 0329 01        		.uleb128 0x1
+ 2779 032a 31        		.uleb128 0x31
+ 2780 032b 13        		.uleb128 0x13
+ 2781 032c 01        		.uleb128 0x1
+ 2782 032d 13        		.uleb128 0x13
+ 2783 032e 00        		.byte	0
+ 2784 032f 00        		.byte	0
+ 2785 0330 35        		.uleb128 0x35
+ 2786 0331 8A82 01   		.uleb128 0x410a
+ 2787 0334 00        		.byte	0
+ 2788 0335 02        		.uleb128 0x2
+ 2789 0336 0A        		.uleb128 0xa
+ 2790 0337 9142      		.uleb128 0x2111
+ 2791 0339 0A        		.uleb128 0xa
+ 2792 033a 00        		.byte	0
+ 2793 033b 00        		.byte	0
+ 2794 033c 36        		.uleb128 0x36
+ 2795 033d 8982 01   		.uleb128 0x4109
+ 2796 0340 01        		.byte	0x1
+ 2797 0341 11        		.uleb128 0x11
+ 2798 0342 01        		.uleb128 0x1
+ 2799 0343 31        		.uleb128 0x31
+ 2800 0344 13        		.uleb128 0x13
+ 2801 0345 00        		.byte	0
+ 2802 0346 00        		.byte	0
+ 2803 0347 37        		.uleb128 0x37
+ 2804 0348 8982 01   		.uleb128 0x4109
+ 2805 034b 01        		.byte	0x1
+ 2806 034c 11        		.uleb128 0x11
+ 2807 034d 01        		.uleb128 0x1
+ 2808 034e 9542      		.uleb128 0x2115
+ 2809 0350 0C        		.uleb128 0xc
+ 2810 0351 31        		.uleb128 0x31
+ 2811 0352 13        		.uleb128 0x13
+ 2812 0353 00        		.byte	0
+ 2813 0354 00        		.byte	0
+ 2814 0355 38        		.uleb128 0x38
+ 2815 0356 2E        		.uleb128 0x2e
+ 2816 0357 01        		.byte	0x1
+ 2817 0358 31        		.uleb128 0x31
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 58
+
+
+ 2818 0359 13        		.uleb128 0x13
+ 2819 035a 8740      		.uleb128 0x2007
+ 2820 035c 0E        		.uleb128 0xe
+ 2821 035d 11        		.uleb128 0x11
+ 2822 035e 01        		.uleb128 0x1
+ 2823 035f 12        		.uleb128 0x12
+ 2824 0360 01        		.uleb128 0x1
+ 2825 0361 40        		.uleb128 0x40
+ 2826 0362 0A        		.uleb128 0xa
+ 2827 0363 9742      		.uleb128 0x2117
+ 2828 0365 0C        		.uleb128 0xc
+ 2829 0366 01        		.uleb128 0x1
+ 2830 0367 13        		.uleb128 0x13
+ 2831 0368 00        		.byte	0
+ 2832 0369 00        		.byte	0
+ 2833 036a 39        		.uleb128 0x39
+ 2834 036b 05        		.uleb128 0x5
+ 2835 036c 00        		.byte	0
+ 2836 036d 03        		.uleb128 0x3
+ 2837 036e 0E        		.uleb128 0xe
+ 2838 036f 3A        		.uleb128 0x3a
+ 2839 0370 0B        		.uleb128 0xb
+ 2840 0371 3B        		.uleb128 0x3b
+ 2841 0372 0B        		.uleb128 0xb
+ 2842 0373 49        		.uleb128 0x49
+ 2843 0374 13        		.uleb128 0x13
+ 2844 0375 02        		.uleb128 0x2
+ 2845 0376 0A        		.uleb128 0xa
+ 2846 0377 00        		.byte	0
+ 2847 0378 00        		.byte	0
+ 2848 0379 3A        		.uleb128 0x3a
+ 2849 037a 05        		.uleb128 0x5
+ 2850 037b 00        		.byte	0
+ 2851 037c 31        		.uleb128 0x31
+ 2852 037d 13        		.uleb128 0x13
+ 2853 037e 1C        		.uleb128 0x1c
+ 2854 037f 0B        		.uleb128 0xb
+ 2855 0380 00        		.byte	0
+ 2856 0381 00        		.byte	0
+ 2857 0382 3B        		.uleb128 0x3b
+ 2858 0383 01        		.uleb128 0x1
+ 2859 0384 01        		.byte	0x1
+ 2860 0385 49        		.uleb128 0x49
+ 2861 0386 13        		.uleb128 0x13
+ 2862 0387 01        		.uleb128 0x1
+ 2863 0388 13        		.uleb128 0x13
+ 2864 0389 00        		.byte	0
+ 2865 038a 00        		.byte	0
+ 2866 038b 3C        		.uleb128 0x3c
+ 2867 038c 21        		.uleb128 0x21
+ 2868 038d 00        		.byte	0
+ 2869 038e 00        		.byte	0
+ 2870 038f 00        		.byte	0
+ 2871 0390 3D        		.uleb128 0x3d
+ 2872 0391 34        		.uleb128 0x34
+ 2873 0392 00        		.byte	0
+ 2874 0393 03        		.uleb128 0x3
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 59
+
+
+ 2875 0394 0E        		.uleb128 0xe
+ 2876 0395 3A        		.uleb128 0x3a
+ 2877 0396 0B        		.uleb128 0xb
+ 2878 0397 3B        		.uleb128 0x3b
+ 2879 0398 0B        		.uleb128 0xb
+ 2880 0399 49        		.uleb128 0x49
+ 2881 039a 13        		.uleb128 0x13
+ 2882 039b 3F        		.uleb128 0x3f
+ 2883 039c 0C        		.uleb128 0xc
+ 2884 039d 3C        		.uleb128 0x3c
+ 2885 039e 0C        		.uleb128 0xc
+ 2886 039f 00        		.byte	0
+ 2887 03a0 00        		.byte	0
+ 2888 03a1 3E        		.uleb128 0x3e
+ 2889 03a2 34        		.uleb128 0x34
+ 2890 03a3 00        		.byte	0
+ 2891 03a4 03        		.uleb128 0x3
+ 2892 03a5 08        		.uleb128 0x8
+ 2893 03a6 3A        		.uleb128 0x3a
+ 2894 03a7 0B        		.uleb128 0xb
+ 2895 03a8 3B        		.uleb128 0x3b
+ 2896 03a9 0B        		.uleb128 0xb
+ 2897 03aa 49        		.uleb128 0x49
+ 2898 03ab 13        		.uleb128 0x13
+ 2899 03ac 1C        		.uleb128 0x1c
+ 2900 03ad 0B        		.uleb128 0xb
+ 2901 03ae 00        		.byte	0
+ 2902 03af 00        		.byte	0
+ 2903 03b0 3F        		.uleb128 0x3f
+ 2904 03b1 2E        		.uleb128 0x2e
+ 2905 03b2 01        		.byte	0x1
+ 2906 03b3 3F        		.uleb128 0x3f
+ 2907 03b4 0C        		.uleb128 0xc
+ 2908 03b5 03        		.uleb128 0x3
+ 2909 03b6 0E        		.uleb128 0xe
+ 2910 03b7 3A        		.uleb128 0x3a
+ 2911 03b8 0B        		.uleb128 0xb
+ 2912 03b9 3B        		.uleb128 0x3b
+ 2913 03ba 0B        		.uleb128 0xb
+ 2914 03bb 3C        		.uleb128 0x3c
+ 2915 03bc 0C        		.uleb128 0xc
+ 2916 03bd 01        		.uleb128 0x1
+ 2917 03be 13        		.uleb128 0x13
+ 2918 03bf 00        		.byte	0
+ 2919 03c0 00        		.byte	0
+ 2920 03c1 40        		.uleb128 0x40
+ 2921 03c2 2E        		.uleb128 0x2e
+ 2922 03c3 01        		.byte	0x1
+ 2923 03c4 3F        		.uleb128 0x3f
+ 2924 03c5 0C        		.uleb128 0xc
+ 2925 03c6 03        		.uleb128 0x3
+ 2926 03c7 0E        		.uleb128 0xe
+ 2927 03c8 3A        		.uleb128 0x3a
+ 2928 03c9 0B        		.uleb128 0xb
+ 2929 03ca 3B        		.uleb128 0x3b
+ 2930 03cb 0B        		.uleb128 0xb
+ 2931 03cc 3C        		.uleb128 0x3c
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 60
+
+
+ 2932 03cd 0C        		.uleb128 0xc
+ 2933 03ce 00        		.byte	0
+ 2934 03cf 00        		.byte	0
+ 2935 03d0 00        		.byte	0
+ 2936               		.section	.debug_loc,"",@progbits
+ 2937               	.Ldebug_loc0:
+ 2938               	.LLST0:
+ 2939 0000 0000 0000 		.long	.LFB104
+ 2940 0004 0000 0000 		.long	.LCFI0
+ 2941 0008 0300      		.word	0x3
+ 2942 000a 92        		.byte	0x92
+ 2943 000b 20        		.uleb128 0x20
+ 2944 000c 02        		.sleb128 2
+ 2945 000d 0000 0000 		.long	.LCFI0
+ 2946 0011 0000 0000 		.long	.LCFI1
+ 2947 0015 0300      		.word	0x3
+ 2948 0017 92        		.byte	0x92
+ 2949 0018 20        		.uleb128 0x20
+ 2950 0019 03        		.sleb128 3
+ 2951 001a 0000 0000 		.long	.LCFI1
+ 2952 001e 0000 0000 		.long	.LCFI2
+ 2953 0022 0300      		.word	0x3
+ 2954 0024 92        		.byte	0x92
+ 2955 0025 20        		.uleb128 0x20
+ 2956 0026 04        		.sleb128 4
+ 2957 0027 0000 0000 		.long	.LCFI2
+ 2958 002b 0000 0000 		.long	.LFE104
+ 2959 002f 0300      		.word	0x3
+ 2960 0031 92        		.byte	0x92
+ 2961 0032 20        		.uleb128 0x20
+ 2962 0033 05        		.sleb128 5
+ 2963 0034 0000 0000 		.long	0
+ 2964 0038 0000 0000 		.long	0
+ 2965               	.LLST1:
+ 2966 003c 0000 0000 		.long	.LVL0
+ 2967 0040 0000 0000 		.long	.LVL2
+ 2968 0044 0600      		.word	0x6
+ 2969 0046 68        		.byte	0x68
+ 2970 0047 93        		.byte	0x93
+ 2971 0048 01        		.uleb128 0x1
+ 2972 0049 69        		.byte	0x69
+ 2973 004a 93        		.byte	0x93
+ 2974 004b 01        		.uleb128 0x1
+ 2975 004c 0000 0000 		.long	.LVL2
+ 2976 0050 0000 0000 		.long	.LVL3
+ 2977 0054 0600      		.word	0x6
+ 2978 0056 6A        		.byte	0x6a
+ 2979 0057 93        		.byte	0x93
+ 2980 0058 01        		.uleb128 0x1
+ 2981 0059 6B        		.byte	0x6b
+ 2982 005a 93        		.byte	0x93
+ 2983 005b 01        		.uleb128 0x1
+ 2984 005c 0000 0000 		.long	.LVL3
+ 2985 0060 0000 0000 		.long	.LVL6
+ 2986 0064 0600      		.word	0x6
+ 2987 0066 68        		.byte	0x68
+ 2988 0067 93        		.byte	0x93
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 61
+
+
+ 2989 0068 01        		.uleb128 0x1
+ 2990 0069 69        		.byte	0x69
+ 2991 006a 93        		.byte	0x93
+ 2992 006b 01        		.uleb128 0x1
+ 2993 006c 0000 0000 		.long	.LVL6
+ 2994 0070 0000 0000 		.long	.LFE104
+ 2995 0074 0600      		.word	0x6
+ 2996 0076 6A        		.byte	0x6a
+ 2997 0077 93        		.byte	0x93
+ 2998 0078 01        		.uleb128 0x1
+ 2999 0079 6B        		.byte	0x6b
+ 3000 007a 93        		.byte	0x93
+ 3001 007b 01        		.uleb128 0x1
+ 3002 007c 0000 0000 		.long	0
+ 3003 0080 0000 0000 		.long	0
+ 3004               	.LLST2:
+ 3005 0084 0000 0000 		.long	.LVL0
+ 3006 0088 0000 0000 		.long	.LVL11
+ 3007 008c 0100      		.word	0x1
+ 3008 008e 66        		.byte	0x66
+ 3009 008f 0000 0000 		.long	.LVL11
+ 3010 0093 0000 0000 		.long	.LVL17
+ 3011 0097 0100      		.word	0x1
+ 3012 0099 66        		.byte	0x66
+ 3013 009a 0000 0000 		.long	0
+ 3014 009e 0000 0000 		.long	0
+ 3015               	.LLST3:
+ 3016 00a2 0000 0000 		.long	.LVL4
+ 3017 00a6 0000 0000 		.long	.LVL26
+ 3018 00aa 0600      		.word	0x6
+ 3019 00ac 6E        		.byte	0x6e
+ 3020 00ad 93        		.byte	0x93
+ 3021 00ae 01        		.uleb128 0x1
+ 3022 00af 6F        		.byte	0x6f
+ 3023 00b0 93        		.byte	0x93
+ 3024 00b1 01        		.uleb128 0x1
+ 3025 00b2 0000 0000 		.long	0
+ 3026 00b6 0000 0000 		.long	0
+ 3027               	.LLST4:
+ 3028 00ba 0000 0000 		.long	.LVL5
+ 3029 00be 0000 0000 		.long	.LVL19
+ 3030 00c2 0100      		.word	0x1
+ 3031 00c4 69        		.byte	0x69
+ 3032 00c5 0000 0000 		.long	.LVL19
+ 3033 00c9 0000 0000 		.long	.LVL20
+ 3034 00cd 0400      		.word	0x4
+ 3035 00cf 88        		.byte	0x88
+ 3036 00d0 00        		.sleb128 0
+ 3037 00d1 20        		.byte	0x20
+ 3038 00d2 9F        		.byte	0x9f
+ 3039 00d3 0000 0000 		.long	.LVL21
+ 3040 00d7 0000 0000 		.long	.LVL23
+ 3041 00db 0100      		.word	0x1
+ 3042 00dd 69        		.byte	0x69
+ 3043 00de 0000 0000 		.long	0
+ 3044 00e2 0000 0000 		.long	0
+ 3045               	.LLST5:
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 62
+
+
+ 3046 00e6 0000 0000 		.long	.LVL7
+ 3047 00ea 0000 0000 		.long	.LVL20
+ 3048 00ee 0100      		.word	0x1
+ 3049 00f0 68        		.byte	0x68
+ 3050 00f1 0000 0000 		.long	.LVL21
+ 3051 00f5 0000 0000 		.long	.LVL22
+ 3052 00f9 0100      		.word	0x1
+ 3053 00fb 68        		.byte	0x68
+ 3054 00fc 0000 0000 		.long	.LVL22
+ 3055 0100 0000 0000 		.long	.LVL23
+ 3056 0104 0400      		.word	0x4
+ 3057 0106 89        		.byte	0x89
+ 3058 0107 00        		.sleb128 0
+ 3059 0108 20        		.byte	0x20
+ 3060 0109 9F        		.byte	0x9f
+ 3061 010a 0000 0000 		.long	0
+ 3062 010e 0000 0000 		.long	0
+ 3063               	.LLST6:
+ 3064 0112 0000 0000 		.long	.LVL8
+ 3065 0116 0000 0000 		.long	.LVL26
+ 3066 011a 0100      		.word	0x1
+ 3067 011c 61        		.byte	0x61
+ 3068 011d 0000 0000 		.long	0
+ 3069 0121 0000 0000 		.long	0
+ 3070               	.LLST7:
+ 3071 0125 0000 0000 		.long	.LVL9
+ 3072 0129 0000 0000 		.long	.LVL10
+ 3073 012d 0700      		.word	0x7
+ 3074 012f 84        		.byte	0x84
+ 3075 0130 00        		.sleb128 0
+ 3076 0131 32        		.byte	0x32
+ 3077 0132 24        		.byte	0x24
+ 3078 0133 33        		.byte	0x33
+ 3079 0134 25        		.byte	0x25
+ 3080 0135 9F        		.byte	0x9f
+ 3081 0136 0000 0000 		.long	.LVL10
+ 3082 013a 0000 0000 		.long	.LVL26
+ 3083 013e 0100      		.word	0x1
+ 3084 0140 67        		.byte	0x67
+ 3085 0141 0000 0000 		.long	0
+ 3086 0145 0000 0000 		.long	0
+ 3087               	.LLST8:
+ 3088 0149 0000 0000 		.long	.LVL9
+ 3089 014d 0000 0000 		.long	.LVL26
+ 3090 0151 0600      		.word	0x6
+ 3091 0153 62        		.byte	0x62
+ 3092 0154 93        		.byte	0x93
+ 3093 0155 01        		.uleb128 0x1
+ 3094 0156 63        		.byte	0x63
+ 3095 0157 93        		.byte	0x93
+ 3096 0158 01        		.uleb128 0x1
+ 3097 0159 0000 0000 		.long	0
+ 3098 015d 0000 0000 		.long	0
+ 3099               	.LLST9:
+ 3100 0161 0000 0000 		.long	.LVL1
+ 3101 0165 0000 0000 		.long	.LVL2
+ 3102 0169 0600      		.word	0x6
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 63
+
+
+ 3103 016b 68        		.byte	0x68
+ 3104 016c 93        		.byte	0x93
+ 3105 016d 01        		.uleb128 0x1
+ 3106 016e 69        		.byte	0x69
+ 3107 016f 93        		.byte	0x93
+ 3108 0170 01        		.uleb128 0x1
+ 3109 0171 0000 0000 		.long	.LVL2
+ 3110 0175 0000 0000 		.long	.LVL3
+ 3111 0179 0600      		.word	0x6
+ 3112 017b 6A        		.byte	0x6a
+ 3113 017c 93        		.byte	0x93
+ 3114 017d 01        		.uleb128 0x1
+ 3115 017e 6B        		.byte	0x6b
+ 3116 017f 93        		.byte	0x93
+ 3117 0180 01        		.uleb128 0x1
+ 3118 0181 0000 0000 		.long	0
+ 3119 0185 0000 0000 		.long	0
+ 3120               	.LLST10:
+ 3121 0189 0000 0000 		.long	.LVL1
+ 3122 018d 0000 0000 		.long	.LVL3
+ 3123 0191 0200      		.word	0x2
+ 3124 0193 31        		.byte	0x31
+ 3125 0194 9F        		.byte	0x9f
+ 3126 0195 0000 0000 		.long	0
+ 3127 0199 0000 0000 		.long	0
+ 3128               	.LLST11:
+ 3129 019d 0000 0000 		.long	.LVL12
+ 3130 01a1 0000 0000 		.long	.LVL26
+ 3131 01a5 0600      		.word	0x6
+ 3132 01a7 62        		.byte	0x62
+ 3133 01a8 93        		.byte	0x93
+ 3134 01a9 01        		.uleb128 0x1
+ 3135 01aa 63        		.byte	0x63
+ 3136 01ab 93        		.byte	0x93
+ 3137 01ac 01        		.uleb128 0x1
+ 3138 01ad 0000 0000 		.long	0
+ 3139 01b1 0000 0000 		.long	0
+ 3140               	.LLST12:
+ 3141 01b5 0000 0000 		.long	.LVL12
+ 3142 01b9 0000 0000 		.long	.LVL13
+ 3143 01bd 0600      		.word	0x6
+ 3144 01bf 62        		.byte	0x62
+ 3145 01c0 93        		.byte	0x93
+ 3146 01c1 01        		.uleb128 0x1
+ 3147 01c2 63        		.byte	0x63
+ 3148 01c3 93        		.byte	0x93
+ 3149 01c4 01        		.uleb128 0x1
+ 3150 01c5 0000 0000 		.long	0
+ 3151 01c9 0000 0000 		.long	0
+ 3152               	.LLST13:
+ 3153 01cd 0000 0000 		.long	.LVL13
+ 3154 01d1 0000 0000 		.long	.LVL14
+ 3155 01d5 0200      		.word	0x2
+ 3156 01d7 38        		.byte	0x38
+ 3157 01d8 9F        		.byte	0x9f
+ 3158 01d9 0000 0000 		.long	.LVL14
+ 3159 01dd 0000 0000 		.long	.LVL17
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 64
+
+
+ 3160 01e1 0100      		.word	0x1
+ 3161 01e3 64        		.byte	0x64
+ 3162 01e4 0000 0000 		.long	.LVL17
+ 3163 01e8 0000 0000 		.long	.LVL18
+ 3164 01ec 0300      		.word	0x3
+ 3165 01ee 84        		.byte	0x84
+ 3166 01ef 7F        		.sleb128 -1
+ 3167 01f0 9F        		.byte	0x9f
+ 3168 01f1 0000 0000 		.long	.LVL18
+ 3169 01f5 0000 0000 		.long	.LVL26
+ 3170 01f9 0100      		.word	0x1
+ 3171 01fb 64        		.byte	0x64
+ 3172 01fc 0000 0000 		.long	0
+ 3173 0200 0000 0000 		.long	0
+ 3174               	.LLST14:
+ 3175 0204 0000 0000 		.long	.LVL15
+ 3176 0208 0000 0000 		.long	.LVL26
+ 3177 020c 0600      		.word	0x6
+ 3178 020e 62        		.byte	0x62
+ 3179 020f 93        		.byte	0x93
+ 3180 0210 01        		.uleb128 0x1
+ 3181 0211 63        		.byte	0x63
+ 3182 0212 93        		.byte	0x93
+ 3183 0213 01        		.uleb128 0x1
+ 3184 0214 0000 0000 		.long	0
+ 3185 0218 0000 0000 		.long	0
+ 3186               	.LLST15:
+ 3187 021c 0000 0000 		.long	.LVL15
+ 3188 0220 0000 0000 		.long	.LVL16
+ 3189 0224 0600      		.word	0x6
+ 3190 0226 62        		.byte	0x62
+ 3191 0227 93        		.byte	0x93
+ 3192 0228 01        		.uleb128 0x1
+ 3193 0229 63        		.byte	0x63
+ 3194 022a 93        		.byte	0x93
+ 3195 022b 01        		.uleb128 0x1
+ 3196 022c 0000 0000 		.long	0
+ 3197 0230 0000 0000 		.long	0
+ 3198               	.LLST16:
+ 3199 0234 0000 0000 		.long	.LVL24
+ 3200 0238 0000 0000 		.long	.LVL26
+ 3201 023c 0200      		.word	0x2
+ 3202 023e 8A        		.byte	0x8a
+ 3203 023f 0A        		.sleb128 10
+ 3204 0240 0000 0000 		.long	0
+ 3205 0244 0000 0000 		.long	0
+ 3206               	.LLST17:
+ 3207 0248 0000 0000 		.long	.LVL24
+ 3208 024c 0000 0000 		.long	.LVL25
+ 3209 0250 0200      		.word	0x2
+ 3210 0252 8A        		.byte	0x8a
+ 3211 0253 0A        		.sleb128 10
+ 3212 0254 0000 0000 		.long	0
+ 3213 0258 0000 0000 		.long	0
+ 3214               	.LLST18:
+ 3215 025c 0000 0000 		.long	.LVL28
+ 3216 0260 0000 0000 		.long	.LVL29
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 65
+
+
+ 3217 0264 0600      		.word	0x6
+ 3218 0266 68        		.byte	0x68
+ 3219 0267 93        		.byte	0x93
+ 3220 0268 01        		.uleb128 0x1
+ 3221 0269 69        		.byte	0x69
+ 3222 026a 93        		.byte	0x93
+ 3223 026b 01        		.uleb128 0x1
+ 3224 026c 0000 0000 		.long	.LVL29
+ 3225 0270 0000 0000 		.long	.LFE106
+ 3226 0274 0400      		.word	0x4
+ 3227 0276 F3        		.byte	0xf3
+ 3228 0277 01        		.uleb128 0x1
+ 3229 0278 68        		.byte	0x68
+ 3230 0279 9F        		.byte	0x9f
+ 3231 027a 0000 0000 		.long	0
+ 3232 027e 0000 0000 		.long	0
+ 3233               	.LLST19:
+ 3234 0282 0000 0000 		.long	.LVL30
+ 3235 0286 0000 0000 		.long	.LVL31
+ 3236 028a 0600      		.word	0x6
+ 3237 028c 68        		.byte	0x68
+ 3238 028d 93        		.byte	0x93
+ 3239 028e 01        		.uleb128 0x1
+ 3240 028f 69        		.byte	0x69
+ 3241 0290 93        		.byte	0x93
+ 3242 0291 01        		.uleb128 0x1
+ 3243 0292 0000 0000 		.long	.LVL31
+ 3244 0296 0000 0000 		.long	.LFE107
+ 3245 029a 0400      		.word	0x4
+ 3246 029c F3        		.byte	0xf3
+ 3247 029d 01        		.uleb128 0x1
+ 3248 029e 68        		.byte	0x68
+ 3249 029f 9F        		.byte	0x9f
+ 3250 02a0 0000 0000 		.long	0
+ 3251 02a4 0000 0000 		.long	0
+ 3252               	.LLST20:
+ 3253 02a8 0000 0000 		.long	.LVL32
+ 3254 02ac 0000 0000 		.long	.LVL33
+ 3255 02b0 0600      		.word	0x6
+ 3256 02b2 68        		.byte	0x68
+ 3257 02b3 93        		.byte	0x93
+ 3258 02b4 01        		.uleb128 0x1
+ 3259 02b5 69        		.byte	0x69
+ 3260 02b6 93        		.byte	0x93
+ 3261 02b7 01        		.uleb128 0x1
+ 3262 02b8 0000 0000 		.long	.LVL33
+ 3263 02bc 0000 0000 		.long	.LFE108
+ 3264 02c0 0400      		.word	0x4
+ 3265 02c2 F3        		.byte	0xf3
+ 3266 02c3 01        		.uleb128 0x1
+ 3267 02c4 68        		.byte	0x68
+ 3268 02c5 9F        		.byte	0x9f
+ 3269 02c6 0000 0000 		.long	0
+ 3270 02ca 0000 0000 		.long	0
+ 3271               	.LLST21:
+ 3272 02ce 0000 0000 		.long	.LFB100
+ 3273 02d2 0000 0000 		.long	.LCFI3
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 66
+
+
+ 3274 02d6 0300      		.word	0x3
+ 3275 02d8 92        		.byte	0x92
+ 3276 02d9 20        		.uleb128 0x20
+ 3277 02da 02        		.sleb128 2
+ 3278 02db 0000 0000 		.long	.LCFI3
+ 3279 02df 0000 0000 		.long	.LCFI4
+ 3280 02e3 0300      		.word	0x3
+ 3281 02e5 92        		.byte	0x92
+ 3282 02e6 20        		.uleb128 0x20
+ 3283 02e7 03        		.sleb128 3
+ 3284 02e8 0000 0000 		.long	.LCFI4
+ 3285 02ec 0000 0000 		.long	.LCFI5
+ 3286 02f0 0300      		.word	0x3
+ 3287 02f2 92        		.byte	0x92
+ 3288 02f3 20        		.uleb128 0x20
+ 3289 02f4 04        		.sleb128 4
+ 3290 02f5 0000 0000 		.long	.LCFI5
+ 3291 02f9 0000 0000 		.long	.LFE100
+ 3292 02fd 0300      		.word	0x3
+ 3293 02ff 92        		.byte	0x92
+ 3294 0300 20        		.uleb128 0x20
+ 3295 0301 05        		.sleb128 5
+ 3296 0302 0000 0000 		.long	0
+ 3297 0306 0000 0000 		.long	0
+ 3298               	.LLST22:
+ 3299 030a 0000 0000 		.long	.LVL35
+ 3300 030e 0000 0000 		.long	.LVL37
+ 3301 0312 0600      		.word	0x6
+ 3302 0314 68        		.byte	0x68
+ 3303 0315 93        		.byte	0x93
+ 3304 0316 01        		.uleb128 0x1
+ 3305 0317 69        		.byte	0x69
+ 3306 0318 93        		.byte	0x93
+ 3307 0319 01        		.uleb128 0x1
+ 3308 031a 0000 0000 		.long	.LVL37
+ 3309 031e 0000 0000 		.long	.LVL50
+ 3310 0322 0600      		.word	0x6
+ 3311 0324 6C        		.byte	0x6c
+ 3312 0325 93        		.byte	0x93
+ 3313 0326 01        		.uleb128 0x1
+ 3314 0327 6D        		.byte	0x6d
+ 3315 0328 93        		.byte	0x93
+ 3316 0329 01        		.uleb128 0x1
+ 3317 032a 0000 0000 		.long	.LVL50
+ 3318 032e 0000 0000 		.long	.LFE100
+ 3319 0332 0400      		.word	0x4
+ 3320 0334 F3        		.byte	0xf3
+ 3321 0335 01        		.uleb128 0x1
+ 3322 0336 68        		.byte	0x68
+ 3323 0337 9F        		.byte	0x9f
+ 3324 0338 0000 0000 		.long	0
+ 3325 033c 0000 0000 		.long	0
+ 3326               	.LLST23:
+ 3327 0340 0000 0000 		.long	.LVL35
+ 3328 0344 0000 0000 		.long	.LVL36
+ 3329 0348 0100      		.word	0x1
+ 3330 034a 66        		.byte	0x66
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 67
+
+
+ 3331 034b 0000 0000 		.long	.LVL36
+ 3332 034f 0000 0000 		.long	.LVL51
+ 3333 0353 0100      		.word	0x1
+ 3334 0355 61        		.byte	0x61
+ 3335 0356 0000 0000 		.long	.LVL51
+ 3336 035a 0000 0000 		.long	.LFE100
+ 3337 035e 0100      		.word	0x1
+ 3338 0360 66        		.byte	0x66
+ 3339 0361 0000 0000 		.long	0
+ 3340 0365 0000 0000 		.long	0
+ 3341               	.LLST24:
+ 3342 0369 0000 0000 		.long	.LVL46
+ 3343 036d 0000 0000 		.long	.LVL47
+ 3344 0371 0100      		.word	0x1
+ 3345 0373 6E        		.byte	0x6e
+ 3346 0374 0000 0000 		.long	0
+ 3347 0378 0000 0000 		.long	0
+ 3348               	.LLST25:
+ 3349 037c 0000 0000 		.long	.LVL41
+ 3350 0380 0000 0000 		.long	.LVL42
+ 3351 0384 0600      		.word	0x6
+ 3352 0386 6E        		.byte	0x6e
+ 3353 0387 93        		.byte	0x93
+ 3354 0388 01        		.uleb128 0x1
+ 3355 0389 6F        		.byte	0x6f
+ 3356 038a 93        		.byte	0x93
+ 3357 038b 01        		.uleb128 0x1
+ 3358 038c 0000 0000 		.long	0
+ 3359 0390 0000 0000 		.long	0
+ 3360               	.LLST26:
+ 3361 0394 0000 0000 		.long	.LVL42
+ 3362 0398 0000 0000 		.long	.LVL44
+ 3363 039c 0100      		.word	0x1
+ 3364 039e 6E        		.byte	0x6e
+ 3365 039f 0000 0000 		.long	.LVL44
+ 3366 03a3 0000 0000 		.long	.LVL50
+ 3367 03a7 0200      		.word	0x2
+ 3368 03a9 8C        		.byte	0x8c
+ 3369 03aa 04        		.sleb128 4
+ 3370 03ab 0000 0000 		.long	.LVL50
+ 3371 03af 0000 0000 		.long	.LFE100
+ 3372 03b3 0500      		.word	0x5
+ 3373 03b5 F3        		.byte	0xf3
+ 3374 03b6 01        		.uleb128 0x1
+ 3375 03b7 68        		.byte	0x68
+ 3376 03b8 23        		.byte	0x23
+ 3377 03b9 04        		.uleb128 0x4
+ 3378 03ba 0000 0000 		.long	0
+ 3379 03be 0000 0000 		.long	0
+ 3380               	.LLST27:
+ 3381 03c2 0000 0000 		.long	.LVL45
+ 3382 03c6 0000 0000 		.long	.LVL46
+ 3383 03ca 0600      		.word	0x6
+ 3384 03cc 6E        		.byte	0x6e
+ 3385 03cd 93        		.byte	0x93
+ 3386 03ce 01        		.uleb128 0x1
+ 3387 03cf 6F        		.byte	0x6f
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 68
+
+
+ 3388 03d0 93        		.byte	0x93
+ 3389 03d1 01        		.uleb128 0x1
+ 3390 03d2 0000 0000 		.long	0
+ 3391 03d6 0000 0000 		.long	0
+ 3392               	.LLST29:
+ 3393 03da 0000 0000 		.long	.LVL48
+ 3394 03de 0000 0000 		.long	.LVL49
+ 3395 03e2 0600      		.word	0x6
+ 3396 03e4 6E        		.byte	0x6e
+ 3397 03e5 93        		.byte	0x93
+ 3398 03e6 01        		.uleb128 0x1
+ 3399 03e7 6F        		.byte	0x6f
+ 3400 03e8 93        		.byte	0x93
+ 3401 03e9 01        		.uleb128 0x1
+ 3402 03ea 0000 0000 		.long	0
+ 3403 03ee 0000 0000 		.long	0
+ 3404               	.LLST30:
+ 3405 03f2 0000 0000 		.long	.LVL52
+ 3406 03f6 0000 0000 		.long	.LVL54
+ 3407 03fa 0600      		.word	0x6
+ 3408 03fc 68        		.byte	0x68
+ 3409 03fd 93        		.byte	0x93
+ 3410 03fe 01        		.uleb128 0x1
+ 3411 03ff 69        		.byte	0x69
+ 3412 0400 93        		.byte	0x93
+ 3413 0401 01        		.uleb128 0x1
+ 3414 0402 0000 0000 		.long	.LVL54
+ 3415 0406 0000 0000 		.long	.LVL55-1
+ 3416 040a 0600      		.word	0x6
+ 3417 040c 6E        		.byte	0x6e
+ 3418 040d 93        		.byte	0x93
+ 3419 040e 01        		.uleb128 0x1
+ 3420 040f 6F        		.byte	0x6f
+ 3421 0410 93        		.byte	0x93
+ 3422 0411 01        		.uleb128 0x1
+ 3423 0412 0000 0000 		.long	.LVL55-1
+ 3424 0416 0000 0000 		.long	.LFE95
+ 3425 041a 0400      		.word	0x4
+ 3426 041c F3        		.byte	0xf3
+ 3427 041d 01        		.uleb128 0x1
+ 3428 041e 68        		.byte	0x68
+ 3429 041f 9F        		.byte	0x9f
+ 3430 0420 0000 0000 		.long	0
+ 3431 0424 0000 0000 		.long	0
+ 3432               	.LLST31:
+ 3433 0428 0000 0000 		.long	.LVL52
+ 3434 042c 0000 0000 		.long	.LVL55-1
+ 3435 0430 0100      		.word	0x1
+ 3436 0432 66        		.byte	0x66
+ 3437 0433 0000 0000 		.long	.LVL55-1
+ 3438 0437 0000 0000 		.long	.LFE95
+ 3439 043b 0400      		.word	0x4
+ 3440 043d F3        		.byte	0xf3
+ 3441 043e 01        		.uleb128 0x1
+ 3442 043f 66        		.byte	0x66
+ 3443 0440 9F        		.byte	0x9f
+ 3444 0441 0000 0000 		.long	0
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 69
+
+
+ 3445 0445 0000 0000 		.long	0
+ 3446               	.LLST32:
+ 3447 0449 0000 0000 		.long	.LVL52
+ 3448 044d 0000 0000 		.long	.LVL55-1
+ 3449 0451 0100      		.word	0x1
+ 3450 0453 64        		.byte	0x64
+ 3451 0454 0000 0000 		.long	.LVL55-1
+ 3452 0458 0000 0000 		.long	.LFE95
+ 3453 045c 0400      		.word	0x4
+ 3454 045e F3        		.byte	0xf3
+ 3455 045f 01        		.uleb128 0x1
+ 3456 0460 64        		.byte	0x64
+ 3457 0461 9F        		.byte	0x9f
+ 3458 0462 0000 0000 		.long	0
+ 3459 0466 0000 0000 		.long	0
+ 3460               	.LLST33:
+ 3461 046a 0000 0000 		.long	.LVL53
+ 3462 046e 0000 0000 		.long	.LVL54
+ 3463 0472 0600      		.word	0x6
+ 3464 0474 68        		.byte	0x68
+ 3465 0475 93        		.byte	0x93
+ 3466 0476 01        		.uleb128 0x1
+ 3467 0477 69        		.byte	0x69
+ 3468 0478 93        		.byte	0x93
+ 3469 0479 01        		.uleb128 0x1
+ 3470 047a 0000 0000 		.long	.LVL54
+ 3471 047e 0000 0000 		.long	.LVL55-1
+ 3472 0482 0600      		.word	0x6
+ 3473 0484 6E        		.byte	0x6e
+ 3474 0485 93        		.byte	0x93
+ 3475 0486 01        		.uleb128 0x1
+ 3476 0487 6F        		.byte	0x6f
+ 3477 0488 93        		.byte	0x93
+ 3478 0489 01        		.uleb128 0x1
+ 3479 048a 0000 0000 		.long	.LVL55-1
+ 3480 048e 0000 0000 		.long	.LFE95
+ 3481 0492 0400      		.word	0x4
+ 3482 0494 F3        		.byte	0xf3
+ 3483 0495 01        		.uleb128 0x1
+ 3484 0496 68        		.byte	0x68
+ 3485 0497 9F        		.byte	0x9f
+ 3486 0498 0000 0000 		.long	0
+ 3487 049c 0000 0000 		.long	0
+ 3488               	.LLST35:
+ 3489 04a0 0000 0000 		.long	.LVL56
+ 3490 04a4 0000 0000 		.long	.LVL57
+ 3491 04a8 0600      		.word	0x6
+ 3492 04aa 68        		.byte	0x68
+ 3493 04ab 93        		.byte	0x93
+ 3494 04ac 01        		.uleb128 0x1
+ 3495 04ad 69        		.byte	0x69
+ 3496 04ae 93        		.byte	0x93
+ 3497 04af 01        		.uleb128 0x1
+ 3498 04b0 0000 0000 		.long	.LVL57
+ 3499 04b4 0000 0000 		.long	.LVL58
+ 3500 04b8 0400      		.word	0x4
+ 3501 04ba F3        		.byte	0xf3
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 70
+
+
+ 3502 04bb 01        		.uleb128 0x1
+ 3503 04bc 68        		.byte	0x68
+ 3504 04bd 9F        		.byte	0x9f
+ 3505 04be 0000 0000 		.long	.LVL58
+ 3506 04c2 0000 0000 		.long	.LVL59
+ 3507 04c6 0600      		.word	0x6
+ 3508 04c8 68        		.byte	0x68
+ 3509 04c9 93        		.byte	0x93
+ 3510 04ca 01        		.uleb128 0x1
+ 3511 04cb 69        		.byte	0x69
+ 3512 04cc 93        		.byte	0x93
+ 3513 04cd 01        		.uleb128 0x1
+ 3514 04ce 0000 0000 		.long	.LVL59
+ 3515 04d2 0000 0000 		.long	.LFE101
+ 3516 04d6 0400      		.word	0x4
+ 3517 04d8 F3        		.byte	0xf3
+ 3518 04d9 01        		.uleb128 0x1
+ 3519 04da 68        		.byte	0x68
+ 3520 04db 9F        		.byte	0x9f
+ 3521 04dc 0000 0000 		.long	0
+ 3522 04e0 0000 0000 		.long	0
+ 3523               	.LLST36:
+ 3524 04e4 0000 0000 		.long	.LFB102
+ 3525 04e8 0000 0000 		.long	.LCFI6
+ 3526 04ec 0300      		.word	0x3
+ 3527 04ee 92        		.byte	0x92
+ 3528 04ef 20        		.uleb128 0x20
+ 3529 04f0 02        		.sleb128 2
+ 3530 04f1 0000 0000 		.long	.LCFI6
+ 3531 04f5 0000 0000 		.long	.LCFI7
+ 3532 04f9 0300      		.word	0x3
+ 3533 04fb 92        		.byte	0x92
+ 3534 04fc 20        		.uleb128 0x20
+ 3535 04fd 03        		.sleb128 3
+ 3536 04fe 0000 0000 		.long	.LCFI7
+ 3537 0502 0000 0000 		.long	.LFE102
+ 3538 0506 0300      		.word	0x3
+ 3539 0508 92        		.byte	0x92
+ 3540 0509 20        		.uleb128 0x20
+ 3541 050a 04        		.sleb128 4
+ 3542 050b 0000 0000 		.long	0
+ 3543 050f 0000 0000 		.long	0
+ 3544               	.LLST37:
+ 3545 0513 0000 0000 		.long	.LVL61
+ 3546 0517 0000 0000 		.long	.LVL62
+ 3547 051b 0600      		.word	0x6
+ 3548 051d 62        		.byte	0x62
+ 3549 051e 93        		.byte	0x93
+ 3550 051f 01        		.uleb128 0x1
+ 3551 0520 63        		.byte	0x63
+ 3552 0521 93        		.byte	0x93
+ 3553 0522 01        		.uleb128 0x1
+ 3554 0523 0000 0000 		.long	.LVL62
+ 3555 0527 0000 0000 		.long	.LVL63
+ 3556 052b 0900      		.word	0x9
+ 3557 052d 0C        		.byte	0xc
+ 3558 052e 48F1 3E00 		.long	0x3ef148
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 71
+
+
+ 3559 0532 84        		.byte	0x84
+ 3560 0533 00        		.sleb128 0
+ 3561 0534 1B        		.byte	0x1b
+ 3562 0535 9F        		.byte	0x9f
+ 3563 0536 0000 0000 		.long	.LVL63
+ 3564 053a 0000 0000 		.long	.LVL64
+ 3565 053e 0600      		.word	0x6
+ 3566 0540 62        		.byte	0x62
+ 3567 0541 93        		.byte	0x93
+ 3568 0542 01        		.uleb128 0x1
+ 3569 0543 63        		.byte	0x63
+ 3570 0544 93        		.byte	0x93
+ 3571 0545 01        		.uleb128 0x1
+ 3572 0546 0000 0000 		.long	.LVL64
+ 3573 054a 0000 0000 		.long	.LFE102
+ 3574 054e 0900      		.word	0x9
+ 3575 0550 0C        		.byte	0xc
+ 3576 0551 48F1 3E00 		.long	0x3ef148
+ 3577 0555 84        		.byte	0x84
+ 3578 0556 00        		.sleb128 0
+ 3579 0557 1B        		.byte	0x1b
+ 3580 0558 9F        		.byte	0x9f
+ 3581 0559 0000 0000 		.long	0
+ 3582 055d 0000 0000 		.long	0
+ 3583               		.section	.debug_aranges,"",@progbits
+ 3584 0000 6C00 0000 		.long	0x6c
+ 3585 0004 0200      		.word	0x2
+ 3586 0006 0000 0000 		.long	.Ldebug_info0
+ 3587 000a 04        		.byte	0x4
+ 3588 000b 00        		.byte	0
+ 3589 000c 0000      		.word	0
+ 3590 000e 0000      		.word	0
+ 3591 0010 0000 0000 		.long	.LFB104
+ 3592 0014 A800 0000 		.long	.LFE104-.LFB104
+ 3593 0018 0000 0000 		.long	.LFB105
+ 3594 001c 0200 0000 		.long	.LFE105-.LFB105
+ 3595 0020 0000 0000 		.long	.LFB106
+ 3596 0024 0600 0000 		.long	.LFE106-.LFB106
+ 3597 0028 0000 0000 		.long	.LFB107
+ 3598 002c 0600 0000 		.long	.LFE107-.LFB107
+ 3599 0030 0000 0000 		.long	.LFB108
+ 3600 0034 0600 0000 		.long	.LFE108-.LFB108
+ 3601 0038 0000 0000 		.long	.LFB98
+ 3602 003c 0200 0000 		.long	.LFE98-.LFB98
+ 3603 0040 0000 0000 		.long	.LFB100
+ 3604 0044 4E00 0000 		.long	.LFE100-.LFB100
+ 3605 0048 0000 0000 		.long	.LFB95
+ 3606 004c 1E00 0000 		.long	.LFE95-.LFB95
+ 3607 0050 0000 0000 		.long	.LFB101
+ 3608 0054 1200 0000 		.long	.LFE101-.LFB101
+ 3609 0058 0000 0000 		.long	.LFB102
+ 3610 005c 2E00 0000 		.long	.LFE102-.LFB102
+ 3611 0060 0000 0000 		.long	.LFB103
+ 3612 0064 0200 0000 		.long	.LFE103-.LFB103
+ 3613 0068 0000 0000 		.long	0
+ 3614 006c 0000 0000 		.long	0
+ 3615               		.section	.debug_ranges,"",@progbits
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 72
+
+
+ 3616               	.Ldebug_ranges0:
+ 3617 0000 0000 0000 		.long	.LFB104
+ 3618 0004 0000 0000 		.long	.LFE104
+ 3619 0008 0000 0000 		.long	.LFB105
+ 3620 000c 0000 0000 		.long	.LFE105
+ 3621 0010 0000 0000 		.long	.LFB106
+ 3622 0014 0000 0000 		.long	.LFE106
+ 3623 0018 0000 0000 		.long	.LFB107
+ 3624 001c 0000 0000 		.long	.LFE107
+ 3625 0020 0000 0000 		.long	.LFB108
+ 3626 0024 0000 0000 		.long	.LFE108
+ 3627 0028 0000 0000 		.long	.LFB98
+ 3628 002c 0000 0000 		.long	.LFE98
+ 3629 0030 0000 0000 		.long	.LFB100
+ 3630 0034 0000 0000 		.long	.LFE100
+ 3631 0038 0000 0000 		.long	.LFB95
+ 3632 003c 0000 0000 		.long	.LFE95
+ 3633 0040 0000 0000 		.long	.LFB101
+ 3634 0044 0000 0000 		.long	.LFE101
+ 3635 0048 0000 0000 		.long	.LFB102
+ 3636 004c 0000 0000 		.long	.LFE102
+ 3637 0050 0000 0000 		.long	.LFB103
+ 3638 0054 0000 0000 		.long	.LFE103
+ 3639 0058 0000 0000 		.long	0
+ 3640 005c 0000 0000 		.long	0
+ 3641               		.section	.debug_line,"",@progbits
+ 3642               	.Ldebug_line0:
+ 3643 0000 7003 0000 		.section	.debug_str,"MS",@progbits,1
+ 3643      0200 4E02 
+ 3643      0000 0201 
+ 3643      FB0E 0D00 
+ 3643      0101 0101 
+ 3644               	.LASF69:
+ 3645 0000 6469 6769 		.string	"digital_pin_to_port_PGM"
+ 3645      7461 6C5F 
+ 3645      7069 6E5F 
+ 3645      746F 5F70 
+ 3645      6F72 745F 
+ 3646               	.LASF57:
+ 3647 0018 5F5F 696E 		.string	"__in_chrg"
+ 3647      5F63 6872 
+ 3647      6700 
+ 3648               	.LASF9:
+ 3649 0022 7369 7A65 		.string	"size_t"
+ 3649      5F74 00
+ 3650               	.LASF63:
+ 3651 0029 5F5A 4E32 		.string	"_ZN22SendOnlySoftwareSerialD2Ev"
+ 3651      3253 656E 
+ 3651      644F 6E6C 
+ 3651      7953 6F66 
+ 3651      7477 6172 
+ 3652               	.LASF36:
+ 3653 0049 5F5A 4E35 		.string	"_ZN5Print5writeEPKhj"
+ 3653      5072 696E 
+ 3653      7435 7772 
+ 3653      6974 6545 
+ 3653      504B 686A 
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 73
+
+
+ 3654               	.LASF59:
+ 3655 005e 5F5F 6164 		.string	"__addr16"
+ 3655      6472 3136 
+ 3655      00
+ 3656               	.LASF46:
+ 3657 0067 7E53 7472 		.string	"~Stream"
+ 3657      6561 6D00 
+ 3658               	.LASF8:
+ 3659 006f 6C6F 6E67 		.string	"long long unsigned int"
+ 3659      206C 6F6E 
+ 3659      6720 756E 
+ 3659      7369 676E 
+ 3659      6564 2069 
+ 3660               	.LASF21:
+ 3661 0086 7365 7457 		.string	"setWriteError"
+ 3661      7269 7465 
+ 3661      4572 726F 
+ 3661      7200 
+ 3662               	.LASF7:
+ 3663 0094 6C6F 6E67 		.string	"long long int"
+ 3663      206C 6F6E 
+ 3663      6720 696E 
+ 3663      7400 
+ 3664               	.LASF0:
+ 3665 00a2 7369 676E 		.string	"signed char"
+ 3665      6564 2063 
+ 3665      6861 7200 
+ 3666               	.LASF45:
+ 3667 00ae 5374 7265 		.string	"Stream"
+ 3667      616D 00
+ 3668               	.LASF33:
+ 3669 00b5 5F5A 4E32 		.string	"_ZN22SendOnlySoftwareSerial8overflowEv"
+ 3669      3253 656E 
+ 3669      644F 6E6C 
+ 3669      7953 6F66 
+ 3669      7477 6172 
+ 3670               	.LASF22:
+ 3671 00dc 7365 7454 		.string	"setTX"
+ 3671      5800 
+ 3672               	.LASF15:
+ 3673 00e2 5F70 6369 		.string	"_pcint_maskvalue"
+ 3673      6E74 5F6D 
+ 3673      6173 6B76 
+ 3673      616C 7565 
+ 3673      00
+ 3674               	.LASF5:
+ 3675 00f3 6C6F 6E67 		.string	"long int"
+ 3675      2069 6E74 
+ 3675      00
+ 3676               	.LASF61:
+ 3677 00fc 7472 616E 		.string	"transmitPin"
+ 3677      736D 6974 
+ 3677      5069 6E00 
+ 3678               	.LASF3:
+ 3679 0108 7569 6E74 		.string	"uint16_t"
+ 3679      3136 5F74 
+ 3679      00
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 74
+
+
+ 3680               	.LASF74:
+ 3681 0111 2F55 7365 		.string	"/Users/xcorex/Documents/Projects/AVR/TinyAudioBoot/build"
+ 3681      7273 2F78 
+ 3681      636F 7265 
+ 3681      782F 446F 
+ 3681      6375 6D65 
+ 3682               	.LASF53:
+ 3683 014a 7468 6973 		.string	"this"
+ 3683      00
+ 3684               	.LASF12:
+ 3685 014f 5F74 7261 		.string	"_transmitBitMask"
+ 3685      6E73 6D69 
+ 3685      7442 6974 
+ 3685      4D61 736B 
+ 3685      00
+ 3686               	.LASF60:
+ 3687 0160 5F5F 7265 		.string	"__result"
+ 3687      7375 6C74 
+ 3687      00
+ 3688               	.LASF16:
+ 3689 0169 5F74 785F 		.string	"_tx_delay"
+ 3689      6465 6C61 
+ 3689      7900 
+ 3690               	.LASF62:
+ 3691 0173 696E 7665 		.string	"inverse_logic"
+ 3691      7273 655F 
+ 3691      6C6F 6769 
+ 3691      6300 
+ 3692               	.LASF17:
+ 3693 0181 5F62 7566 		.string	"_buffer_overflow"
+ 3693      6665 725F 
+ 3693      6F76 6572 
+ 3693      666C 6F77 
+ 3693      00
+ 3694               	.LASF79:
+ 3695 0192 7069 6E4D 		.string	"pinMode"
+ 3695      6F64 6500 
+ 3696               	.LASF58:
+ 3697 019a 706F 7274 		.string	"port"
+ 3697      00
+ 3698               	.LASF27:
+ 3699 019f 7E53 656E 		.string	"~SendOnlySoftwareSerial"
+ 3699      644F 6E6C 
+ 3699      7953 6F66 
+ 3699      7477 6172 
+ 3699      6553 6572 
+ 3700               	.LASF4:
+ 3701 01b7 756E 7369 		.string	"unsigned int"
+ 3701      676E 6564 
+ 3701      2069 6E74 
+ 3701      00
+ 3702               	.LASF29:
+ 3703 01c4 6265 6769 		.string	"begin"
+ 3703      6E00 
+ 3704               	.LASF6:
+ 3705 01ca 6C6F 6E67 		.string	"long unsigned int"
+ 3705      2075 6E73 
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 75
+
+
+ 3705      6967 6E65 
+ 3705      6420 696E 
+ 3705      7400 
+ 3706               	.LASF54:
+ 3707 01dc 7265 675F 		.string	"reg_mask"
+ 3707      6D61 736B 
+ 3707      00
+ 3708               	.LASF68:
+ 3709 01e5 706F 7274 		.string	"port_to_output_PGM"
+ 3709      5F74 6F5F 
+ 3709      6F75 7470 
+ 3709      7574 5F50 
+ 3709      474D 00
+ 3710               	.LASF66:
+ 3711 01f8 6269 745F 		.string	"bit_delay"
+ 3711      6465 6C61 
+ 3711      7900 
+ 3712               	.LASF35:
+ 3713 0202 7065 656B 		.string	"peek"
+ 3713      00
+ 3714               	.LASF67:
+ 3715 0207 5F5A 4E32 		.string	"_ZN22SendOnlySoftwareSerial3endEv"
+ 3715      3253 656E 
+ 3715      644F 6E6C 
+ 3715      7953 6F66 
+ 3715      7477 6172 
+ 3716               	.LASF31:
+ 3717 0229 5F5A 4E32 		.string	"_ZN22SendOnlySoftwareSerial5beginEl"
+ 3717      3253 656E 
+ 3717      644F 6E6C 
+ 3717      7953 6F66 
+ 3717      7477 6172 
+ 3718               	.LASF47:
+ 3719 024d 5F5A 4E36 		.string	"_ZN6Stream9availableEv"
+ 3719      5374 7265 
+ 3719      616D 3961 
+ 3719      7661 696C 
+ 3719      6162 6C65 
+ 3720               	.LASF49:
+ 3721 0264 5F5A 4E36 		.string	"_ZN6Stream4peekEv"
+ 3721      5374 7265 
+ 3721      616D 3470 
+ 3721      6565 6B45 
+ 3721      7600 
+ 3722               	.LASF50:
+ 3723 0276 626F 6F6C 		.string	"bool"
+ 3723      00
+ 3724               	.LASF73:
+ 3725 027b 2E2E 2F54 		.string	"../TinyAudioBoot/SendOnlySoftwareSerial.cpp"
+ 3725      696E 7941 
+ 3725      7564 696F 
+ 3725      426F 6F74 
+ 3725      2F53 656E 
+ 3726               	.LASF64:
+ 3727 02a7 5F5A 4E32 		.string	"_ZN22SendOnlySoftwareSerialC2Ehb"
+ 3727      3253 656E 
+ 3727      644F 6E6C 
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 76
+
+
+ 3727      7953 6F66 
+ 3727      7477 6172 
+ 3728               	.LASF34:
+ 3729 02c8 7772 6974 		.string	"write"
+ 3729      6500 
+ 3730               	.LASF11:
+ 3731 02ce 7369 7A65 		.string	"sizetype"
+ 3731      7479 7065 
+ 3731      00
+ 3732               	.LASF37:
+ 3733 02d7 5F5A 4E32 		.string	"_ZN22SendOnlySoftwareSerial4peekEv"
+ 3733      3253 656E 
+ 3733      644F 6E6C 
+ 3733      7953 6F66 
+ 3733      7477 6172 
+ 3734               	.LASF44:
+ 3735 02fa 5F5A 4E32 		.string	"_ZN22SendOnlySoftwareSerialcvbEv"
+ 3735      3253 656E 
+ 3735      644F 6E6C 
+ 3735      7953 6F66 
+ 3735      7477 6172 
+ 3736               	.LASF56:
+ 3737 031b 6F6C 6453 		.string	"oldSREG"
+ 3737      5245 4700 
+ 3738               	.LASF72:
+ 3739 0323 474E 5520 		.string	"GNU C++ 4.9.2 -mn-flash=1 -mmcu=avr25 -g -Os -std=gnu++11 -ffunction-sections -fdata-sect
+ 3739      432B 2B20 
+ 3739      342E 392E 
+ 3739      3220 2D6D 
+ 3739      6E2D 666C 
+ 3740               	.LASF14:
+ 3741 03e3 5F70 6369 		.string	"_pcint_maskreg"
+ 3741      6E74 5F6D 
+ 3741      6173 6B72 
+ 3741      6567 00
+ 3742               	.LASF41:
+ 3743 03f2 6176 6169 		.string	"available"
+ 3743      6C61 626C 
+ 3743      6500 
+ 3744               	.LASF78:
+ 3745 03fc 5F64 656C 		.string	"_delay_loop_2"
+ 3745      6179 5F6C 
+ 3745      6F6F 705F 
+ 3745      3200 
+ 3746               	.LASF1:
+ 3747 040a 756E 7369 		.string	"unsigned char"
+ 3747      676E 6564 
+ 3747      2063 6861 
+ 3747      7200 
+ 3748               	.LASF26:
+ 3749 0418 5F5A 4E32 		.string	"_ZN22SendOnlySoftwareSerial12subtract_capEjj"
+ 3749      3253 656E 
+ 3749      644F 6E6C 
+ 3749      7953 6F66 
+ 3749      7477 6172 
+ 3750               	.LASF52:
+ 3751 0445 6465 6C61 		.string	"delay"
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 77
+
+
+ 3751      7900 
+ 3752               	.LASF48:
+ 3753 044b 5F5A 4E36 		.string	"_ZN6Stream4readEv"
+ 3753      5374 7265 
+ 3753      616D 3472 
+ 3753      6561 6445 
+ 3753      7600 
+ 3754               	.LASF51:
+ 3755 045d 5F5F 636F 		.string	"__count"
+ 3755      756E 7400 
+ 3756               	.LASF76:
+ 3757 0465 5F5A 4E32 		.string	"_ZN22SendOnlySoftwareSerial5flushEv"
+ 3757      3253 656E 
+ 3757      644F 6E6C 
+ 3757      7953 6F66 
+ 3757      7477 6172 
+ 3758               	.LASF71:
+ 3759 0489 6469 6769 		.string	"digitalWrite"
+ 3759      7461 6C57 
+ 3759      7269 7465 
+ 3759      00
+ 3760               	.LASF25:
+ 3761 0496 7375 6274 		.string	"subtract_cap"
+ 3761      7261 6374 
+ 3761      5F63 6170 
+ 3761      00
+ 3762               	.LASF55:
+ 3763 04a3 696E 765F 		.string	"inv_mask"
+ 3763      6D61 736B 
+ 3763      00
+ 3764               	.LASF77:
+ 3765 04ac 5F5A 4E36 		.string	"_ZN6Stream5flushEv"
+ 3765      5374 7265 
+ 3765      616D 3566 
+ 3765      6C75 7368 
+ 3765      4576 00
+ 3766               	.LASF10:
+ 3767 04bf 6368 6172 		.string	"char"
+ 3767      00
+ 3768               	.LASF70:
+ 3769 04c4 6469 6769 		.string	"digital_pin_to_bit_mask_PGM"
+ 3769      7461 6C5F 
+ 3769      7069 6E5F 
+ 3769      746F 5F62 
+ 3769      6974 5F6D 
+ 3770               	.LASF28:
+ 3771 04e0 7475 6E65 		.string	"tunedDelay"
+ 3771      6444 656C 
+ 3771      6179 00
+ 3772               	.LASF40:
+ 3773 04eb 5F5A 4E32 		.string	"_ZN22SendOnlySoftwareSerial4readEv"
+ 3773      3253 656E 
+ 3773      644F 6E6C 
+ 3773      7953 6F66 
+ 3773      7477 6172 
+ 3774               	.LASF20:
+ 3775 050e 5365 6E64 		.string	"SendOnlySoftwareSerial"
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 78
+
+
+ 3775      4F6E 6C79 
+ 3775      536F 6674 
+ 3775      7761 7265 
+ 3775      5365 7269 
+ 3776               	.LASF13:
+ 3777 0525 5F74 7261 		.string	"_transmitPortRegister"
+ 3777      6E73 6D69 
+ 3777      7450 6F72 
+ 3777      7452 6567 
+ 3777      6973 7465 
+ 3778               	.LASF75:
+ 3779 053b 666C 7573 		.string	"flush"
+ 3779      6800 
+ 3780               	.LASF43:
+ 3781 0541 6F70 6572 		.string	"operator bool"
+ 3781      6174 6F72 
+ 3781      2062 6F6F 
+ 3781      6C00 
+ 3782               	.LASF23:
+ 3783 054f 5F5A 4E35 		.string	"_ZN5Print13setWriteErrorEi"
+ 3783      5072 696E 
+ 3783      7431 3373 
+ 3783      6574 5772 
+ 3783      6974 6545 
+ 3784               	.LASF19:
+ 3785 056a 5072 696E 		.string	"Print"
+ 3785      7400 
+ 3786               	.LASF2:
+ 3787 0570 7569 6E74 		.string	"uint8_t"
+ 3787      385F 7400 
+ 3788               	.LASF24:
+ 3789 0578 5F5A 4E32 		.string	"_ZN22SendOnlySoftwareSerial5setTXEh"
+ 3789      3253 656E 
+ 3789      644F 6E6C 
+ 3789      7953 6F66 
+ 3789      7477 6172 
+ 3790               	.LASF30:
+ 3791 059c 5F5A 4E32 		.string	"_ZN22SendOnlySoftwareSerial10tunedDelayEj"
+ 3791      3253 656E 
+ 3791      644F 6E6C 
+ 3791      7953 6F66 
+ 3791      7477 6172 
+ 3792               	.LASF39:
+ 3793 05c6 7265 6164 		.string	"read"
+ 3793      00
+ 3794               	.LASF65:
+ 3795 05cb 7370 6565 		.string	"speed"
+ 3795      6400 
+ 3796               	.LASF42:
+ 3797 05d1 5F5A 4E32 		.string	"_ZN22SendOnlySoftwareSerial9availableEv"
+ 3797      3253 656E 
+ 3797      644F 6E6C 
+ 3797      7953 6F66 
+ 3797      7477 6172 
+ 3798               	.LASF18:
+ 3799 05f9 5F69 6E76 		.string	"_inverse_logic"
+ 3799      6572 7365 
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 79
+
+
+ 3799      5F6C 6F67 
+ 3799      6963 00
+ 3800               	.LASF38:
+ 3801 0608 5F5A 4E32 		.string	"_ZN22SendOnlySoftwareSerial5writeEh"
+ 3801      3253 656E 
+ 3801      644F 6E6C 
+ 3801      7953 6F66 
+ 3801      7477 6172 
+ 3802               	.LASF32:
+ 3803 062c 6F76 6572 		.string	"overflow"
+ 3803      666C 6F77 
+ 3803      00
+ 3804               		.ident	"GCC: (GNU) 4.9.2"
+ 3805               	.global __do_copy_data
+GAS LISTING /var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s 			page 80
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 SendOnlySoftwareSerial.cpp
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:2      *ABS*:0000003e __SP_H__
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:3      *ABS*:0000003d __SP_L__
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:4      *ABS*:0000003f __SREG__
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:13     .text._ZN22SendOnlySoftwareSerial5writeEh:00000000 _ZN22SendOnlySoftwareSerial5writeEh
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:233    .text._ZN22SendOnlySoftwareSerial5flushEv:00000000 _ZN22SendOnlySoftwareSerial5flushEv
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:249    .text._ZN22SendOnlySoftwareSerial4readEv:00000000 _ZN22SendOnlySoftwareSerial4readEv
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:269    .text._ZN22SendOnlySoftwareSerial9availableEv:00000000 _ZN22SendOnlySoftwareSerial9availableEv
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:289    .text._ZN22SendOnlySoftwareSerial4peekEv:00000000 _ZN22SendOnlySoftwareSerial4peekEv
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:309    .text._ZN22SendOnlySoftwareSerialD2Ev:00000000 _ZN22SendOnlySoftwareSerialD2Ev
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:309    .text._ZN22SendOnlySoftwareSerialD2Ev:00000000 _ZN22SendOnlySoftwareSerialD1Ev
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:327    .text._ZN22SendOnlySoftwareSerial5setTXEh:00000000 _ZN22SendOnlySoftwareSerial5setTXEh
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:437    .text._ZN22SendOnlySoftwareSerialC2Ehb:00000000 _ZN22SendOnlySoftwareSerialC2Ehb
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:595    .rodata._ZTV22SendOnlySoftwareSerial:00000000 _ZTV22SendOnlySoftwareSerial
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:437    .text._ZN22SendOnlySoftwareSerialC2Ehb:00000000 _ZN22SendOnlySoftwareSerialC1Ehb
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:483    .text._ZN22SendOnlySoftwareSerial12subtract_capEjj:00000000 _ZN22SendOnlySoftwareSerial12subtract_capEjj
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:515    .text._ZN22SendOnlySoftwareSerial5beginEl:00000000 _ZN22SendOnlySoftwareSerial5beginEl
+/var/folders/x6/17svhgds0x7889jbwj0rb4y80000gp/T//ccsgTFFA.s:578    .text._ZN22SendOnlySoftwareSerial3endEv:00000000 _ZN22SendOnlySoftwareSerial3endEv
+
+UNDEFINED SYMBOLS
+digitalWrite
+pinMode
+digital_pin_to_bit_mask_PGM
+digital_pin_to_port_PGM
+port_to_output_PGM
+__divmodsi4
+_ZN5Print5writeEPKhj
+__do_copy_data
