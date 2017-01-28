@@ -196,6 +196,8 @@ void initstart()
   TCCR0B = _BV(CS01);
 }
 //***************************************************************************************
+typedef void (*fptr_t)(void);
+
 void runProgramm(void)
 {
 
@@ -204,12 +206,10 @@ void runProgramm(void)
   cli();
   TCCR0B = 0; // turn off timer1
 
-  // start user programm
-  asm volatile(   
-  "clr r30  \n\t"
-  "clr r31  \n\t" // z Register mit Adresse laden
-  "ijmp   \n\t" // z Register mit Adresse laden
-  );
+    fptr_t reset = (fptr_t) 0;
+    
+    reset();
+
 
 }
 
