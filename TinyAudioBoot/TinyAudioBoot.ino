@@ -49,7 +49,7 @@ uint8_t prog_count = 0;
 #define CRCLOW          3  // checksum lower part 
 #define CRCHIGH     4  // checksum higher part 
 #define DATAPAGESTART   5  // start of data
-#define PAGESIZE    128
+#define PAGESIZE    SPM_PAGESIZE
 #define FRAMESIZE       (PAGESIZE+DATAPAGESTART)// size of the data block to be received
 
 // bootloader commands
