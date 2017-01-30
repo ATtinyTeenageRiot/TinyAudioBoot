@@ -7,3 +7,5 @@
 /build/main.hex
 /build/TinyAudioBoot.d
 /build/TinyAudioBoot.o
+/java_source/test.wav
+/build/test.wav
