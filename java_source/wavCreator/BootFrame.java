@@ -28,10 +28,11 @@ public class BootFrame {
 	private int command;
 	private int pageIndex;
 	private int crc;
-	private int pageStart=5;
+	private int pageStart=7;
 	private int pageSize=64;
 	private int frameSize=pageStart+pageSize;
-	
+	private int totalLength;
+
 	//private double silenceBetweenPages=2; // 2 seconds for debugging purposes silence in seconds
 	private double silenceBetweenPages=0.02; // silence in seconds
 	
@@ -39,6 +40,7 @@ public class BootFrame {
 	{
 		command=0;
 		pageIndex=4;
+		totalLength=0;
 		crc=0x55AA;
 	}
 	public void setProgCommand()
@@ -49,13 +51,21 @@ public class BootFrame {
 	{
 		command=3;
 	}
+	public void setTestCommand()
+	{
+		command=1;
+	}	
 	public int[] addFrameParameters(int data[])
 	{
 		data[0]=command;
 		data[1]=pageIndex&0xFF;
 		data[2]=(pageIndex>>8)&0xFF;
-		data[3]=crc&0xFF;
-		data[4]=(crc>>8)&0xFF;
+
+		data[3]=totalLength&0xFF;
+		data[4]=(totalLength>>8)&0xFF;
+
+		data[5]=crc&0xFF;
+		data[6]=(crc>>8)&0xFF;		
 		return data;
 	}
 	public void setFrameSize(int frameSize) {
@@ -76,6 +86,14 @@ public class BootFrame {
 	public int getPageIndex() {
 		return pageIndex;
 	}
+
+	public void setTotalLength(int totalLength) {
+		this.totalLength = totalLength;
+	}
+	public int getTotalLength() {
+		return totalLength;
+	}
+
 	public void setCrc(int crc) {
 		this.crc = crc;
 	}

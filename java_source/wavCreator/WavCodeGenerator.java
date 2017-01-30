@@ -70,6 +70,15 @@ public class WavCodeGenerator {
 		double[] signal=h2s.manchesterCoding(frameData);
 		return signal;
 	}
+	public double[] makeTestCommand()
+	{
+		HexToSignal h2s=new HexToSignal();
+		int[] frameData=new int[frameSetup.getFrameSize()];
+		frameSetup.setTestCommand();
+		frameSetup.addFrameParameters(frameData);
+		double[] signal=h2s.manchesterCoding(frameData);
+		return signal;
+	}	
 	public double[] generateSignal(int data[])
 	{
 		double[] signal=new double[1];
@@ -78,21 +87,30 @@ public class WavCodeGenerator {
 		int total=data.length;
 		int sigPointer=0;
 		int pagePointer=0;
+
+
 		while(total>0)
 		{
+
 			frameSetup.setPageIndex(pagePointer++);
+			frameSetup.setTotalLength(data.length);
+
 			int[] partSig=new int[pl];
 			for(int n=0;n<pl;n++)
 			{
 				if(n+sigPointer>data.length-1) partSig[n]=0xFF;
 				else partSig[n]=data[n+sigPointer];
+
 			}
+			// System.out.println(sigPointer);
+
 			sigPointer+=pl;
 			double[] sig=generatePageSignal(partSig);
 			signal=appendSignal(signal,sig);
 			signal=appendSignal(signal,silence(frameSetup.getSilenceBetweenPages()));
 			total-=pl;
 		}
+
 		signal=appendSignal(signal,makeRunCommand()); // send mc "start the application"
 		return signal;
 	}
