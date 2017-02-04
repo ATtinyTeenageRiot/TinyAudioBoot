@@ -1,11 +1,114 @@
+/*
+
+	AudioBoot - flashing a microcontroller by PC audio line out
+	
+	Originally the bootloader was made for Atmega8 and Atmega168 microcontrollers.
+	
+	Budi Prakosa a.k.a Iyok reworked the code to get it running on an Attiny85 microcontroller.
+		
+	Parts of the  * equinox-boot.c - bootloader for equinox
+	from Frank Meyer and Robert Meyer are used to access the FLASH memory.
+	
+	Hardware: 	Attiny85
+
+	input pin: 	should be connected to a voltage divider.
+	output pin: LED for status indication of the bootloader
+
+	The input pin is also connected by a 10nF capacitor to the PC line out
+	
+	The Atmega168 seems to have the switching voltage level at 2.2V
+	The Atmega8 at 1.4V
+	The switching levels of the input pins may vary a little bit from one
+	MC to another.	If you to be able to adjust the voltages,
+	use a 10k poti as voltage divider.
+
+
+	As development platform an Arduino Diecimilla was used. Therefore you
+	will find many #ifdefs for the Arduino in this code.
+	If you want to optimize the bootloader further you may use an Arduino
+	as development platform.
+
+
+	necessary setup
+
+	1. Project->ConfigurationOptions->Processortype
+	2. Project->ConfigurationOptions->Programming Modell 'Os'
+	3. Project->ConfigurationOptions->CustomOptions->LinkerOptions->see further down
+
+	There is an article how to make an ATTINY boot loader ( German ):
+	http://www.mikrocontroller.net/articles/Konzept_f%C3%BCr_einen_ATtiny-Bootloader_in_C
+	( thanks to the author of the article, very well written )
+
+
+	Creating the bootloader with Atmel Studio 7
+	===========================================
+
+	1. You have to define the bootloader sections and reset vector location
+
+	=> Toolchain/AVR_GNU_Linker/Memory Settings
+	.bootreset=0x00
+	.text=0x0C00
+
+	.text=0x0C00 *2 = 0x1800 ==> this is the start address of the boot loader
+
+	2. Disable unused sections optimization in the linker
+	Be sure that in the linker parameters this is not used: -Wl, --gc-sections 
+	disable the following check box:
+	==>Toolchain/AVR_GNU_C Compiler/Optimization/Garbage collect unused sections
+
+
+	Fuse settings for the bootloader
+	================================
+
+	There fuses have to match certain conditions.
+	Mainly SELFPROGEN has to be set, Brown-Out-Detection activated and 
+	CKDIV8 disabled to achieve the needed F_CPU of 8MHz
+
+	FUSES Attiny 85
+	===============
+	Extended: 0xFE
+	HIGH:     0xD5
+	LOW:      0xE2
+
+	************************************************************************************
+
+	v0.1	19.6.2008  C. -H-A-B-E-R-E-R-  Bootloader for IR-Interface
+	v1.0	03.9.2011  C. -H-A-B-E-R-E-R-  Bootloader for audio signal
+	v1.1	05.9.2011  C. -H-A-B-E-R-E-R-  changing pin setup, comments, and exitcounter=3
+	v1.2	12.5.2012  C. -H-A-B-E-R-E-R-  Atmega8 Support added, java program has to be adapted too
+	v1.3	20.5.2012  C. -H-A-B-E-R-E-R-  now interrupts of user program are working
+	v1.4	05.6.2012  C. -H-A-B-E-R-E-R-  signal coding changed to differential manchester code
+	v2.0	13.6.2012  C. -H-A-B-E-R-E-R-  setup for various MCs
+	v3.0    30.1.2017  B. -P-r-a-k-o-s-a   first version of Attiny85 Audio Bootloader
+	v3.1    04.2.2017  C. -H-A-B-E-R-E-R-  clean reset vector added, description added, pins rerouted
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	It is mandatory to keep the list of authors in this code.
+
+*/
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
 #include <avr/boot.h>
-#include <util/delay.h>
 #include <avr/pgmspace.h>
 
-#define ARDUINO_DEBUG_SERIAL
+#define F_CPU 8000000L
+#include <util/delay.h>
+                                                             // This value has probably to be adapted:
+#define BOOTLOADER_ADDRESS     0x1800                        // bootloader start address, e.g. 0x1800 = 6144
+
+#define RJMP                   (0xC000U - 1)                 // opcode of RJMP minus offset 1
+#define RESET_SECTION          __attribute__((section(".bootreset"))) __attribute__((used))
+
+uint16_t                       resetVector RESET_SECTION = RJMP + BOOTLOADER_ADDRESS / 2;
+
+
+//#define ARDUINO_DEBUG_SERIAL
 
 #ifdef ARDUINO_DEBUG_SERIAL
 #include <SendOnlySoftwareSerial.h>
@@ -19,10 +122,11 @@ SendOnlySoftwareSerial mySerial (PB2);  // Tx pin
 #define LEDOFF {PORTB&=~LEDPORT;}
 #define TOGGLELED {PORTB^=LEDPORT;}
 
-#define INPUTAUDIOPIN (1<<PB0) //PB0 pin 5 attiny85
+#define INPUTAUDIOPIN (1<<PB4) //
 #define PINVALUE (PINB&INPUTAUDIOPIN)
+//#define INITPORT {PORTB|=INPUTAUDIOPIN;} //turn on pull up 
+#define INITAUDIOPORT {DDRB&=~INPUTAUDIOPIN;} // audio pin is input
 
-#define INITPORT {PORTB|=INPUTAUDIOPIN;} //turn on pull up 
 
 #define PINLOW (PINVALUE==0)
 #define PINHIGH (!PINLOW)
@@ -39,7 +143,7 @@ SendOnlySoftwareSerial mySerial (PB2);  // Tx pin
 
 #define TIMER TCNT0 // we use timer1 for measuring time
 
-// frame format definition
+// frame format definition: indices
 #define COMMAND         0
 #define PAGEINDEXLOW    1  // page address lower part
 #define PAGEINDEXHIGH   2  // page address higher part
@@ -48,8 +152,8 @@ SendOnlySoftwareSerial mySerial (PB2);  // Tx pin
 #define CRCLOW          5  // checksum lower part 
 #define CRCHIGH         6  // checksum higher part 
 #define DATAPAGESTART   7  // start of data
-#define PAGESIZE    SPM_PAGESIZE
-#define FRAMESIZE   (PAGESIZE+DATAPAGESTART) // size of the data block to be received
+#define PAGESIZE        SPM_PAGESIZE
+#define FRAMESIZE       (PAGESIZE+DATAPAGESTART) // size of the data block to be received
 
 // bootloader commands
 #define NOCOMMAND       0
@@ -57,12 +161,9 @@ SendOnlySoftwareSerial mySerial (PB2);  // Tx pin
 #define PROGCOMMAND     2
 #define RUNCOMMAND      3
 
-uint8_t FrameData[FRAMESIZE];
+uint8_t FrameData[ FRAMESIZE ];
 
-// #define RJMP (0xC000U - 1) // opcode of RJMP minus offset 1
-// #define RESET_SECTION __attribute __ ((section ("bootreset")))
-
-// Microcontroller vectortable entries in the flash
+// Microcontroller vector table entries in the flash
 #define RESET_VECTOR_OFFSET         0
 // number of bytes before the boot loader vectors to store the tiny application vector table
 #define TINYVECTOR_RESET_OFFSET     4
@@ -77,11 +178,9 @@ uint8_t FrameData[FRAMESIZE];
 #define BOOTLOADER_ENDADDRESS   0x2000                // end address:   0x2000 = 8192
 #define LAST_PAGE (BOOTLOADER_STARTADDRESS - SPM_PAGESIZE)/SPM_PAGESIZE
 
-#define RJMP    (0xC000U - 1)
-
 #include <avr/boot.h>
-#ifndef RWWSRE                                                                  // bug in AVR libc:
-#define RWWSRE CTPB                                                             // RWWSRE is not defined on ATTinys, use CTBP instead
+#ifndef RWWSRE                                        // bug in AVR libc:
+#define RWWSRE CTPB                                   // RWWSRE is not defined on ATTinys, use CTBP instead
 #endif
 
 typedef union {
@@ -106,8 +205,8 @@ uint8_t prog_count = 0;
 // The routine waits for a toggling voltage level.
 // It automatically detects the transmission speed.
 //
-// output:    uint8_t flag: true: checksum ok
-//        Data // global variable
+// output:    uint8_t flag:     true: checksum OK
+//            uint8_t FramData: global data buffer
 //
 //***************************************************************************************
 uint8_t receiveFrame()
@@ -192,19 +291,9 @@ uint8_t receiveFrame()
     };
   }
   uint16_t crc = (uint16_t)FrameData[CRCLOW] + FrameData[CRCHIGH] * 256;
+  
   return true;
-  //else return false;
 }
-
-static inline void eraseApplication(void) {
-  // uint16_t ptr = BOOTLOADER_ADDRESS;
-  // while (ptr) {
-  //   ptr -= SPM_PAGESIZE;        
-  //   boot_page_erase(ptr);
-  //   boot_spm_busy_wait ();      // Wait until the memory is erased.
-  // }
-}
-
 
 /*-----------------------------------------------------------------------------------------------------------------------
  * Flash: fill page word by word
@@ -278,7 +367,7 @@ pgm_write_block (uint16_t flash_addr, uint16_t * block, size_t size)
 //
 //  Erase and flash one page.
 //
-//  inputt:     page address and data to be programmed
+//  input:     page address and data to be programmed
 //
 //***************************************************************************************
 void boot_program_page (uint32_t page, uint8_t *buf)
@@ -356,10 +445,9 @@ void a_main()
   uint8_t p;
   uint16_t time = WAITBLINKTIME;
   uint8_t timeout = BOOT_TIMEOUT;
-
-
-
-
+  
+  p = PINVALUE;
+  
   //*************** wait for toggling input pin or timeout ******************************
   uint8_t exitcounter = 3;
   while (1)
@@ -378,22 +466,22 @@ void a_main()
 #endif
 
         time = WAITBLINKTIME;
-                timeout--;
-                if (timeout == 0)
-                {
-                  LEDOFF; // timeout,
-                  // leave bootloader and run program
-                  
-        memcpy_P (&start_appl_main, (PGM_P) BOOTLOADER_FUNC_ADDRESS, sizeof (start_appl_main));
-
-        if (start_appl_main)
+        timeout--;
+        if (timeout == 0)
         {
-            cli ();
-            (*start_appl_main) ();
-        }
+			LEDOFF; // timeout,
+			// leave bootloader and run program
+                  
+			memcpy_P (&start_appl_main, (PGM_P) BOOTLOADER_FUNC_ADDRESS, sizeof (start_appl_main));
 
-                    runProgramm();
-                }
+			if (start_appl_main)
+			{
+				cli ();
+				(*start_appl_main) ();
+			}
+
+            runProgramm();
+        }
       }
     }
     if (p != PINVALUE)
@@ -427,7 +515,7 @@ void a_main()
     }
     else // succeed
     {
-      #ifdef ARDUINO_DEBUG_SERIAL
+#ifdef ARDUINO_DEBUG_SERIAL
   // mySerial.println(FrameData[COMMAND]);
 #endif
 
@@ -436,12 +524,13 @@ void a_main()
       {
 
         case TESTCOMMAND: // not used yet
-          {
+        {
 
-          }
-          break;
-        case RUNCOMMAND:
-          {
+        }
+        break;
+        
+		case RUNCOMMAND:
+        {
 
 
 #ifdef ARDUINO_DEBUG_SERIAL
@@ -449,24 +538,23 @@ void a_main()
 #endif
             // leave bootloader and run program
             runProgramm();
-          }
-          break;
-        case PROGCOMMAND:
-          {
+        }
+        break;
+        
+		case PROGCOMMAND:
+        {
             uint16_t k = (((uint16_t)FrameData[PAGEINDEXHIGH]) << 8) + FrameData[PAGEINDEXLOW];
 
+#ifdef ARDUINO_DEBUG_SERIAL
             mySerial.println(currentAddress.w);
-
-            if(prog_count == 0) eraseApplication();
+#endif
             
             prog_count++;
 
-            boot_program_page (SPM_PAGESIZE * k, FrameData + DATAPAGESTART);  // erase and programm page
-
-#ifdef ARDUINO_DEBUG_SERIAL
-#endif            
-          }
-          break;
+            boot_program_page (SPM_PAGESIZE * k, FrameData + DATAPAGESTART);  // erase and program page
+       
+        }
+        break;
       }
       FrameData[COMMAND] = NOCOMMAND; // delete command
     }
@@ -476,6 +564,7 @@ void a_main()
 int main()
 {
   INITLED;
+  INITAUDIOPORT;
 #ifdef ARDUINO_DEBUG_SERIAL
   mySerial.begin(9600);
 #endif
