@@ -16,7 +16,7 @@ package wavCreator;
 public class BootFrame {
 
 	/*
-	 * 	#define COMMAND         0
+	   	#define COMMAND         0
 		#define PAGEINDEXLOW 	1  // page address lower part
 		#define PAGEINDEXHIGH 	2  // page address higher part
 		#define CRCLOW          3  // checksum lower part
@@ -28,9 +28,9 @@ public class BootFrame {
 	private int command;
 	private int pageIndex;
 	private int crc;
-	private int pageStart=7;
-	private int pageSize=64;
-	private int frameSize=pageStart+pageSize;
+	private int pageStart = 7;
+	private int pageSize  = 64;
+	private int frameSize = pageStart + pageSize;
 	private int totalLength;
 
 	//private double silenceBetweenPages=2; // 2 seconds for debugging purposes silence in seconds
@@ -43,18 +43,22 @@ public class BootFrame {
 		totalLength=0;
 		crc=0x55AA;
 	}
+	
 	public void setProgCommand()
 	{
 		command=2;
 	}
+	
 	public void setRunCommand()
 	{
 		command=3;
 	}
+	
 	public void setTestCommand()
 	{
 		command=1;
 	}	
+	
 	public int[] addFrameParameters(int data[])
 	{
 		data[0]=command;
@@ -68,21 +72,27 @@ public class BootFrame {
 		data[6]=(crc>>8)&0xFF;		
 		return data;
 	}
+	
 	public void setFrameSize(int frameSize) {
 		this.frameSize = frameSize;
 	}
+	
 	public int getFrameSize() {
 		return frameSize;
 	}
+	
 	public void setCommand(int command) {
 		this.command = command;
 	}
+	
 	public int getCommand() {
 		return command;
 	}
+	
 	public void setPageIndex(int pageIndex) {
 		this.pageIndex = pageIndex;
 	}
+	
 	public int getPageIndex() {
 		return pageIndex;
 	}
@@ -90,6 +100,7 @@ public class BootFrame {
 	public void setTotalLength(int totalLength) {
 		this.totalLength = totalLength;
 	}
+	
 	public int getTotalLength() {
 		return totalLength;
 	}
@@ -97,24 +108,31 @@ public class BootFrame {
 	public void setCrc(int crc) {
 		this.crc = crc;
 	}
+	
 	public int getCrc() {
 		return crc;
 	}
+	
 	public void setPageStart(int pageStart) {
 		this.pageStart = pageStart;
 	}
+	
 	public int getPageStart() {
 		return pageStart;
 	}
+	
 	public void setPageSize(int pageSize) {
 		this.pageSize = pageSize;
 	}
+	
 	public int getPageSize() {
 		return pageSize;
 	}
+	
 	public void setSilenceBetweenPages(double silenceBetweenPages) {
 		this.silenceBetweenPages = silenceBetweenPages;
 	}
+	
 	public double getSilenceBetweenPages() {
 		return silenceBetweenPages;
 	}

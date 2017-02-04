@@ -16,20 +16,20 @@ package wavCreator;
 import hexTools.IntelHexFormat;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-
 
 import waveFile.WavFile;
 
-public class WavCodeGenerator {
+public class WavCodeGenerator 
+{
 	private int sampleRate = 44100;		// Samples per second
 	private BootFrame frameSetup;
+	boolean fullSpeedFlag=true;
 	
 	public WavCodeGenerator()
 	{
-		frameSetup=new BootFrame();	
+		frameSetup = new BootFrame();	
 	}
+	
 	private double[] appendSignal(double[] sig1, double[] sig2)
 	{
 		int l1=sig1.length;
@@ -39,46 +39,56 @@ public class WavCodeGenerator {
 		for(int n=0;n<l2;n++) d[n+l1]=sig2[n];		
 		return d;
 	}
+	
+	public void setSignalSpeed(boolean fullSpeedFlag)
+	{
+		this.fullSpeedFlag = fullSpeedFlag;
+	}
+	
 	public double[] generatePageSignal(int data[])
 	{
-		HexToSignal h2s=new HexToSignal();
+		HexToSignal h2s=new HexToSignal(fullSpeedFlag);
 
 		int[] frameData=new int[frameSetup.getFrameSize()];
 
 		// copy data into frame data
 		for(int n=0;n<frameSetup.getPageSize();n++)
 		{
-			if(n<data.length) frameData[n+frameSetup.getPageStart()]=data[n];
+			if ( n < data.length ) frameData[n+frameSetup.getPageStart()]=data[n];
 			else frameData[n+frameSetup.getPageStart()]=0xFF;
 		}
 		frameSetup.addFrameParameters(frameData);
 		double[] signal=h2s.manchesterCoding(frameData);
 		return signal;
 	}
+	
 	// duration in seconds
 	public double[] silence(double duration)
 	{
 		double[] signal=new double[(int)(duration * sampleRate)];
 		return signal;
 	}
+	
 	public double[] makeRunCommand()
 	{
-		HexToSignal h2s=new HexToSignal();
+		HexToSignal h2s=new HexToSignal(fullSpeedFlag);
 		int[] frameData=new int[frameSetup.getFrameSize()];
 		frameSetup.setRunCommand();
 		frameSetup.addFrameParameters(frameData);
 		double[] signal=h2s.manchesterCoding(frameData);
 		return signal;
 	}
+	
 	public double[] makeTestCommand()
 	{
-		HexToSignal h2s=new HexToSignal();
+		HexToSignal h2s=new HexToSignal(fullSpeedFlag);
 		int[] frameData=new int[frameSetup.getFrameSize()];
 		frameSetup.setTestCommand();
 		frameSetup.addFrameParameters(frameData);
 		double[] signal=h2s.manchesterCoding(frameData);
 		return signal;
 	}	
+	
 	public double[] generateSignal(int data[])
 	{
 		double[] signal=new double[1];
@@ -91,19 +101,18 @@ public class WavCodeGenerator {
 
 		while(total>0)
 		{
-
 			frameSetup.setPageIndex(pagePointer++);
 			frameSetup.setTotalLength(data.length);
 
 			int[] partSig=new int[pl];
+			
 			for(int n=0;n<pl;n++)
 			{
 				if(n+sigPointer>data.length-1) partSig[n]=0xFF;
 				else partSig[n]=data[n+sigPointer];
 
 			}
-			// System.out.println(sigPointer);
-
+			
 			sigPointer+=pl;
 			double[] sig=generatePageSignal(partSig);
 			signal=appendSignal(signal,sig);
@@ -128,7 +137,7 @@ public class WavCodeGenerator {
 			// Create a buffer of 100 frames
 			double[][] buffer = new double[2][100];
 
-			// Initialise a local frame counter
+			// Initialize a local frame counter
 			long frameCounter = 0;
 
 			// Loop until all frames written
@@ -165,20 +174,22 @@ public class WavCodeGenerator {
 		}
 		return true;
 	}
-	public static boolean convertHex2Wav(File hexFile, File wavFile) throws Exception
+	
+	public boolean convertHex2Wav(File hexFile, File wavFile) throws Exception
 	{
 		//IntelHexFormat ih=new IntelHexFormat();
 		byte[] erg = IntelHexFormat.IntelHexFormatToByteArray(hexFile);
 		IntelHexFormat.anzeigen(erg);
-		WavCodeGenerator w=new WavCodeGenerator();
-		double[] signal=w.generateSignal(IntelHexFormat.toUnsignedIntArray(IntelHexFormat.discardHeaderBytes(erg)));
-		w.saveWav(signal,new File("test.wav"));
+		//WavCodeGenerator w=new WavCodeGenerator();
+		double[] signal=generateSignal(IntelHexFormat.toUnsignedIntArray(IntelHexFormat.discardHeaderBytes(erg)));
+		saveWav(signal,new File("test.wav"));
 		return true;
 	}
+	
 	public static void main(String[] args) throws Exception
 	{
    	    File f1 = new File("C:\\Dokumente und Einstellungen\\chris\\Eigene Dateien\\Entwicklung\\java\\EclipseWorkspace2\\wavBootLoader\\test.hex");
    	    File f2 = new File("C:\\Dokumente und Einstellungen\\chris\\Eigene Dateien\\Entwicklung\\java\\EclipseWorkspace2\\wavBootLoader\\test.wav");
-   	    convertHex2Wav(f1,f2);
+   	    //convertHex2Wav(f1,f2);
 	}
 }

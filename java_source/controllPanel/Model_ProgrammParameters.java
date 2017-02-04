@@ -15,10 +15,11 @@ package controllPanel;
 
 import java.io.File;
 
-public class Model_ProgrammParameters {
+public class Model_ProgrammParameters 
+{
 	private File inputHexFile;
 	private File outputWavFile;
-	private int data[];
+	private int  data[];
 	
 	public Model_ProgrammParameters()
 	{
@@ -29,21 +30,27 @@ public class Model_ProgrammParameters {
 		// test
 		for(int n=0;n<200;n++)data[n]=n;
 	}
+	
 	public void setOutputWavFile(File outputWavFile) {
 		this.outputWavFile = outputWavFile;
 	}
+	
 	public File getOutputWavFile() {
 		return outputWavFile;
 	}
+	
 	public void setInputHexFile(File inputHexFile) {
 		this.inputHexFile = inputHexFile;
 	}
+	
 	public File getInputHexFile() {
 		return inputHexFile;
 	}
+	
 	public void setData(int data[]) {
 		this.data = data;
 	}
+	
 	public int[] getData() {
 		return data;
 	}

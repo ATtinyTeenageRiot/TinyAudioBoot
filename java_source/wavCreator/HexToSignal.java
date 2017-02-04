@@ -1,28 +1,42 @@
 
 package wavCreator;
 
-public class HexToSignal {
+public class HexToSignal 
+{
+	private int     startSequencePulses = 40;
+	private int     numStartBits        =  1;
+	private int     numStopBits         =  1;
+	private double  manchesterPhase     =  1;    // current phase for differential manchester coding
 
-	private int lowNumberOfPulses=2;
-	private int highNumberOfPulses=3;
-	private int startSequencePulses=40;
-	private int numStartBits=1;
-	private int numStopBits=1;
-	private boolean invertSignal=true; // correction of an inverted audio signal line
-	private double manchesterPhase=1; // current phase for differential manchester coding
-
+	private boolean invertSignal        =  true; // correction of an inverted audio signal line
+                                                 // only used in non differential code
 	
-	private int manchesterNumberOfSamplesPerBit=4; // this value must be even
+	private int     lowNumberOfPulses   =  2; // not for manchester coding, only for flankensignal
+	private int     highNumberOfPulses  =  3; // not for manchester coding, only for flankensignal
+	
+	private int     manchesterNumberOfSamplesPerBit = 4; // this value must be even
+	private boolean useDifferentialManchsterCode = true;
+	
+	public void setSignalSpeed(boolean fullSpeedFlag)
+	{
+		if( fullSpeedFlag ) manchesterNumberOfSamplesPerBit = 4; // full speed
+		else                manchesterNumberOfSamplesPerBit = 8; // half speed
+	}
+	
+	public HexToSignal(boolean fullSpeedFlag)
+	{
+		setSignalSpeed(fullSpeedFlag);
+	}
 	/* flag=true: rising edge
 	 * flag=false: falling edge
 	 */
-	private double[] manchesterEdge(boolean flag, int pointerIntoSignal,double signal[] )
+	private double[] manchesterEdge(boolean flag, int pointerIntoSignal, double signal[] )
 	{
 		double sigpart[]=new double[manchesterNumberOfSamplesPerBit];
 		int n;
 		double value;
 
-		if(false) // manchester code
+		if( !useDifferentialManchsterCode ) // non differential manchester code
 		{
 			if(flag) value=1;
 			else value=-1;
