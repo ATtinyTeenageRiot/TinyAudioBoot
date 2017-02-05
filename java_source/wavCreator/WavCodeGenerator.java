@@ -116,11 +116,18 @@ public class WavCodeGenerator
 			sigPointer+=pl;
 			double[] sig=generatePageSignal(partSig);
 			signal=appendSignal(signal,sig);
+
 			signal=appendSignal(signal,silence(frameSetup.getSilenceBetweenPages()));
+			
 			total-=pl;
 		}
 
 		signal=appendSignal(signal,makeRunCommand()); // send mc "start the application"
+		// added silence at sound end to time out sound fading in some wav players like from Mircosoft
+		for(int k=0;k<10;k++)
+		{
+			signal=appendSignal(signal,silence(frameSetup.getSilenceBetweenPages()));
+		}
 		return signal;
 	}
 	
@@ -182,7 +189,7 @@ public class WavCodeGenerator
 		IntelHexFormat.anzeigen(erg);
 		//WavCodeGenerator w=new WavCodeGenerator();
 		double[] signal=generateSignal(IntelHexFormat.toUnsignedIntArray(IntelHexFormat.discardHeaderBytes(erg)));
-		saveWav(signal,new File("test.wav"));
+		saveWav(signal,wavFile);
 		return true;
 	}
 	

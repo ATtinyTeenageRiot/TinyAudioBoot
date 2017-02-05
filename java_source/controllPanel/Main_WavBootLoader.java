@@ -109,9 +109,17 @@ public class Main_WavBootLoader extends JPanel{
 		setupData=new Model_ProgrammParameters(); 
 	}
 
-	class inputHexFile_ButtonListener implements ActionListener{
-		//public boolean Knopf1=false;
-		
+	public static String getBaseName(String fileName) {
+	    int index = fileName.lastIndexOf('.');
+	    if (index == -1) {
+	        return fileName;
+	    } else {
+	        return fileName.substring(0, index);
+	    }
+	}
+	class inputHexFile_ButtonListener implements ActionListener
+	{
+	
 		public void actionPerformed(ActionEvent e) {
 			System.out.println(e.getActionCommand());
 
@@ -142,17 +150,20 @@ public class Main_WavBootLoader extends JPanel{
         	if(state==JFileChooser.APPROVE_OPTION)
         	{
         		File file=fc.getSelectedFile();
-    			testText.append("new hexfile name:\n");
+    			
+        		testText.append("selected hexfile:\n");
         		testText.append(file.getAbsolutePath());
         		setupData.setInputHexFile(file);
+        		
+        		String outputFileName=getBaseName( file.getName() )+".wav";
+        		System.out.println("output file name:"+outputFileName);
+        		setupData.setOutputWavFile( new File( outputFileName ) ); 
         	};	
 		}	
 	}
 	
 	class writeWav_ButtonListener implements ActionListener
-	{
-		//public boolean Knopf1=false;
-		
+	{		
 		public void actionPerformed(ActionEvent e) 
 		{
 			System.out.println(e.getActionCommand());
