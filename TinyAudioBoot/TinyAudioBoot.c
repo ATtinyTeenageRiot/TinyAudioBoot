@@ -45,11 +45,14 @@
 
   1. You have to define the bootloader sections and reset vector location
 
-  => Toolchain/AVR_GNU_Linker/Memory Settings
+  => Toolchain/AVR_GNU_Linker/Memory Settings 
   .bootreset=0x00
-  .text=0x0C00
+  .text=0xE00 // for 1KB Bootloader
+  .text=0x0C00 // for 2KB Bootloader
 
-  .text=0x0C00 *2 = 0x1800 ==> this is the start address of the boot loader
+   explanation:
+  .text=0x0E00 *2 = 0x1C00 ==> this is the start address of the boot loader with 1KB size
+  .text=0x0C00 *2 = 0x1800 ==> this is the start address of the boot loader with 2KB size
 
   2. Disable unused sections optimization in the linker
   Be sure that in the linker parameters this is not used: -Wl, --gc-sections
@@ -64,11 +67,11 @@
   Mainly SELFPROGEN has to be set, Brown-Out-Detection activated and
   CKDIV8 disabled to achieve the needed F_CPU of 8MHz
 
-  FUSES Attiny 85
-  ===============
+  FUSES Attiny 85 ( F_CPU 16MHz with PLL )
+  ========================================
   Extended: 0xFE
-  HIGH:     0xD5
-  LOW:      0xE2
+  HIGH:     0xDD
+  LOW:      0xE1
 
   ************************************************************************************
 
@@ -97,7 +100,9 @@
 #include <avr/boot.h>
 #include <avr/pgmspace.h>
 // This value has probably to be adapted:
-#define BOOTLOADER_ADDRESS     0x1800                        // bootloader start address, e.g. 0x1800 = 6144
+#define BOOTLOADER_ADDRESS     0x1C00                        // bootloader start address, e.g. 0x1C00 = 7168
+
+//#define BOOTLOADER_ADDRESS     0x1800                        // bootloader start address, e.g. 0x1800 = 6144
 
 #define RJMP                   (0xC000U - 1)                 // opcode of RJMP minus offset 1
 #define RESET_SECTION          __attribute__((section(".bootreset"))) __attribute__((used))
@@ -156,7 +161,9 @@ uint8_t FrameData[ FRAMESIZE ];
 #define FLASH_RESET_ADDR        0x0000                 // address of reset vector (in bytes)
 #define BOOTLOADER_STARTADDRESS BOOTLOADER_ADDRESS    // start address:
 #define BOOTLOADER_ENDADDRESS   0x2000                // end address:   0x2000 = 8192
-#define LAST_PAGE (BOOTLOADER_STARTADDRESS - SPM_PAGESIZE)/SPM_PAGESIZE
+                                                      // this is the size of the Attiny85 flash in bytes
+													  
+#define LAST_PAGE (BOOTLOADER_STARTADDRESS - SPM_PAGESIZE) / SPM_PAGESIZE
 
 #include <avr/boot.h>
 #ifndef RWWSRE                                        // bug in AVR libc:
@@ -482,8 +489,12 @@ void a_main()
         case PROGCOMMAND:
           {
             uint16_t k = (((uint16_t)FrameData[PAGEINDEXHIGH]) << 8) + FrameData[PAGEINDEXLOW];
-
-            boot_program_page (SPM_PAGESIZE * k, FrameData + DATAPAGESTART);  // erase and program page
+			uint16_t address=SPM_PAGESIZE * k;
+			
+            if( address < BOOTLOADER_ADDRESS-PAGESIZE) // prevent bootloader form self killing
+			{
+				boot_program_page (address, FrameData + DATAPAGESTART);  // erase and program page
+			}
           }
           break;
 

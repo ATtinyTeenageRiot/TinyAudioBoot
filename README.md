@@ -36,9 +36,11 @@ LEDPB1 means: The LED signal is on PB1
 To work correct it is also necessary to program the Attin85 fuses as follows:
 
 	Extended: 0xFE
-	HIGH:     0xD5
-	LOW:      0xE2
-  
+	HIGH:     0xDD
+	LOW:      0xE1
+
+With this setting the Attiny is running at 16Mhz
+	
 ## creating the WAV sound
 
 There is a Java Program
