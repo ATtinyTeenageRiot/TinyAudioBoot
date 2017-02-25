@@ -13,6 +13,10 @@ The bootloader presented here has the following features:
 - java program to generate the sound, works on win and linux
 - a led indicator for the state of the boot loader
 
+<p align="left">
+  <img src="/doc/audioInputSchematic.PNG" width="480"/>
+</p>
+
 ## bootloader operation
 
 1. After reset the bootloader waits for about 5 seconds for a signal from the audio input. 
@@ -45,13 +49,18 @@ With this setting the Attiny is running at 16Mhz
 
 There is a Java Program
 
-AudioBootAttiny85.jar
+**AudioBootAttiny85.jar**
 
-which on the most operating systems you can start by just clicking on it.
+which on the most operating systems you can start by just clicking on it. 
+The wav-file is created and stored in the same directory where you started the java program. 
 
-You can also use it as a command line tool as follows:
+You can also use AudioBoot.jar directly from the command line without starting the GUI with the following command:
 
-java -jar AudioBoot.jar someExampleFile.hex
+> java -jar AudioBoot.jar someExampleFile.hex
+
+This might be usefull if you want to integrate it in your own applications.
+
+
 
 
 
