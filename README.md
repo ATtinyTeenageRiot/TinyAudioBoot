@@ -26,6 +26,9 @@ The bootloader presented here has the following features:
 
 3. If there was a signal, the bootloader starts receiving the new program data an flashes it
 
+The sound volume has to be adjusted to a suitable value. 
+On most PCs the AudioBootloader should work with a volume setting of 70%.
+
 ## installing the bootloader on the Attiny85
 
 To use the bootloader it has to be flashed into the microcontroller with an ISP programmer.
