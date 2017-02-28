@@ -31,7 +31,7 @@ You can use an [Arduino-Uno as ISP-pogrammer] (https://www.frag-duino.de/index.p
 
 There are precompiled HEX files e.g.:
 
-** AudioBootAttiny85_AudioPB4_LedPB1_V3_1.hex **
+**AudioBootAttiny85_AudioPB4_LedPB1_V3_1.hex**
 
 AudioPB4 means: PB4 is the audio input pin
 LEDPB1 means: The LED signal is on PB1
