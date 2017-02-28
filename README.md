@@ -20,21 +20,18 @@ The bootloader presented here has the following features:
 It is much simplier to play wav files on any device than to install some programming IDEs.
 If you can play a wav-file on a device you can use it as programming tool for your Attiny85.
 Compared to any other method this is unbeatable easy.
-A good example is the [8bitmixedtape synthesizer](https://8bitmixtape.github.io/) where you can directly plays the code-wav-files for programming.
-
-<p align="left">
-  <img src="/doc/audioInputSchematic.PNG" width="480"/>
-</p>
+A good example is the [8bitmixedtape synthesizer](https://8bitmixtape.github.io/) where you can directly play the code-wav-files for programming.
 
 ## How?
 
 ### installing the bootloader on the Attiny85
 
 To use the bootloader it has to be flashed into the microcontroller with an ISP programmer.
+You can use an [Arduino-Uno as ISP-pogrammer] (https://www.frag-duino.de/index.php/maker-faq/37-atmel-attiny-85-mit-arduino-arduinoisp-flashen-und-programmieren)
 
-There are precompiled versions e.g.:
+There are precompiled HEX files e.g.:
 
-AudioBootAttiny85_AudioPB4_LedPB1_V3_1.hex
+** AudioBootAttiny85_AudioPB4_LedPB1_V3_1.hex **
 
 AudioPB4 means: PB4 is the audio input pin
 LEDPB1 means: The LED signal is on PB1
@@ -77,7 +74,7 @@ You could directly integrate the wav-file generator into your Arduino IDE to pro
 
 [full Arduino IDE integration] (https://github.com/8BitMixtape/8Bit-Mixtape-NEO/wiki/IDE-integration)
 
-### Hex to Wav Java progam
+### HEX to WAV java Progam
 
 There is a java program here in this repository
 
@@ -92,6 +89,13 @@ You can also use AudioBoot.jar directly from the command line without starting t
 
 This might be usefull if you want to integrate it in your own applications.
 
+## interfacing the Attiny85 with the audio line
+
+It is quite easy to connect the Attiny to the PC. You need only two resistors and a capacitor:
+
+<p align="left">
+  <img src="/doc/audioInputSchematic.PNG" width="480"/>
+</p>
 
 
 
