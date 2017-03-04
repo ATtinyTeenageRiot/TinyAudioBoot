@@ -97,7 +97,8 @@ This might be usefull if you want to integrate it in your own applications.
 
 ## interfacing the Attiny85 with the audio line
 
-It is quite easy to connect the Attiny to the PC. You need only two resistors and a capacitor:
+It is quite easy to connect the Attiny to the PC. You need only two resistors and a capacitor.
+You could also add a LED as status indicator for the bootloader which is quite useful to see if the bootloader has started.
 
 <p align="left">
   <img src="/doc/AudioBootLoaderMinimumBreadBoard.PNG" width="480"/>
