@@ -6,9 +6,10 @@ Audio Bootloader for Attiny85 Microcontrollers
 You can simply connect your Attiny85 to the audio jack of your PC, Smartphone or wav-player to program it.
 
 <p align="left">
-  <img src="/doc/AudioBootLoaderFlyer.PNG" width="480"/>
+  <img src="/doc/AudioBootLoaderFlyer.png" width="480"/>
 </p>
 
+Only a little circuit consisting of one capacitor and two resistors is needed as interface.
 
 The bootloader presented here has the following features:
 
