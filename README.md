@@ -100,7 +100,7 @@ This might be usefull if you want to integrate it in your own applications.
 It is quite easy to connect the Attiny to the PC. You need only two resistors and a capacitor:
 
 <p align="left">
-  <img src="/doc/audioInputSchematic.PNG" width="480"/>
+  <img src="/doc/AudioBootLoaderMinimumBreadBoard.PNG" width="480"/>
 </p>
 
 
