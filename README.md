@@ -14,7 +14,7 @@ Only a little circuit consisting of one capacitor and two resistors is needed as
 The bootloader presented here has the following features:
 
 - java program to generate the sound, works on win and linux
-- [full Arduino IDE integration] (https://github.com/8BitMixtape/8Bit-Mixtape-NEO/wiki/IDE-integration)
+- [full Arduino IDE integration] (https://github.com/8BitMixtape/8Bit-Mixtape-NEO/wiki/3_3-IDE-integration)
 - automatic Baudrate detection and callibration
 - very simply hardware circuit: 2 resistors and a 100nF capacitor to connect to the audio line
 - only one pin for data transmission needed and an additional pin for a status led
@@ -78,7 +78,7 @@ On most PCs the AudioBootloader should work with a **volume setting of 70%** .
 
 You could directly integrate the wav-file generator into your Arduino IDE to program your sketches:
 
-[full Arduino IDE integration] (https://github.com/8BitMixtape/8Bit-Mixtape-NEO/wiki/IDE-integration)
+[full Arduino IDE integration] (https://github.com/8BitMixtape/8Bit-Mixtape-NEO/wiki/3_3-IDE-integration)
 
 ### HEX to WAV java Progam
 
