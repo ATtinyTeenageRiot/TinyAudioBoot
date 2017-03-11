@@ -189,9 +189,12 @@ public class Main_WavBootLoader extends JPanel{
 	public void convertAndPlayWav()
 	{
 		System.out.println("\nconverting hex to wav\n");
+
+
 		try {
 			WavCodeGenerator wg=new WavCodeGenerator();
-			wg.setSignalSpeed(!speedCheckBox.isSelected());
+
+			wg.setSignalSpeed(true);
 			wg.convertHex2Wav(setupData.getInputHexFile() ,setupData.getOutputWavFile());
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
@@ -207,13 +210,25 @@ public class Main_WavBootLoader extends JPanel{
 	{
     	Main_WavBootLoader w=new Main_WavBootLoader();
     	
+    	String property = "java.io.tmpdir";
+    	String tempDir = System.getProperty(property);
+
     	System.out.println("convert hex-file to speaker sound : java -jar AudioBoot.jar testFile.hex");
 		
     	if(args.length>0) // command line arguments: run in shell, do not show window
         {
         	System.out.println("there are "+args.length+"command-line arguments.");
         	for(int i=0;i<args.length;i++) System.out.println("args["+i+"]:"+args[i]);
-        	w.setupData.setInputHexFile(new File(args[0]));     	
+    		File file=new File(args[0]);
+    		String outputFileName=getBaseName( file.getName() )+".wav";
+
+    	    String absolutePath = file.getAbsolutePath();
+    	    String filePath = absolutePath.substring(0,absolutePath.lastIndexOf(File.separator));
+
+        	w.setupData.setInputHexFile(file); 
+
+        	w.setupData.setOutputWavFile(new File(filePath + File.separator + outputFileName));   	
+  	
         	w.convertAndPlayWav();
         }
         else // no command line available arguments, run GUI
