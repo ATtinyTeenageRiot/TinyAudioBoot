@@ -42,8 +42,8 @@ FUSEOPT_t85_DISABLERESET = -U lfuse:w:0xe1:m -U efuse:w:0xfe:m -U hfuse:w:0x5d:m
 
 FUSEOPT = $(FUSEOPT_t85)
 
-ARDUINO_BOARD_CORE = /Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny
-ARDUINO_BOARD_PINS = /Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/variants/tinyX5
+# ARDUINO_BOARD_CORE = /Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/cores/tiny
+# ARDUINO_BOARD_PINS = /Users/xcorex/Library/Arduino15/packages/ATTinyCore/hardware/avr/1.0.6/variants/tinyX5
 ARDUINO_BOARD_INCLUDES = -I$(ARDUINO_BOARD_CORE) -I$(ARDUINO_BOARD_PINS) -I../TinyAudioBoot
 
 # Tools:
