@@ -601,24 +601,24 @@ void a_main()
       {
 
         case PROGCOMMAND:
-          {
+        {
             uint16_t pageNumber = (((uint16_t)FrameData[PAGEINDEXHIGH]) << 8) + FrameData[PAGEINDEXLOW];
-			uint16_t address=SPM_PAGESIZE * pageNumber;
+			      uint16_t address=SPM_PAGESIZE * pageNumber;
 			
             if( address < BOOTLOADER_ADDRESS) // prevent bootloader form self killing
-			{
-				boot_program_page (address, FrameData + DATAPAGESTART);  // erase and program page
-				TOGGLELED;
-			}
-          }
-          break;
+        		{
+        			boot_program_page (address, FrameData + DATAPAGESTART);  // erase and program page
+        			TOGGLELED;
+        		}
+        }
+        break;
 
         case RUNCOMMAND:
-          {
+        {
             // leave bootloader and run program
             runProgramm();
-          }
-          break;
+        }
+        break;
 
         case EEPROMCOMMAND:
         {
@@ -635,24 +635,27 @@ void a_main()
               eeprom_write(address + i, w);
             }
 
+            //Leave bootloader after eeprom signal received
+            //todo: wait until all data sent > spm pagesize
 
+            memcpy_P (&start_appl_main, (PGM_P) BOOTLOADER_FUNC_ADDRESS, sizeof (start_appl_main));
 
-          memcpy_P (&start_appl_main, (PGM_P) BOOTLOADER_FUNC_ADDRESS, sizeof (start_appl_main));
-
-          if (start_appl_main)
-          {
-            cli ();
-            (*start_appl_main) ();
-          }
+            if (start_appl_main)
+            {
+              DDRB = 0;
+              cli();
+              TCCR0B = 0; // turn off timer1
+              (*start_appl_main) ();
+            }
 
         }
         break;
 
         case TESTCOMMAND: // not used yet
-          {
+        {
 
-          }
-          break;
+        }
+        break;
 
       }
       FrameData[COMMAND] = NOCOMMAND; // delete command
