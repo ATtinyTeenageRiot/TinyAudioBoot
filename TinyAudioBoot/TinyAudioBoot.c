@@ -607,7 +607,8 @@ void a_main()
             for (uint8_t i = 0; i < data_length; i++)
             {
               //read received data
-              uint8_t w = *buf; //low section
+              uint8_t w = *buf++; //low section
+              EEPROM.write(address + i, w);
             }
 
         }
