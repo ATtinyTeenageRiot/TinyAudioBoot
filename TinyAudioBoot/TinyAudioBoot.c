@@ -148,10 +148,10 @@
 #include <stdlib.h>
 #include <avr/boot.h>
 #include <avr/pgmspace.h>
-#include "EEPROM.h"
+#include <avr/eeprom.h>
 
 // This value has to be adapted to the bootloader size
-#define BOOTLOADER_ADDRESS     0x1C00               // bootloader start address, e.g. 0x1C00 = 7168, set .text to 0x0E00
+#define BOOTLOADER_ADDRESS     0x1BC0               // bootloader start address, e.g. 0x1C00 = 7168, set .text to 0x0E00
 
 //#define BOOTLOADER_ADDRESS     0x1800                 // bootloader start address, e.g. 0x1800 = 6144, set .text to 0x0c00
 
@@ -269,6 +269,26 @@ void (*start_appl_main) (void);
 #define BOOTLOADER_FUNC_ADDRESS (BOOTLOADER_STARTADDRESS - sizeof (start_appl_main))
 
 uint16_t saved_reset_vector;
+
+
+void eeprom_write(unsigned short address, unsigned char data)
+{
+   while(EECR & (1<<EEPE));
+
+   EECR = (0<<EEPM1) | (0<<EEPM0);
+
+   if (address < 512)
+   {
+      EEAR = address;
+   }else{
+      EEAR = 511;
+   }
+
+   EEDR = data;
+
+   EECR |= (1<<EEMPE);
+   EECR |= (1<<EEPE);  
+}
 
 //***************************************************************************************
 // receiveFrame()
@@ -608,7 +628,8 @@ void a_main()
             {
               //read received data
               uint8_t w = *buf++; //low section
-              EEPROM.write(address + i, w);
+              //EEPROM.write(address + i, w);
+              eeprom_write(0,0);
             }
 
         }
