@@ -90,7 +90,8 @@ all: main.hex
 	$(GCC) $(CPPFLAGS) -S $< -o $@
 
 flash:	all
-	$(AVRDUDE) -U flash:w:main.hex:i
+	$(AVRDUDE) $(FUSEOPT)
+	$(AVRDUDE) -Uflash:w:main.hex:i 
 
 readflash:
 	$(AVRDUDE) -U flash:r:read.hex:i
