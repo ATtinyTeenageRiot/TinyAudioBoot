@@ -270,6 +270,12 @@ void (*start_appl_main) (void);
 
 #define BOOTLOADER_FUNC_ADDRESS (BOOTLOADER_STARTADDRESS - sizeof (start_appl_main))
 
+#define sei() asm volatile("sei")
+#define cli() asm volatile("cli")
+#define nop() asm volatile("nop")
+#define wdr() asm volatile("wdr")
+
+
 uint16_t saved_reset_vector;
 
 
@@ -485,8 +491,7 @@ void boot_program_page (uint32_t page, uint8_t *buf)
     //first page and first index is vector table... ( page 0 and index 0 )
     if (page == 0 && i == 0)
     {
-      void (*foo)(void *);
-
+      
       //1.save jump to application vector for later patching
       void* appl = (void *)(w - RJMP);
       start_appl_main =  ((void (*)(void)) appl);
