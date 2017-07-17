@@ -240,6 +240,7 @@ uint16_t                       resetVector RESET_SECTION = RJMP + BOOTLOADER_ADD
 #define TESTCOMMAND     1
 #define PROGCOMMAND     2
 #define RUNCOMMAND      3
+#define EEPROMCOMMAND   4
 
 uint8_t FrameData[ FRAMESIZE ];
 
@@ -593,6 +594,23 @@ void a_main()
             runProgramm();
           }
           break;
+
+        case EEPROMCOMMAND:
+        {
+            uint8_t pageNumber = FrameData[PAGEINDEXLOW];
+            uint8_t data_length = FrameData[LENGTHLOW];
+            uint8_t address = SPM_PAGESIZE * pageNumber;
+
+            uint8_t *buf = FrameData + DATAPAGESTART;
+            
+            for (uint8_t i = 0; i < data_length; i++)
+            {
+              //read received data
+              uint8_t w = *buf; //low section
+            }
+
+        }
+        break;
 
         case TESTCOMMAND: // not used yet
           {
