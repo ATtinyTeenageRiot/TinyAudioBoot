@@ -148,6 +148,7 @@
 #include <stdlib.h>
 #include <avr/boot.h>
 #include <avr/pgmspace.h>
+#include "EEPROM.h"
 
 // This value has to be adapted to the bootloader size
 #define BOOTLOADER_ADDRESS     0x1C00               // bootloader start address, e.g. 0x1C00 = 7168, set .text to 0x0E00
