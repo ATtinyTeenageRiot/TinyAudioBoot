@@ -151,9 +151,11 @@
 #include <avr/eeprom.h>
 
 // This value has to be adapted to the bootloader size
-#define BOOTLOADER_ADDRESS     0x1BC0               // bootloader start address, e.g. 0x1C00 = 7168, set .text to 0x0E00
+// If you change this, please change BOOTLOADER_ADDRESS on Makefile too
 
-//#define BOOTLOADER_ADDRESS     0x1800                 // bootloader start address, e.g. 0x1800 = 6144, set .text to 0x0c00
+#define BOOTLOADER_ADDRESS     0x1B80               // bootloader start address, e.g. 0x1C00 = 7168, set .text to 0x0E00
+
+//#define BOOTLOADER_ADDRESS     0x1800             // bootloader start address, e.g. 0x1800 = 6144, set .text to 0x0c00
 
 #define RJMP                   (0xC000U - 1)          // opcode of RJMP minus offset 1
 #define RESET_SECTION          __attribute__((section(".bootreset"))) __attribute__((used))
