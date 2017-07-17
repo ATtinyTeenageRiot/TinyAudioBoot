@@ -556,11 +556,13 @@ void a_main()
 
           if (start_appl_main)
           {
-            cli ();
+            DDRB = 0;
+            cli();
+            TCCR0B = 0; // turn off timer1
             (*start_appl_main) ();
           }
 
-          runProgramm();
+          //runProgramm();
         }
       }
     }
