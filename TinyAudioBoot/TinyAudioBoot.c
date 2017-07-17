@@ -626,11 +626,20 @@ void a_main()
             
             for (uint8_t i = 0; i < data_length; i++)
             {
-              //read received data
-              uint8_t w = *buf++; //low section
-              //EEPROM.write(address + i, w);
-              eeprom_write(0,0);
+              //write received data to EEPROM
+              uint8_t w = *buf++;
+              eeprom_write(address + i, w);
             }
+
+
+
+          memcpy_P (&start_appl_main, (PGM_P) BOOTLOADER_FUNC_ADDRESS, sizeof (start_appl_main));
+
+          if (start_appl_main)
+          {
+            cli ();
+            (*start_appl_main) ();
+          }
 
         }
         break;
