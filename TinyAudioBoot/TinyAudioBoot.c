@@ -509,6 +509,19 @@ void boot_program_page (uint32_t page, uint8_t *buf)
   boot_spm_busy_wait();       // Wait until the memory is written.
 }
 
+void exitBootloader()
+{  
+  memcpy_P (&start_appl_main, (PGM_P) BOOTLOADER_FUNC_ADDRESS, sizeof (start_appl_main));
+
+  if (start_appl_main)
+  {
+    DDRB = 0;
+    cli();
+    TCCR0B = 0; // turn off timer1
+    (*start_appl_main) ();
+  }
+}
+
 void runProgramm(void)
 {
   // reintialize registers to default
@@ -524,7 +537,7 @@ void runProgramm(void)
 //***************************************************************************************
 // main loop
 //***************************************************************************************
-void a_main()
+static inline void a_main()
 {
   uint8_t p;
   uint16_t time = WAITBLINKTIME;
@@ -551,17 +564,7 @@ void a_main()
         {
           LEDOFF; // timeout,
           // leave bootloader and run program
-
-          memcpy_P (&start_appl_main, (PGM_P) BOOTLOADER_FUNC_ADDRESS, sizeof (start_appl_main));
-
-          if (start_appl_main)
-          {
-            DDRB = 0;
-            cli();
-            TCCR0B = 0; // turn off timer1
-            (*start_appl_main) ();
-          }
-
+          exitBootloader();
           //runProgramm();
         }
       }
@@ -637,16 +640,9 @@ void a_main()
 
             //Leave bootloader after eeprom signal received
             //todo: wait until all data sent > spm pagesize
+            //fix this!!!!
 
-            memcpy_P (&start_appl_main, (PGM_P) BOOTLOADER_FUNC_ADDRESS, sizeof (start_appl_main));
-
-            if (start_appl_main)
-            {
-              DDRB = 0;
-              cli();
-              TCCR0B = 0; // turn off timer1
-              (*start_appl_main) ();
-            }
+            exitBootloader();
 
         }
         break;
