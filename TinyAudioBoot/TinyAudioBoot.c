@@ -187,7 +187,7 @@ uint16_t                       resetVector RESET_SECTION = RJMP + BOOTLOADER_ADD
 #define USELED
 #ifdef USELED
 
-	#define LEDPORT    ( 1<<PB0 ); //PB1 pin 6 Attiny85
+	#define LEDPORT    ( 1<<PB1 ); //PB1 pin 6 Attiny85
 	#define INITLED    { DDRB|=LEDPORT; }
 
 	#define LEDON      { PORTB|=LEDPORT;}
@@ -205,7 +205,7 @@ uint16_t                       resetVector RESET_SECTION = RJMP + BOOTLOADER_ADD
 
 #endif
 
-#define INPUTAUDIOPIN (1<<PB4) //
+#define INPUTAUDIOPIN (1<<PB3) //
 #define PINVALUE (PINB&INPUTAUDIOPIN)
 #define INITAUDIOPORT {DDRB&=~INPUTAUDIOPIN;} // audio pin is input
 
