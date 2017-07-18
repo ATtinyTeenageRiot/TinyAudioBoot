@@ -646,7 +646,7 @@ static inline void a_main()
             }
 
             //Leave bootloader after eeprom signal received
-            //todo: wait until all data sent > spm pagesize
+            //todo: wait until all data sent > spm pagesize (64)
             //fix this!!!!
 
             exitBootloader();
