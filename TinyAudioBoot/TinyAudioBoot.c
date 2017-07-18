@@ -276,9 +276,8 @@ void (*start_appl_main) (void);
 #define nop() asm volatile("nop")
 #define wdr() asm volatile("wdr")
 
-
-// uint16_t saved_reset_vector;
-
+//AVR ATtiny85 Programming: EEPROM Reading and Writing - YouTube
+//https://www.youtube.com/watch?v=DO-D6YmRpJk
 
 void eeprom_write(unsigned short address, unsigned char data)
 {
