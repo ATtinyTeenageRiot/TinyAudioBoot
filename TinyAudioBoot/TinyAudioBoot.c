@@ -276,7 +276,7 @@ void (*start_appl_main) (void);
 #define wdr() asm volatile("wdr")
 
 
-uint16_t saved_reset_vector;
+// uint16_t saved_reset_vector;
 
 
 void eeprom_write(unsigned short address, unsigned char data)
@@ -499,11 +499,11 @@ void boot_program_page (uint32_t page, uint8_t *buf)
       //2.replace w with jump vector to bootloader
       w = 0xC000 + (BOOTLOADER_ADDRESS / 2) - 1;
     }
-    else if (page == LAST_PAGE && i == 60)
-    {
+    // else if (page == LAST_PAGE && i == 60)
+    // {
       //3.retrieve saved reset vector
-      w = saved_reset_vector;
-    }
+      // w = saved_reset_vector;
+    // }
 
     boot_page_fill (page + i, w);
     boot_spm_busy_wait();       // Wait until the memory is written.
@@ -514,15 +514,20 @@ void boot_program_page (uint32_t page, uint8_t *buf)
   boot_spm_busy_wait();       // Wait until the memory is written.
 }
 
+void resetRegister()
+{
+    DDRB = 0;
+    cli();
+    TCCR0B = 0; // turn off timer1
+}
+
 void exitBootloader()
 {  
   memcpy_P (&start_appl_main, (PGM_P) BOOTLOADER_FUNC_ADDRESS, sizeof (start_appl_main));
 
   if (start_appl_main)
   {
-    DDRB = 0;
-    cli();
-    TCCR0B = 0; // turn off timer1
+    resetRegister();
     (*start_appl_main) ();
   }
 }
@@ -530,9 +535,7 @@ void exitBootloader()
 void runProgramm(void)
 {
   // reintialize registers to default
-  DDRB = 0;
-  cli();
-  TCCR0B = 0; // turn off timer1
+  resetRegister();
 
   pgm_write_block (BOOTLOADER_FUNC_ADDRESS, (uint16_t *) &start_appl_main, sizeof (start_appl_main));
 
