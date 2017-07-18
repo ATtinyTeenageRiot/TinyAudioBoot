@@ -573,7 +573,6 @@ static inline void a_main()
           LEDOFF; // timeout,
           // leave bootloader and run program
           exitBootloader();
-          //runProgramm();
         }
       }
     }
@@ -590,7 +589,7 @@ static inline void a_main()
   {
     if (!receiveFrame())
     {
-      //*****  error: blink fast, press reset to restart *******************
+      //*****  if data transfer error: blink fast, press reset to restart *******************
 
       while (1)
       {
@@ -626,7 +625,7 @@ static inline void a_main()
 
         case RUNCOMMAND:
         {
-            // leave bootloader and run program
+            // after programming leave bootloader and run program
             runProgramm();
         }
         break;
