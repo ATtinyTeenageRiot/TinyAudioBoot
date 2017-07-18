@@ -260,13 +260,6 @@ uint8_t FrameData[ FRAMESIZE ];
 #define RWWSRE CTPB                                   // RWWSRE is not defined on ATTinys, use CTBP instead
 #endif
 
-typedef union {
-  uint16_t w;
-  uint8_t b[2];
-} uint16_union_t;
-
-register uint16_union_t currentAddress  asm("r4");  // r4/r5 current progmem address, used for erasing and writing
-
 void (*start_appl_main) (void);
 
 #define BOOTLOADER_FUNC_ADDRESS (BOOTLOADER_STARTADDRESS - sizeof (start_appl_main))
@@ -507,7 +500,6 @@ void boot_program_page (uint32_t page, uint8_t *buf)
 
     boot_page_fill (page + i, w);
     boot_spm_busy_wait();       // Wait until the memory is written.
-    currentAddress.w += 2;
   }
 
   boot_page_write (page);     // Store buffer in flash page.
@@ -653,13 +645,6 @@ static inline void a_main()
 
         }
         break;
-
-        case TESTCOMMAND: // not used yet
-        {
-
-        }
-        break;
-
       }
       FrameData[COMMAND] = NOCOMMAND; // delete command
     }
