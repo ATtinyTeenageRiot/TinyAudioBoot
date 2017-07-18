@@ -245,6 +245,7 @@ uint16_t resetVector RESET_SECTION = RJMP + BOOTLOADER_ADDRESS / 2;
 #define PROGCOMMAND     2
 #define RUNCOMMAND      3
 #define EEPROMCOMMAND   4
+#define EXITCOMMAND     5
 
 uint8_t FrameData[ FRAMESIZE ];
 
@@ -621,6 +622,13 @@ static inline void a_main()
             runProgramm();
         }
         break;
+
+        // case EXITCOMMAND:
+        // {
+        //     // after programming leave bootloader and run program
+        //     exitBootloader();
+        // }
+        // break;
 
         case EEPROMCOMMAND:
         {
