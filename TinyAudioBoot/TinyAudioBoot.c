@@ -82,8 +82,9 @@
   v1.3  20.5.2012 C. -H-A-B-E-R-E-R-  now interrupts of user program are working
   v1.4  05.6.2012 C. -H-A-B-E-R-E-R-  signal coding changed to differential manchester code
   v2.0  13.6.2012 C. -H-A-B-E-R-E-R-  setup for various MCs
-  v3.0  30.1.2017 B. -P-r-a-k-o-s-a   first version of Attiny85 Audio Bootloader
+  v3.0  30.1.2017 B. -P-r-a-k-o-s-a-  first version of Attiny85 Audio Bootloader
   v3.1  04.2.2017 C. -H-A-B-E-R-E-R-  clean reset vector added, description added, pins rerouted
+  v3.2  18.7.2017 C. -P-r-a-k-o-s-a-  various refactor, added eeprom write mode, makefile for compiling using arduino ide toolchain
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -163,7 +164,7 @@
 // this variable seems to be unused
 // but in fact it is written into the flash section
 // you could find it in the *.hex file
-uint16_t                       resetVector RESET_SECTION = RJMP + BOOTLOADER_ADDRESS / 2;
+uint16_t resetVector RESET_SECTION = RJMP + BOOTLOADER_ADDRESS / 2;
 
 #ifdef DEBUGON
 
